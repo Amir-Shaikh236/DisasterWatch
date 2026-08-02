@@ -43,7 +43,7 @@ const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password +refreshTokens");
 
     if (!user || !(await user.matchPassword(password)))
-      return next(new AppError(401, "incorrect email or password"));
+      return next(new AppError(401, "Incorrect email or password"));
 
     const { accessToken, refreshToken } = SignToken(user._id, user.role);
 

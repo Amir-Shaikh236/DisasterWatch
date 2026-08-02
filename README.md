@@ -1,454 +1,354 @@
+<div align="center">
 
-// DisasterWatch Architecture Roadmap
+# 🌍 DisasterWatch
+
+### AI-Powered Real-Time Natural Disaster Alert System
+
+A production-oriented full-stack MERN application that enables users to report, verify, and monitor natural disasters in real time using crowdsourced data, AI-assisted validation, and interactive geospatial visualization.
+
+Designed with scalability, security, maintainability, and modern software engineering practices in mind.
+
+</div>
+
+---
+
+# 📌 Overview
+
+DisasterWatch is a modern disaster management platform built using the MERN stack.
+
+The platform enables communities to report natural disasters in real time while leveraging AI to improve report reliability and reduce misinformation.
+
+The long-term objective is to create a scalable disaster intelligence platform capable of supporting emergency response organizations with timely and verified information.
+
+---
+
+# ✨ Key Features
+
+## Authentication
+
+- Secure JWT Authentication
+- Refresh Token Rotation
+- HTTP-Only Cookies
+- Protected Routes
+- Role Based Access Control (RBAC)
+- Email Verification
+- Forgot Password
+- Reset Password
+
+---
+
+## Disaster Reporting
+
+- Create Disaster Reports
+- Upload Disaster Images
+- Geolocation Support
+- Report Verification
+- Report Status Tracking
+
+---
+
+## AI Features
+
+- NLP-Based Disaster Classification
+- Image-Based Disaster Detection
+- Confidence Scoring
+- Duplicate Report Detection
+- AI-Assisted Report Verification
+
+---
+
+## Dashboard
+
+- Live Disaster Feed
+- Interactive Maps
+- Report Analytics
+- Filter by Disaster Type
+- Search Reports
+
+---
+
+## Notifications
+
+- Email Notifications
+- In-App Alerts
+- Real-Time Updates
+
+---
+
+# 🌪 Supported Disaster Types
+
+- 🌍 Earthquake
+- 🌊 Flood
+- 🔥 Wildfire
+- ⛰️ Landslide
+
+---
+
+# 🏗 Tech Stack
+
+## Frontend
+
+- React
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- shadcn/ui
+
+---
+
+## Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+
+---
+
+## Authentication
+
+- JWT
+- HTTP Only Cookies
+- bcrypt
+
+---
+
+## Testing
+
+- Vitest
+- React Testing Library
+- Playwright
+- MSW
+- Supertest
+
+---
+
+## DevOps
+
+- GitHub Actions
+- Docker (Planned)
+- CodeQL
+- Dependency Review
+
+---
+
+# 📂 Project Structure
+
+```text
 DisasterWatch
 │
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml
-│   │   ├── cd-staging.yml
-│   │   ├── cd-production.yml
-│   │   ├── dependency-review.yml
-│   │   ├── codeql.yml
-│   │   ├── release.yml
-│   │   └── cleanup.yml
-│   │
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   ├── feature_request.md
-│   │   └── security_report.md
-│   │
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── CODEOWNERS
+├── Backend
+├── Frontend
+├── Docs
+├── .github
+│   ├── workflows
+│   ├── ISSUE_TEMPLATE
+│   └── PULL_REQUEST_TEMPLATE.md
 │
-├── Backend/
-├── Frontend/
-├── Docs/
-├── Scripts/
-├── docker/
-├── .husky/
-├── .vscode/
+├── docker
+├── Scripts
 └── README.md
+```
 
+---
 
+# 🔒 Security
 
-Backend
-│
-├── src
-│   ├── config
-│   │   ├── db.js
-│   │   ├── env.js
-│   │   ├── logger.js
-│   │   └── redis.js
-│   │
-│   ├── routes
-│   ├── controllers
-│   ├── services
-│   ├── repositories
-│   ├── models
-│   ├── middleware
-│   ├── validators
-│   ├── policies
-│   ├── utils
-│   ├── events
-│   ├── sockets
-│   ├── ai
-│   ├── jobs
-│   ├── uploads
-│   ├── mail
-│   ├── constants
-│   ├── types
-│   └── app.js
-│
-├── tests
-│   ├── unit
-│   ├── integration
-│   ├── fixtures
-│   └── helpers
-│
-├── server.js
-└── package.json
+Security is treated as a first-class concern throughout the application.
 
+## Authentication Security
 
-Frontend
-│
-├── src
-│   ├── api
-│   ├── app
-│   ├── assets
-│   ├── auth
-│   ├── components
-│   │
-│   ├── features
-│   │
-│   ├── hooks
-│   ├── layouts
-│   ├── lib
-│   ├── pages
-│   ├── providers
-│   ├── routes
-│   ├── services
-│   ├── store
-│   ├── styles
-│   ├── utils
-│   ├── validations
-│   └── main.jsx
-│
-├── e2e
-├── tests
-└── package.json
+- JWT Access Tokens
+- Refresh Token Rotation
+- HTTP-Only Cookies
+- Secure Password Hashing
+- Token Expiration
 
+---
 
-// Documentation
-Docs
-│
-├── Architecture
-├── API
-├── Database
-├── Security
-├── Deployment
-├── Testing
-├── ADR
-└── Images
+## Application Security
 
+- Helmet
+- CORS Protection
+- Rate Limiting
+- Input Validation
+- MongoDB Injection Prevention
+- XSS Protection
+- CSRF Protection
+- Environment Variable Management
 
+---
 
-// GitHub Flow
+## Code Security
+
+- GitHub CodeQL
+- Dependency Review
+- npm Audit
+- Secret Scanning
+
+---
+
+# 🧪 Testing Strategy
+
+The project follows the Testing Pyramid.
+
+```text
+                Playwright
+             End-to-End Tests
+
+         Integration Tests
+
+      Unit & Component Tests
+```
+
+### Backend
+
+- Unit Tests
+- Integration Tests
+- API Tests
+
+### Frontend
+
+- Component Tests
+- UI Tests
+- MSW Mock Testing
+
+### End-to-End
+
+- Complete User Flows
+- Authentication
+- Disaster Reporting
+- Dashboard Navigation
+
+---
+
+# 🚀 CI/CD
+
+The project uses GitHub Actions.
+
+Current workflow includes:
+
+- Backend Testing
+- Frontend Testing
+- Playwright E2E Testing
+- Build Validation
+
+Planned workflows:
+
+- Continuous Deployment
+- CodeQL Security Analysis
+- Dependency Review
+- Release Automation
+
+---
+
+# 📈 Development Workflow
+
+```text
 Create Feature Branch
         │
         ▼
-Code
+Develop Feature
         │
         ▼
-Local Tests
+Unit Tests
         │
         ▼
-Commit
+Integration Tests
         │
         ▼
-Push
+Playwright Tests
         │
         ▼
-Open Pull Request
+Pull Request
         │
         ▼
-GitHub Actions CI
-        │
- ┌──────┼─────────┐
- │      │         │
- ▼      ▼         ▼
-Lint   Tests   Security
- │      │         │
- ▼      ▼         ▼
-Coverage Build CodeQL
+GitHub Actions
         │
         ▼
-Review
+Code Review
         │
         ▼
 Merge
-        │
-        ▼
-CD
+```
 
+---
 
+# 📖 Documentation
 
+Project documentation will include:
 
+- Architecture
+- API Documentation
+- Database Design
+- Security Guide
+- Deployment Guide
+- Testing Guide
 
-// CI Pipeline
-Checkout
+---
 
-↓
+# 🎯 Roadmap
 
-Install Backend
+### Phase 1
 
-↓
+- Authentication
+- User Management
+- RBAC
 
-Install Frontend
+### Phase 2
 
-↓
+- Disaster Reporting
+- Maps
+- Dashboard
 
-ESLint
+### Phase 3
 
-↓
+- AI Classification
+- Image Analysis
+- Verification Engine
 
-Prettier Check
+### Phase 4
 
-↓
+- Notifications
+- Analytics
+- Performance Optimization
 
-Backend Unit Tests
+### Phase 5
 
-↓
+- Docker
+- Kubernetes
+- Monitoring
+- Production Deployment
 
-Backend Integration Tests
+---
 
-↓
+# 🤝 Contributing
 
-Frontend Unit Tests
+Contributions, ideas, and feedback are welcome.
 
-↓
+Please read the contribution guidelines before opening issues or pull requests.
 
-React Testing Library
+---
 
-↓
+# ⭐ Support
 
-Playwright
+If you find this project useful, consider giving it a ⭐ on GitHub.
 
-↓
+---
 
-Coverage
+# 👨‍💻 Author
 
-↓
+**Amir Shaikh**
 
-Build Backend
+Computer Science Graduate
 
-↓
+Full Stack Developer
 
-Build Frontend
+Building secure, scalable, and production-ready web applications.
 
-↓
+---
 
-Upload Artifacts
+# 📜 License
 
-
-
-
-// CD Pipeline
-Checkout
-
-↓
-
-Build
-
-↓
-
-Docker Build
-
-↓
-
-Push Docker Image
-
-↓
-
-Deploy Backend
-
-↓
-
-Deploy Frontend
-
-↓
-
-Smoke Test
-
-↓
-
-Notify Success
-
-
-
-// Security Pipeline
-
-Dependency Review
-
-↓
-
-npm audit
-
-↓
-
-CodeQL
-
-↓
-
-Secret Scan
-
-↓
-
-License Check
-
-
-
-// Quality Pipeline
-ESLint
-
-↓
-
-Prettier
-
-↓
-
-Type Checking
-
-↓
-
-Unused Exports
-
-↓
-
-Unused Dependencies
-
-↓
-
-Circular Dependencies
-
-
-
-// Security Layer
-Helmet
-
-↓
-
-Rate Limiter
-
-↓
-
-CORS
-
-↓
-
-Input Validation
-
-↓
-
-Mongo Sanitization
-
-↓
-
-XSS Protection
-
-↓
-
-CSRF
-
-↓
-
-RBAC
-
-↓
-
-Audit Logs
-
-↓
-
-Refresh Tokens
-
-↓
-
-HTTP-only Cookies
-
-
-
-
-✓ Authentication
-
-✓ Authorization (RBAC)
-
-✓ Email Verification
-
-✓ Password Reset
-
-✓ MFA (Optional)
-
-✓ Logging
-
-✓ Monitoring
-
-✓ Error Handling
-
-✓ API Documentation
-
-✓ Docker
-
-✓ CI
-
-✓ CD
-
-✓ Security
-
-✓ Unit Tests
-
-✓ Integration Tests
-
-✓ E2E Tests
-
-✓ Swagger/OpenAPI
-
-✓ Performance Testing
-
-✓ Load Testing
-
-✓ Accessibility
-
-✓ Responsive Design
-
-✓ Lighthouse
-
-✓ SEO (if applicable)
-
-
-
-
-Crowdsourced Report
-
-↓
-
-Validation
-
-↓
-
-Image Analysis
-
-↓
-
-NLP Classification
-
-↓
-
-Confidence Score
-
-↓
-
-Store
-
-↓
-
-Notify
-
-↓
-
-Dashboard
-
-
-
-
-
-1. Design
-      ↓
-2. Database Schema
-      ↓
-3. API Contract
-      ↓
-4. Validation Rules
-      ↓
-5. Backend Implementation
-      ↓
-6. Backend Unit Tests
-      ↓
-7. Frontend Components
-      ↓
-8. Frontend Unit Tests
-      ↓
-9. Integration Testing
-      ↓
-10. Playwright E2E
-      ↓
-11. Documentation
-      ↓
-12. Pull Request
-      ↓
-13. CI Checks Pass
-      ↓
-14. Code Review
-      ↓
-15. Merge to main
-      ↓
-16. Automatic Deployment
+This project is licensed under the MIT License.
