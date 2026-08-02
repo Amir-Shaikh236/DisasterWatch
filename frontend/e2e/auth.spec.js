@@ -32,6 +32,16 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     });
 
     test.beforeEach(async ({ page }) => {
+        page.on('response', async (res) => {
+            if (res.request().method() === 'POST' && res.url().includes('/login')) {
+                console.log('LOGIN STATUS:', res.status());
+                try {
+                    console.log('LOGIN BODY:', await res.text());
+                } catch (e) {
+                    console.log('Could not read body:', e.message);
+                }
+            }
+        });
         await page.goto('/');
 
         await page.evaluate(() => {
