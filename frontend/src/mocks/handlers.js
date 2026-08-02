@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export const handlers = [
 
-    http.post(`${BASE_URL}/api/auth/login`, async ({ request }) => {
+    http.post(`*/api/auth/login`, async ({ request }) => {
         const { email, password } = await request.json();
 
         if (email === "amir.shaikh@disasterwatch.io" && password === "SecurePassword123!") {
@@ -23,7 +23,7 @@ export const handlers = [
         );
     }),
 
-    http.post(`${BASE_URL}/api/auth/refresh`, ({ cookies }) => {
+    http.post(`*/api/auth/refresh`, ({ cookies }) => {
 
         const clientRefreshToken = cookies.refreshToken;
 

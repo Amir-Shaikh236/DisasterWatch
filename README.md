@@ -1,288 +1,454 @@
-# 🔐 Complete Authentication System
 
-A **production-ready full-stack authentication system** built with **React, Node.js, Express, and MongoDB**, following modern security best practices, clean architecture principles, and comprehensive automated testing.
-
-Designed to demonstrate how authentication should be implemented in real-world applications with secure session management, refresh token rotation, protected routes, robust validation, and complete test coverage.
-
----
-
-# ✨ Features
-
-## 🔐 Authentication
-
-* User Registration
-* Secure Login
-* Logout
-* Refresh Token Rotation
-* Persistent Authentication
-* Protected Routes
-* Role-ready Authentication Architecture
-* JWT Access Tokens
-* HttpOnly Refresh Token Cookies
-* Automatic Token Refresh
-* Session Expiration Handling
-* Secure Password Hashing using bcrypt
-
----
-
-# 🛡️ Security Features
-
-Security was treated as a first-class requirement throughout the application.
-
-* Refresh Token Rotation
-* Refresh Token Reuse Detection
-* Automatic Session Revocation
-* HttpOnly Cookies
-* SameSite=Strict Cookies
-* Secure Cookie Support
-* Password Hashing (bcrypt)
-* CORS Protection
-* Helmet Security Headers
-* Input Validation
-* Request Sanitization
-* Authentication Middleware
-* Protected API Endpoints
-* Secure Logout
-* Environment Variable Configuration
-* Password Masking
-* JWT Verification
-
----
-
-# 🏗️ Architecture
-
-## Backend
-
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* ES Modules
-* REST API Architecture
-* Layered Folder Structure
-* Middleware-based Authentication
-* Centralized Error Handling
-* Environment Configuration
-* Clean Controller-Service Pattern
-
----
-
-## Frontend
-
-* React
-* Vite
-* React Router
-* React Hook Form
-* Zod Validation
-* Axios
-* Tailwind CSS
-* shadcn/ui
-* Context API
-* Protected Routes
-* Responsive Design
-* Accessible Components
-
----
-
-# 🧪 Testing
-
-This project includes comprehensive automated testing to ensure reliability and production readiness.
-
-## Backend Testing
-
-* Vitest
-* Supertest
-* MongoDB Memory Server
-* Integration Testing
-* Authentication Flow Testing
-* API Validation Testing
-* Database Isolation
-* Fast In-Memory Testing
-
----
-
-## Frontend Testing
-
-* Vitest
-* React Testing Library
-* Component Testing
-* Form Validation Testing
-* Authentication Flow Testing
-* UI Rendering Tests
-* User Interaction Testing
-
----
-
-## End-to-End Testing
-
-* Playwright
-* Complete User Authentication Flow
-* Registration
-* Login
-* Logout
-* Protected Routes
-* Token Refresh
-* Navigation Testing
-
----
-
-# 🚀 Tech Stack
-
-| Category        | Technologies                                         |
-| --------------- | ---------------------------------------------------- |
-| Frontend        | React, Vite, Tailwind CSS, shadcn/ui                 |
-| Backend         | Node.js, Express.js                                  |
-| Database        | MongoDB, Mongoose                                    |
-| Authentication  | JWT, HttpOnly Cookies, Refresh Tokens                |
-| Validation      | React Hook Form, Zod                                 |
-| Testing         | Vitest, React Testing Library, Supertest, Playwright |
-| Package Manager | npm                                                  |
-
----
-
-# 📂 Project Structure
-
-```text
-Complete_Authentication/
+// DisasterWatch Architecture Roadmap
+DisasterWatch
 │
-├── Frontend/
-│   ├── src/
-│   ├── public/
-│   ├── tests/
-│   └── ...
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   ├── cd-staging.yml
+│   │   ├── cd-production.yml
+│   │   ├── dependency-review.yml
+│   │   ├── codeql.yml
+│   │   ├── release.yml
+│   │   └── cleanup.yml
+│   │
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── feature_request.md
+│   │   └── security_report.md
+│   │
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── CODEOWNERS
 │
 ├── Backend/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   ├── tests/
-│   └── ...
-│
+├── Frontend/
+├── Docs/
+├── Scripts/
+├── docker/
+├── .husky/
+├── .vscode/
 └── README.md
-```
-
----
-
-# ⚙️ Getting Started
-
-## Prerequisites
-
-* Node.js 18+
-* npm 9+
-* MongoDB Atlas (or local MongoDB)
-
----
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/your-username/Complete_Authentication.git
-
-cd Complete_Authentication
-```
-
----
-
-# Backend Setup
-
-```bash
-cd Backend
-
-npm install
-
-cp .env.example .env
-```
-
-Configure your `.env` file.
-
-Run the backend:
-
-```bash
-npm run dev
-```
-
-Run backend tests:
-
-```bash
-npm run test
-```
-
----
-
-# Frontend Setup
-
-```bash
-cd Frontend
-
-npm install
-```
-
-Run the frontend:
-
-```bash
-npm run dev
-```
-
-Run frontend tests:
-
-```bash
-npm run test
-```
-
-Run coverage:
-
-```bash
-npm run coverage
-```
-
----
-
-# End-to-End Tests
-
-```bash
-npm run test:e2e
-```
-
----
 
 
-# 📈 Project Highlights
 
-* ✅ Production-ready Authentication
-* ✅ Modern React + Vite Architecture
-* ✅ Secure JWT Authentication
-* ✅ Refresh Token Rotation
-* ✅ Refresh Token Reuse Detection
-* ✅ HttpOnly Cookie Authentication
-* ✅ Complete Automated Testing
-* ✅ Responsive UI
-* ✅ Accessible Components
-* ✅ Clean Code Architecture
-* ✅ Modern Developer Experience
+Backend
+│
+├── src
+│   ├── config
+│   │   ├── db.js
+│   │   ├── env.js
+│   │   ├── logger.js
+│   │   └── redis.js
+│   │
+│   ├── routes
+│   ├── controllers
+│   ├── services
+│   ├── repositories
+│   ├── models
+│   ├── middleware
+│   ├── validators
+│   ├── policies
+│   ├── utils
+│   ├── events
+│   ├── sockets
+│   ├── ai
+│   ├── jobs
+│   ├── uploads
+│   ├── mail
+│   ├── constants
+│   ├── types
+│   └── app.js
+│
+├── tests
+│   ├── unit
+│   ├── integration
+│   ├── fixtures
+│   └── helpers
+│
+├── server.js
+└── package.json
 
----
 
-# 🎯 Learning Outcomes
+Frontend
+│
+├── src
+│   ├── api
+│   ├── app
+│   ├── assets
+│   ├── auth
+│   ├── components
+│   │
+│   ├── features
+│   │
+│   ├── hooks
+│   ├── layouts
+│   ├── lib
+│   ├── pages
+│   ├── providers
+│   ├── routes
+│   ├── services
+│   ├── store
+│   ├── styles
+│   ├── utils
+│   ├── validations
+│   └── main.jsx
+│
+├── e2e
+├── tests
+└── package.json
 
-This project demonstrates practical implementation of:
 
-* Authentication & Authorization
-* Secure Session Management
-* REST API Development
-* Modern React Patterns
-* Form Validation
-* API Security
-* Automated Testing
-* End-to-End Testing
-* Component Testing
-* Integration Testing
-* Production-ready Project Structure
+// Documentation
+Docs
+│
+├── Architecture
+├── API
+├── Database
+├── Security
+├── Deployment
+├── Testing
+├── ADR
+└── Images
 
----
 
-# 📄 License
 
-This project is intended for educational, portfolio, and demonstration purposes.
+// GitHub Flow
+Create Feature Branch
+        │
+        ▼
+Code
+        │
+        ▼
+Local Tests
+        │
+        ▼
+Commit
+        │
+        ▼
+Push
+        │
+        ▼
+Open Pull Request
+        │
+        ▼
+GitHub Actions CI
+        │
+ ┌──────┼─────────┐
+ │      │         │
+ ▼      ▼         ▼
+Lint   Tests   Security
+ │      │         │
+ ▼      ▼         ▼
+Coverage Build CodeQL
+        │
+        ▼
+Review
+        │
+        ▼
+Merge
+        │
+        ▼
+CD
+
+
+
+
+
+// CI Pipeline
+Checkout
+
+↓
+
+Install Backend
+
+↓
+
+Install Frontend
+
+↓
+
+ESLint
+
+↓
+
+Prettier Check
+
+↓
+
+Backend Unit Tests
+
+↓
+
+Backend Integration Tests
+
+↓
+
+Frontend Unit Tests
+
+↓
+
+React Testing Library
+
+↓
+
+Playwright
+
+↓
+
+Coverage
+
+↓
+
+Build Backend
+
+↓
+
+Build Frontend
+
+↓
+
+Upload Artifacts
+
+
+
+
+// CD Pipeline
+Checkout
+
+↓
+
+Build
+
+↓
+
+Docker Build
+
+↓
+
+Push Docker Image
+
+↓
+
+Deploy Backend
+
+↓
+
+Deploy Frontend
+
+↓
+
+Smoke Test
+
+↓
+
+Notify Success
+
+
+
+// Security Pipeline
+
+Dependency Review
+
+↓
+
+npm audit
+
+↓
+
+CodeQL
+
+↓
+
+Secret Scan
+
+↓
+
+License Check
+
+
+
+// Quality Pipeline
+ESLint
+
+↓
+
+Prettier
+
+↓
+
+Type Checking
+
+↓
+
+Unused Exports
+
+↓
+
+Unused Dependencies
+
+↓
+
+Circular Dependencies
+
+
+
+// Security Layer
+Helmet
+
+↓
+
+Rate Limiter
+
+↓
+
+CORS
+
+↓
+
+Input Validation
+
+↓
+
+Mongo Sanitization
+
+↓
+
+XSS Protection
+
+↓
+
+CSRF
+
+↓
+
+RBAC
+
+↓
+
+Audit Logs
+
+↓
+
+Refresh Tokens
+
+↓
+
+HTTP-only Cookies
+
+
+
+
+✓ Authentication
+
+✓ Authorization (RBAC)
+
+✓ Email Verification
+
+✓ Password Reset
+
+✓ MFA (Optional)
+
+✓ Logging
+
+✓ Monitoring
+
+✓ Error Handling
+
+✓ API Documentation
+
+✓ Docker
+
+✓ CI
+
+✓ CD
+
+✓ Security
+
+✓ Unit Tests
+
+✓ Integration Tests
+
+✓ E2E Tests
+
+✓ Swagger/OpenAPI
+
+✓ Performance Testing
+
+✓ Load Testing
+
+✓ Accessibility
+
+✓ Responsive Design
+
+✓ Lighthouse
+
+✓ SEO (if applicable)
+
+
+
+
+Crowdsourced Report
+
+↓
+
+Validation
+
+↓
+
+Image Analysis
+
+↓
+
+NLP Classification
+
+↓
+
+Confidence Score
+
+↓
+
+Store
+
+↓
+
+Notify
+
+↓
+
+Dashboard
+
+
+
+
+
+1. Design
+      ↓
+2. Database Schema
+      ↓
+3. API Contract
+      ↓
+4. Validation Rules
+      ↓
+5. Backend Implementation
+      ↓
+6. Backend Unit Tests
+      ↓
+7. Frontend Components
+      ↓
+8. Frontend Unit Tests
+      ↓
+9. Integration Testing
+      ↓
+10. Playwright E2E
+      ↓
+11. Documentation
+      ↓
+12. Pull Request
+      ↓
+13. CI Checks Pass
+      ↓
+14. Code Review
+      ↓
+15. Merge to main
+      ↓
+16. Automatic Deployment

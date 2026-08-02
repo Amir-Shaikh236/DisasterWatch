@@ -27,6 +27,7 @@ beforeAll(async () => {
     process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_999';
     await connectTestDB();
 });
+
 afterAll(async () => await disconnectTestDB());
 
 describe("POST /api/auth/login Security & Flow Verification..", () => {
@@ -34,14 +35,13 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
     const testUser = {
         firstName: "Amir",
         lastName: "Asgar",
-        email: "amir.shaikh@disasterwatch.io", // Normalized casing to match query structures
+        email: "amir.shaikh@disasterwatch.io",
         password: 'Miyabhai_01'
     };
 
     beforeEach(async () => {
         await clearTestDB();
 
-        // FIX FOR BUG 1: Hydrate the document instance with an explicit array 
         // to prevent controller structural undefined array crashes during testing
         const createdUser = new User(testUser);
         createdUser.refreshTokens = [];
@@ -85,6 +85,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
     });
 
     it("should detect Compromised token reuse and wipe all user refresh sessions", async () => {
+
         // Step 1: Login to generate a valid refresh token
         const loginRes = await request(app)
             .post("/api/auth/login")
@@ -98,7 +99,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
             .set("Cookie", validCookie)
             .expect(200);
 
-        // Step 3: Attempt to reuse the OLD token (simulating an attacker stealing it)
+        //Step 3: Attempt to reuse the OLD token (simulating an attacker stealing it)
         const attackRes = await request(app)
             .post("/api/auth/refresh")
             .set("Cookie", validCookie)
