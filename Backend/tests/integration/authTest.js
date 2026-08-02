@@ -80,7 +80,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
             .expect(401);
 
         expect(response.body.status).toBe('fail');
-        expect(response.body.message).toBe("incorrect email or password");
+        expect(response.body.message).toBe("Incorrect email or password");
         expect(response.headers["set-cookie"]).toBeUndefined();
     });
 
