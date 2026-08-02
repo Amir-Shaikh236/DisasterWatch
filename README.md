@@ -348,7 +348,3 @@ Full Stack Developer
 Building secure, scalable, and production-ready web applications.
 
 ---
-
-# 📜 License
-
-This project is licensed under the MIT License.

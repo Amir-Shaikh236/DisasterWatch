@@ -7,9 +7,7 @@ import User from "../../models/User.js"
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 import AppError from '../../utils/AppError.js';
 
-// =========================================================================
 // ANTI-LEAK: mock config/db instead of mutating it (ESM exports are read-only)
-// =========================================================================
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
         console.log('🛡️  Test Runner: Bypassed production cloud cluster leak.');

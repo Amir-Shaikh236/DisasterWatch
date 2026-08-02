@@ -1,20 +1,26 @@
 import { test, expect } from "@playwright/test"
 
 test.describe('End-To-End EnterPrise Authentication Gateway', () => {
-    const testUser = {
-        email: 'amir.shaikh@disasterwatch.io',
-        password: 'SecurePassword123!',
-        firstName: 'Admin',
-        lastName: 'User'
-    };
+    const backendBaseURL = 'http://localhost:5000';
 
-    test.beforeAll(async ({ request }) => {
-        const backendBaseURL = 'http://localhost:5000';
+    let testUser;
 
+    const clearAll = async (request) => {
         await request.post(`${backendBaseURL}/api/auth/deleteUser`, {
             data: { email: testUser.email },
             failOnStatusCode: false,
         });
+    };
+
+    test.beforeAll(async ({ request }) => {
+        testUser = {
+            email: `e2e.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            password: 'SecurePassword123!',
+            firstName: 'Admin',
+            lastName: 'User'
+        };
+
+        await clearAll(request);
 
         const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
             data: {
@@ -23,6 +29,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
                 email: testUser.email,
                 password: testUser.password,
             },
+
             failOnStatusCode: false,
         });
 
@@ -31,15 +38,9 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         }
     });
 
-    // test.beforeEach(async ({ page }) => {
-    //     await page.goto('/');
-
-    //     await page.evaluate(() => {
-    //         localStorage.clear();
-    //         sessionStorage.clear();
-    //     });
-    // });
-
+    test.afterAll(async ({ request }) => {
+        await clearAll(request)
+    });
 
     test.beforeEach(async ({ page }) => {
         page.on('response', async (res) => {
@@ -86,10 +87,10 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
-        await page.getByLabel(/email/i).fill('amir.shaikh@disasterwatch.io');
+        await page.getByLabel(/email/i).fill(testUser.email);
 
         // valid password
-        await page.getByLabel(/password/i).fill('SecurePassword123!');
+        await page.getByLabel(/password/i).fill(testUser.password);
 
         // press button
         await page.getByRole('button', { name: 'Login', exact: true }).click();

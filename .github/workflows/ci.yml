@@ -68,7 +68,6 @@ jobs:
           - name: Frontend Build
             run: npm run build
         
-      
     e2e:
         timeout-minutes: 10
         name: Playwright E2E Tests
@@ -101,14 +100,11 @@ jobs:
               working-directory: frontend
               run: npm ci
 
-
-
-              # Install Playwright
+            # Install Playwright
             - name: Install Playwright Browsers
               working-directory: frontend
               run: npx playwright install --with-deps
 
-          
             # Run Playwright
             - name: Run Playwright
               working-directory: frontend

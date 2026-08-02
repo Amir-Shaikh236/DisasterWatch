@@ -1,7 +1,5 @@
 import { http, HttpResponse } from 'msw'
 
-// const BASE_URL = import.meta.env.VITE_API_URL || '';
-
 export const handlers = [
 
     http.post(`*/api/auth/login`, async ({ request }) => {
