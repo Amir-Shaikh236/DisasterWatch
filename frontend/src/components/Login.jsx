@@ -69,7 +69,7 @@ export default function Login() {
                 const { user } = response.data;
                 return `Logged in successfully, ${user?.firstName} ${user?.lastName}!`;
             },
-            error: (error) => error.response?.data?.message || "Invalid credentials",
+            error: (error) => error.response?.data?.message || "Incorrect email or password",
         });
 
         const response = await loginPromise;
