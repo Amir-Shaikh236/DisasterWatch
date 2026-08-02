@@ -42,6 +42,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
                 }
             }
         });
+
         await page.goto('/');
 
         await page.evaluate(() => {
