@@ -43,19 +43,21 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     });
 
     test.beforeEach(async ({ page }) => {
-        page.on('response', async (res) => {
-            if (res.request().method() === 'POST') {
-                console.log('POST →', res.url(), 'STATUS:', res.status());
-            }
-        });
+        // These just for debugging errors while testing
 
-        page.on('requestfailed', (req) => {
-            console.log('REQUEST FAILED →', req.url(), req.failure()?.errorText);
-        });
+        // page.on('response', async (res) => {
+        //     if (res.request().method() === 'POST') {
+        //         console.log('POST →', res.url(), 'STATUS:', res.status());
+        //     }
+        // });
 
-        page.on('console', (msg) => {
-            if (msg.type() === 'error') console.log('BROWSER CONSOLE ERROR:', msg.text());
-        });
+        // page.on('requestfailed', (req) => {
+        //     console.log('REQUEST FAILED →', req.url(), req.failure()?.errorText);
+        // });
+
+        // page.on('console', (msg) => {
+        //     if (msg.type() === 'error') console.log('BROWSER CONSOLE ERROR:', msg.text());
+        // });
 
         await page.goto('/');
         await page.evaluate(() => {

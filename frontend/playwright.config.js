@@ -71,7 +71,7 @@ export default defineConfig({
                 ...process.env,
                 NODE_ENV: 'test',
                 PORT: '5000',
-                MONGO_URI: process.env.MONGO_URI || "",
+                TEST_MONGO_URI: process.env.TEST_MONGO_URI || "",
                 FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
             },
         },
