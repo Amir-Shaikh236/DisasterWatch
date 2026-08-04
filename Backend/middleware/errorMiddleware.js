@@ -22,15 +22,9 @@ export const errorHandler = (err, req, res, next) => {
   let error = Object.assign(Object.create(Object.getPrototypeOf(err)), err);
   error.message = err.message;
 
-  if (error.isOperational) {
-    return res.status(error.statusCode).json({
-      status: error.status,
-      message: error.message
-    });
+  if (error.isOperational) return res.status(error.statusCode).json({ status: error.status, message: error.message });
 
-  }
-
-  console.error(' CRITICAL UNHANDLED SYSTEM ERROR', err);
+  console.error('CRITICAL UNHANDLED SYSTEM ERROR', err);
 
   return res.status(500).json({ status: 'error', message: 'An internal operational exception occurred. Please try again later.' });
 };
