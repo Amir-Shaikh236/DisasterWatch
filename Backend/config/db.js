@@ -20,7 +20,7 @@ export const connectDB = async () => {
 
   } catch (error) {
 
-    console.error(`❌ Critical Core Failure - Database Connection Error: ${error.message}`);
+    console.error(`Critical Core Failure - Database Connection Error: ${error.message}`);
     process.exit(1);
 
   }

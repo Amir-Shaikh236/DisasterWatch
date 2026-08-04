@@ -110,7 +110,7 @@ jobs:
               working-directory: frontend
               env:
                 CI: true
-                MONGO_URI: ${{ secrets.MONGO_URI }}
+                TEST_MONGO_URI: ${{ secrets.MONGO_URI }}
                 JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
                 JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
                 FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
