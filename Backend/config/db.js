@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
 
 export const connectDB = async () => {
+
+  const Test = process.env.NODE_ENV === 'test';
   try {
-    const mongoUri = process.env.MONGO_URI;
+    const mongoUri = Test ? process.env.TEST_MONGO_URI : process.env.MONGO_URI
+
     if (!mongoUri) {
       throw new Error("Data Layer Error: MONGO_URI environment is missing.");
     }
