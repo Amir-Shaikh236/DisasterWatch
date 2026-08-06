@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
+import ReportsRoutes from './routes/ReportsRoutes.js'
 import { errorHandler } from './middleware/errorMiddleware.js'
 import dotenv from 'dotenv'
 dotenv.config();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use('/api/reports', ReportsRoutes);
 
 
 

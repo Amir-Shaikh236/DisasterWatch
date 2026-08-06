@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 import app from "../../server.js"
 import User from "../../models/User.js"
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
-import AppError from '../../utils/AppError.js';
 
 // ANTI-LEAK: mock config/db instead of mutating it (ESM exports are read-only)
 vi.mock('../../config/db.js', () => ({
@@ -13,11 +12,6 @@ vi.mock('../../config/db.js', () => ({
         console.log('🛡️  Test Runner: Bypassed production cloud cluster leak.');
     })
 }));
-
-// Polyfill the AppError module interface to map out the Vitest compilation mismatch
-if (typeof AppError !== 'function' && AppError.default) {
-    require.cache[require.resolve('../../utils/AppError.js')].exports = AppError.default;
-}
 
 beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -33,8 +27,8 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
     const testUser = {
         firstName: "Amir",
         lastName: "Asgar",
-        email: "amir.shaikh@disasterwatch.io",
-        password: 'Miyabhai_01'
+        email: "skamir2410@gmail.com",
+        password: '123456789'
     };
 
     beforeEach(async () => {
@@ -110,3 +104,4 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(compromisedUser.refreshTokens.length).toBe(0);
     });
 });
+
