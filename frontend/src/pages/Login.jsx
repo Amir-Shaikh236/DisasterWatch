@@ -2,13 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import * as z from 'zod'
 
-import { Field, FieldGroup, FieldError, FieldLabel } from "./ui/field";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Field, FieldGroup, FieldError, FieldLabel } from "@/components/ui/field";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Loader2, Radio, ShieldCheck, BellRing } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "@/context/AuthProvider";
+import { AuthContext } from "@/store/AuthProvider";
 import { toast } from "sonner";
 import { useContext, useEffect } from "react";
 import { publicClient } from "@/api/api";

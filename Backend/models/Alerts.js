@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import PointSchema from "./PointSchema";
+import PointSchema from "./PointSchema.js";
 
 const AlertSchema = new mongoose.Schema({
 

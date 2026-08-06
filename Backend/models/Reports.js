@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import PointSchema from "./PointSchema";
+import PointSchema from "./PointSchema.js";
 
 const mediaSchema = new mongoose.Schema({
     url: { type: String, required: true },

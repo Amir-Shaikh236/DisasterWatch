@@ -2,9 +2,9 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { BrowserRouter } from "react-router-dom"
-import { AuthContext } from "@/context/AuthProvider"
+import { AuthContext } from "@/store/AuthProvider"
 import { describe, it, expect, vi } from "vitest"
-import Login from "@/components/Login"
+import Login from "@/pages/Login"
 
 const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     return render(

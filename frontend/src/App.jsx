@@ -1,9 +1,9 @@
 import './index.css'
-import Login from './components/Login'
-import SignUp from './components/SignUp'
+import Login from '@/pages/Login'
+import SignUp from '@/pages/SignUp'
 import { Routes, Route } from 'react-router-dom'
-import Sidebar from './components/Sidebar'
-import Protected from './context/Protected'
+import Sidebar from '@/components/layout/Sidebar'
+import Protected from '@/store/Protected'
 
 
 function App() {

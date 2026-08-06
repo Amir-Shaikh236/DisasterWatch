@@ -1,4 +1,6 @@
-const pointSchema = new mongoose.Schema({
+import mongoose from "mongoose";
+
+const PointSchema = new mongoose.Schema({
     type: {
         type: String,
         enum: ['Point'],

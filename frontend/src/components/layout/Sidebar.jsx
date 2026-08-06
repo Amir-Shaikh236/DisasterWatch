@@ -11,7 +11,7 @@ import {
     LogOut,
     Loader2
 } from "lucide-react";
-import { AuthContext } from "@/context/AuthProvider";
+import { AuthContext } from "@/store/AuthProvider";
 import { privateClient } from "@/api/api";
 import { toast } from "sonner";
 
