@@ -92,7 +92,7 @@ export default function SignUp() {
                     updateToken(accessToken)
 
                     form.reset();
-                    navigate('/sidebar');
+                    navigate('/dashboard');
                     return `${payload.firstName} ${payload.lastName} account created successfully!`;
                 },
                 error: (error) => error.response?.data?.message || "Failed creating account",
