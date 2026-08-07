@@ -45,7 +45,7 @@ export default function Login() {
     const { isSubmitting } = form.formState;
 
     useEffect(() => {
-        if (accessToken) navigate('/sidebar');
+        if (accessToken) navigate('/dashboard');
     }, [accessToken, navigate]);
 
     const withMinDelay = (promise, ms = 2500) => {
@@ -76,7 +76,7 @@ export default function Login() {
         const { accessToken } = response.data;
 
         updateToken(accessToken);
-        navigate('/sidebar');
+        navigate('/dashboard');
         form.reset();
 
         return response;
