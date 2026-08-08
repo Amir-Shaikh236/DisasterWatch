@@ -1,0 +1,21 @@
+
+name: CD Pipeline
+
+on:
+    push:
+        branches: [main]
+
+jobs:    
+    smoke-test:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Wait for Render deploy to Complete
+            run: sleep 120
+          - name: Hit health endpoint
+            run: |
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://disasterwatch-77t2.onrender.com/api/health)
+              if [ "$STATUS" -ne 200 ]; then
+                echo "Health check failed with status $STATUS"
+                exit 1
+              fi
+            

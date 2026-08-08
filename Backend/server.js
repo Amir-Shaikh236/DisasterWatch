@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
+import healthRoutes from './routes/healthRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import ReportsRoutes from './routes/ReportsRoutes.js'
 import { errorHandler } from './middleware/errorMiddleware.js'
@@ -25,14 +26,9 @@ connectDB();
 
 const PORT = process.env.PORT;
 
-app.get("/", (req, res) => {
-  res.status(200).json({ status: "success", message: "API is healthy" });
-});
-
+app.use('/api', healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/reports', ReportsRoutes);
-
-
 
 app.use(errorHandler);
 app.listen(PORT, () => console.log(`Server is Running on ${PORT}`));
