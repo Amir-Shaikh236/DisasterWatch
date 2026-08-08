@@ -59,6 +59,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         //     if (msg.type() === 'error') console.log('BROWSER CONSOLE ERROR:', msg.text());
         // });
 
+        await page.context().clearCookies();
         await page.goto('/');
         await page.evaluate(() => {
             localStorage.clear();
@@ -98,17 +99,20 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         await page.getByRole('button', { name: 'Login', exact: true }).click();
 
         // Assert the app automatically re-routes the user to the protected dashboard page
-        await expect(page).toHaveURL(/\/sidebar$/);
+        await expect(page).toHaveURL(/\/dashboard$/);
 
-        await expect(page.locator('aside').getByText(/DisasterWatch/i).first()).toBeVisible();
+        await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 
         const activeCookies = await page.evaluate(() => document.cookie);
         expect(activeCookies).not.toContain('refreshToken=');
 
         await page.reload();
-        await expect(page).toHaveURL(/\/sidebar$/);
-        await expect(page.getByRole('button', { name: /Log out of application account/i })).toBeVisible();
+        await expect(page).toHaveURL(/\/dashboard$/);
+        await expect(page.getByRole('button', { name: /Amir Shaikh/i })).toBeVisible();
+
+        await page.getByRole('button', { name: /Amir Shaikh/i }).click();
+        await expect(page.getByRole('menuitem', { name: /Log Out/i })).toBeVisible();
 
     });
 });

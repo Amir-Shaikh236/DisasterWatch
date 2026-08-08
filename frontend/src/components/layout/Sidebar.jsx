@@ -1,10 +1,18 @@
-import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { ChevronDown, LayoutDashboard, TriangleAlert, FileText, Settings, Radio, Menu, X, LogOut, Loader2, User2, User, ChevronUp } from "lucide-react";
-import { Link } from "react-router-dom";
-import { util } from "zod";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup } from "@/components/ui/dropdown-menu"
+import { LayoutDashboard, TriangleAlert, FileText, Settings, LogOut, User2, ShieldAlert, ChevronsUpDown } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
+import { AuthContext } from "@/store/AuthProvider";
+import { publicClient } from "@/api/api";
+import { useContext, useState } from "react";
 
 export default function AppSidebar() {
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const { clearSession } = useContext(AuthContext);
+    const navigate = useNavigate()
+    const location = useLocation()
+    const { open } = useSidebar()
 
     const Menu = [
         { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
@@ -13,226 +21,133 @@ export default function AppSidebar() {
         { title: 'SETTING', url: '/setting', icon: Settings }
     ];
 
+    const handleLogout = async () => {
+        if (isLoggingOut) return;
+
+        setIsLoggingOut(true);
+
+        const logoutPromise = publicClient.post('/api/auth/logout');
+
+        toast.promise(logoutPromise, {
+            loading: 'Terminating Sessions...',
+            success: () => {
+                clearSession();
+                navigate("/", { replace: true });
+                return "Logged Out Successfully"
+            },
+            error: (err) => {
+                clearSession()
+                navigate("/", { replace: true })
+                return err.response?.data?.message || "Session ended with exceptions."
+            }
+        });
+
+        logoutPromise.finally(() => setIsLoggingOut(false));
+    };
+
     return (
-        <Sidebar className="bg-black">
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton>
-                            <Link to="/dashboard">
-                                <span>DisasterWatch</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel> MENU </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {Menu.map((item) => {
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton>
-                                            <Link to={item.url} className="flex items-center w-full gap-2"> <item.icon /> <span> {item.title} </span> </Link>
+        <aside aria-label="Primary sidebar">
+            <Sidebar className="border-r border-sidebar-border p-0.5 rounded" collapsible="icon">
+
+                <SidebarHeader className="border-b border-sidebar-border">
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <div className="group/header relative flex h-9 w-full items-center">
+                                <SidebarMenuButton className={`hover:bg-transparent transition-opacity duration-200 
+                            ${!open ? "group-hover/header:opacity-0 justify-center" : "gap-2 px-1"} `} render={
+                                        <Link to="/dashboard" className="flex items-center gap-2 px-1 rounded-md transition-colors hover:bg-sidebar-accent">
+                                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-destructive/10">
+                                                <ShieldAlert className="h-5 w-5 text-destructive" />
+                                            </div>
+                                            <span className="font-semibold text-sidebar-foreground">DisasterWatch</span>
+                                        </Link>
+                                    } />
+                                <SidebarTrigger className={`cursor-pointer h-7 w-7 transition-all duration-200 
+                                ${!open ? "absolute left-0 opacity-0 pointer-events-none group-hover/header:opacity-100 group-hover/header:pointer-events-auto" : "opacity-100"}`} />
+                            </div>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
+
+                <SidebarContent className="py-2">
+                    <SidebarGroup>
+                        <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground"> MENU </SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {Menu.map((item) => {
+                                    const isActive = location.pathname === item.url;
+
+                                    return (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton isActive={isActive} tooltip={item.title} render={
+                                                <Link to={item.url} className="flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                                                    <item.icon fill={isActive ? `currentColor` : 'none'} className="h-4 w-4" /> <span> {item.title} </span> </Link>
+                                            } />
+                                        </SidebarMenuItem>
+                                    )
+                                })}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+
+                <SidebarFooter className="border-t border-sidebar-border">
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger
+                                    render={
+                                        <SidebarMenuButton disabled={isLoggingOut} className="data-[state=open]:bg-sidebar-accent cursor-pointer">
+                                            <div className="flex w-6 h-6 items-center justify-center rounded-full bg-sidebar-accent text-xs font-medium">
+                                                <User2 className="h-3.5 w-3.5" />
+                                            </div>
+                                            <span className="truncate text-sm"> Amir Shaikh </span>
+                                            <ChevronsUpDown className="ml-auto h-3.5 w-3.5 opacity-50" />
                                         </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                )
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton className="flex items-center justify-around gap-4">
-                                    <User2 /> Username <Settings className="ml-auto" />
-                                </SidebarMenuButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                                <DropdownMenuItem>
-                                    <span>Logout</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>Profile Setting</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarFooter>
-        </Sidebar >
+                                    } />
+                                <DropdownMenuContent
+                                    side="top"
+                                    align="end"
+                                    className="w-[--radix-popper-anchor-width] min-w-56 rounded"
+                                >
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuLabel className="font-normal">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-sm font-medium leading-none"> Amir Shaikh </span>
+                                                <span className="text-xs text-muted-foreground truncate"> skamir2410@gmail.com </span>
+                                            </div>
+                                        </DropdownMenuLabel>
+                                    </DropdownMenuGroup>
+
+                                    <DropdownMenuSeparator />
+
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem className="cursor-pointer" render={
+                                            <Link to="/setting">
+                                                <Settings className="mr-2 h-4 w-4" />
+                                                <span> Profile Setting </span>
+                                            </Link>
+                                        } />
+                                        <DropdownMenuItem className="cursor-pointer" render={
+                                            <Link to="/reports">
+                                                <FileText className="h-4 w-4 mr-2" />
+                                                <span> My Reports History </span>
+                                            </Link>
+                                        } />
+                                    </DropdownMenuGroup>
+
+                                    <DropdownMenuSeparator />
+
+                                    <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut} className="cursor-pointer">
+                                        <LogOut />
+                                        <span>Log Out</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
+            </Sidebar>
+        </aside>
     )
 }
-
-// import { useState, useContext } from "react";
-// import { NavLink, useNavigate } from "react-router-dom";
-// import { AuthContext } from "@/store/AuthProvider";
-// import { privateClient } from "@/api/api";
-// import { toast } from "sonner";
-
-// const navItems = [
-//     { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-//     { label: "Active Alerts", to: "/alerts", icon: TriangleAlert },
-//     { label: "My Reports", to: "/reports", icon: FileText },
-//     { label: "Settings", to: "/settings", icon: Settings },
-// ];
-
-// function NavItem({ to, icon: Icon, label, onClick }) {
-//     return (
-//         <NavLink
-//             to={to}
-//             onClick={onClick}
-//             className={({ isActive }) =>
-//                 `group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${isActive
-//                     ? "bg-teal-500/10 text-teal-400 border-l-2 border-teal-400"
-//                     : "text-slate-400 border-l-2 border-transparent hover:bg-slate-900 hover:text-slate-200"
-//                 }`
-//             }
-//         >
-//             {({ isActive }) => (
-//                 <>
-//                     <Icon
-//                         className={`h-4 w-4 shrink-0 ${isActive ? "text-teal-400" : "text-slate-500 group-hover:text-slate-300"
-//                             }`}
-//                         aria-hidden="true"
-//                     />
-//                     <span className="font-medium">{label}</span>
-//                     {label === "Active Alerts" && (
-//                         <span
-//                             className="ml-auto flex h-2 w-2 rounded-full bg-amber-400 animate-pulse"
-//                             role="status"
-//                             aria-label="New active alerts pending review"
-//                         />
-//                     )}
-//                 </>
-//             )}
-//         </NavLink>
-//     );
-// }
-
-// function SidebarContent({ onNavigate }) {
-//     const { clearSession } = useContext(AuthContext);
-//     const navigate = useNavigate();
-//     const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-//     const handleLogout = async () => {
-//         if (isLoggingOut) return;
-
-//         setIsLoggingOut(true);
-//         const logoutPromise = privateClient.post("/api/auth/logout");
-
-//         toast.promise(logoutPromise, {
-//             loading: "Terminating session...",
-//             success: () => {
-//                 clearSession();
-//                 navigate("/", { replace: true });
-//                 return "Logged out successfully.";
-//             },
-//             error: (err) => {
-//                 // Fail-safe fallback: Clean client context even if server request times out or errors
-//                 clearSession();
-//                 navigate("/", { replace: true });
-//                 return err.response?.data?.message || "Session ended with exceptions.";
-//             },
-//         });
-//     };
-
-//     return (
-//         <div className="flex h-full flex-col bg-slate-950">
-//             {/* Brand Identity */}
-//             <div className="flex items-center gap-2 px-4 py-6 text-teal-400">
-//                 <Radio className="h-5 w-5" aria-hidden="true" />
-//                 <span className="text-sm font-mono tracking-widest uppercase font-bold">DisasterWatch</span>
-//             </div>
-
-//             {/* Navigation Framework */}
-//             <nav className="flex-1 space-y-1 px-3" aria-label="Main Navigation">
-//                 {navItems.map((item) => (
-//                     <NavItem key={item.to} {...item} onClick={onNavigate} />
-//                 ))}
-//             </nav>
-
-//             {/* Functional Operational Footer */}
-//             <div className="mt-auto border-t border-slate-800 p-3 space-y-3">
-//                 <button
-//                     onClick={handleLogout}
-//                     disabled={isLoggingOut}
-//                     className="w-full group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-rose-400 border-l-2 border-transparent hover:bg-rose-950/20 hover:text-rose-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-//                     aria-label="Log out of application account"
-//                 >
-//                     {isLoggingOut ? (
-//                         <Loader2 className="h-4 w-4 animate-spin text-rose-400" aria-hidden="true" />
-//                     ) : (
-//                         <LogOut className="h-4 w-4 shrink-0 text-rose-500 group-hover:text-rose-400 transition-colors" aria-hidden="true" />
-//                     )}
-//                     <span>{isLoggingOut ? "Ending Session..." : "Sign Out"}</span>
-//                 </button>
-
-//                 <div className="flex items-center gap-2 px-1 text-xs font-mono text-slate-500Select selection text-nowrap select-none">
-//                     <span className="relative flex h-1.5 w-1.5">
-//                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-//                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-400" />
-//                     </span>
-//                     Monitoring active
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
-// export default function Sidebar() {
-//     const [isOpen, setIsOpen] = useState(false);
-
-//     return (
-//         <>
-//             {/* Mobile Top App Bar Banner */}
-//             <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3 lg:hidden">
-//                 <div className="flex items-center gap-2 text-teal-400">
-//                     <Radio className="h-5 w-5" aria-hidden="true" />
-//                     <span className="text-sm font-mono tracking-widest uppercase font-bold">DisasterWatch</span>
-//                 </div>
-//                 <button
-//                     onClick={() => setIsOpen(true)}
-//                     className="rounded-md p-2 text-slate-400 hover:bg-slate-900 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
-//                     aria-label="Open primary site navigation menu"
-//                     aria-expanded={isOpen}
-//                 >
-//                     <Menu className="h-5 w-5" aria-hidden="true" />
-//                 </button>
-//             </div>
-
-//             {/* Mobile Navigation Portal Overlay Drawer */}
-//             {isOpen && (
-//                 <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
-//                     {/* Backdrop Shading click listener mask */}
-//                     <div
-//                         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-//                         onClick={() => setIsOpen(false)}
-//                         aria-hidden="true"
-//                     />
-
-//                     <div className="relative flex h-full w-64 flex-col bg-slate-950 border-r border-slate-800 shadow-2xl animate-in slide-in-from-left duration-200">
-//                         <button
-//                             onClick={() => setIsOpen(false)}
-//                             className="absolute right-3 top-5 rounded-md p-1.5 text-slate-400 hover:bg-slate-900 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-700 transition-colors"
-//                             aria-label="Close menu"
-//                         >
-//                             <X className="h-4 w-4" aria-hidden="true" />
-//                         </button>
-//                         <SidebarContent onNavigate={() => setIsOpen(false)} />
-//                     </div>
-//                 </div>
-//             )}
-
-//             {/* Static Desktop Persistent Shell Container Aside Layout */}
-//             <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-slate-800 lg:bg-slate-950 lg:h-screen lg:sticky lg:top-0">
-//                 <SidebarContent />
-//             </aside>
-//         </>
-//     );
-// }
