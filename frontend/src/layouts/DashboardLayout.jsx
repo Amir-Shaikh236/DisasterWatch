@@ -8,10 +8,11 @@ export default function DashboardLayout() {
         <div className="flex min-h-screen">
             <SidebarProvider>
                 <AppSidebar />
-                <main className="flex-1">
-                    <SidebarTrigger />
-                    <Outlet />
-                </main>
+                <div className="flex-1 flex flex-col">
+                    <main className="flex-1 overflow-y-auto ">
+                        <Outlet />
+                    </main>
+                </div>
             </SidebarProvider>
         </div>
     );

@@ -8,6 +8,8 @@ import SignUp from '@/pages/SignUp'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import Protected from '@/store/Protected'
 import Dashboard from '@/pages/Dashboard'
+import Reports from '@/pages/Reports'
+import Alerts from '@/pages/Alerts'
 
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
       <Route element={<DashboardLayout />}>
 
         <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/reports' element={<Reports />} />
+        <Route path='/alerts' element={<Alerts />} />
 
       </Route>
 
