@@ -26,6 +26,10 @@ connectDB();
 
 const PORT = process.env.PORT;
 
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "success", message: "API is Working Perfectly!" });
+});
+
 app.use('/api', healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/reports', ReportsRoutes);

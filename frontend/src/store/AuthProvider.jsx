@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { createContext, useState, useRef, useCallback, useEffect } from "react";
-import { setInterceptors, privateClient } from "../api/api";
+import { setInterceptors, privateClient } from "@/api/api";
 import PropTypes from "prop-types";
 
 export const AuthContext = createContext();
@@ -68,4 +68,4 @@ export const AuthProvider = ({ children }) => {
     )
 }
 
-AuthProvider.prototype = { children: PropTypes.node.isRequired };
+AuthProvider.propTypes = { children: PropTypes.node.isRequired };
