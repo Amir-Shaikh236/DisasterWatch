@@ -1,10 +1,10 @@
 import { useContext } from 'react'
-import { AuthContext } from './AuthProvider'
-import { Navigate, useLocation } from 'react-router-dom'
+import { AuthContext } from '@/store/AuthProvider'
+import { Navigate, useLocation, Outlet } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import PropTypes from 'prop-types'
 
-export default function Protected({ children, allowedRoles = [] }) {
+export default function Protected({ allowedRoles = [] }) {
     const location = useLocation()
     const { accessToken, isAuthenticated, isInitializing } = useContext(AuthContext)
 
@@ -33,7 +33,7 @@ export default function Protected({ children, allowedRoles = [] }) {
 
     } catch (error) {
         console.error("Critical failure decoding access token identity claims: ", error);
-        <Navigate to="/" replace />
+        return <Navigate to="/" replace />
 
     }
 
@@ -41,12 +41,12 @@ export default function Protected({ children, allowedRoles = [] }) {
         return <Navigate to="/unauthorized" replace />
     }
 
-    return <> {children} </>
+    return <Outlet />
 
 }
 
 Protected.propTypes = {
-    children: PropTypes.node.isRequred,
+    children: PropTypes.node.isRequired,
     allowedRoles: PropTypes.arrayOf(PropTypes.string),
 
 };

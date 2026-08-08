@@ -5,17 +5,36 @@ on:
     push:
         branches: [main]
 
+permissions:
+      contents: read
+
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
 jobs:    
     smoke-test:
+        name: Verify Production Deployment
         runs-on: ubuntu-latest
+        timeout-minutes: 6
         steps:
-          - name: Wait for Render deploy to Complete
-            run: sleep 120
-          - name: Hit health endpoint
+          - name: Poll health endpoint until it returns 200
             run: |
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://disasterwatch-77t2.onrender.com/api/health)
-              if [ "$STATUS" -ne 200 ]; then
-                echo "Health check failed with status $STATUS"
-                exit 1
-              fi
+              URL="https://disasterwatch-77t2.onrender.com/api/health"
+              MAX_RETRIES=18
+              SLEEP_INTERVAL=10
+              
+              for i in $(seq 1 $MAX_RETRIES); do
+                STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+                if [ "$STATUS_CODE" -eq 200 ]; then
+                  echo "Health check passed on attempt $i. Status code: $STATUS_CODE"
+                  exit 0
+                else
+                  echo "Health check failed on attempt $i. Status code: $STATUS_CODE. Retrying in $SLEEP_INTERVAL seconds..."
+                  sleep $SLEEP_INTERVAL
+                fi
+              done
+
+              echo "Health check failed after $MAX_RETRIES attempts. Exiting with failure."
+              exit 1
             

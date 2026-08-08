@@ -15,23 +15,18 @@ import Alerts from '@/pages/Alerts'
 function App() {
   return (
     <Routes>
-
-      // Public Routes
+      {/* Public Routes */}
       <Route path='/' element={<Login />} />
       <Route path='/register' element={<SignUp />} />
 
-      // Protected Routes
-      {/* <Route element={<Protected />}> */}
-
-      <Route element={<DashboardLayout />}>
-
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/reports' element={<Reports />} />
-        <Route path='/alerts' element={<Alerts />} />
-
+      {/* Protected Routes */}
+      <Route element={<Protected />}>
+        <Route element={<DashboardLayout />}>
+          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/reports' element={<Reports />} />
+          <Route path='/alerts' element={<Alerts />} />
+        </Route>
       </Route>
-
-      {/* </Route> */}
 
     </Routes>
   );
