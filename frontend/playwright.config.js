@@ -34,7 +34,7 @@ export default defineConfig({
         screenshot: 'only-on-failure',
     },
 
-    // Configure major browser test projects
+
     projects: [
         {
             name: 'chromium',
@@ -50,7 +50,6 @@ export default defineConfig({
         },
     ],
 
-    /* Automatically spin up your local dev servers before starting tests */
     webServer: [
         {
             command: 'npm run dev',
@@ -61,10 +60,9 @@ export default defineConfig({
         },
 
         {
-            // Adjust this path/command if your backend sits in a separate terminal workspace
             command: 'node server.js',
             cwd: backendDir,
-            url: 'http://localhost:5000',
+            url: 'http://localhost:5000/api/health',
             reuseExistingServer: !isCI,
             timeout: 120 * 1000,
             env: {
