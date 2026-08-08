@@ -106,17 +106,16 @@ jobs:
               run: npm ci
 
             - name: Cache Playwright Browsers
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               id: playwright-cache
               with:
                 path: ~/.cache/ms-playwright
                 key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
 
             # Install Playwright
-            - name: Install Playwright OS only (cache hit)
-              if: steps.playwright-cache.outputs.cache-hit == 'true'
+            - name: Install Playwright Browsers
               working-directory: frontend
-              run: npx playwright install-deps
+              run: npx playwright install --with-deps
 
             # Run Playwright
             - name: Run Playwright
