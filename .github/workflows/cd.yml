@@ -2,11 +2,10 @@
 name: CD Pipeline
 
 on:
-    push:
-        branches: [main]
-
-    pull_request:
-        branches: [main]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
+    branches: [main]
 
 permissions:
       contents: read
@@ -15,29 +14,35 @@ concurrency:
   group: cd-production
   cancel-in-progress: false
 
-jobs:    
-    smoke-test:
-        name: Verify Production Deployment
-        runs-on: ubuntu-latest
-        timeout-minutes: 6
-        steps:
-          - name: Poll health endpoint until it returns 200
-            run: |
-              URL="https://disasterwatch-77t2.onrender.com/api/health"
-              MAX_RETRIES=18
-              SLEEP_INTERVAL=10
-              
-              for i in $(seq 1 $MAX_RETRIES); do
-                STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
-                if [ "$STATUS_CODE" -eq 200 ]; then
-                  echo "Health check passed on attempt $i. Status code: $STATUS_CODE"
-                  exit 0
-                else
-                  echo "Health check failed on attempt $i. Status code: $STATUS_CODE. Retrying in $SLEEP_INTERVAL seconds..."
-                  sleep $SLEEP_INTERVAL
-                fi
-              done
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deployment
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
 
-              echo "Health check failed after $MAX_RETRIES attempts. Exiting with failure."
-              exit 1
+  smoke-test:
+      needs: deploy
+      runs-on: ubuntu-latest
+      timeout-minutes: 6
+      steps:
+      - name: Poll health endpoint until it returns 200
+        run: |
+          URL="https://disasterwatch-77t2.onrender.com/api/health"
+          MAX_RETRIES=18
+          SLEEP_INTERVAL=10
+                
+          for i in $(seq 1 $MAX_RETRIES); do
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+            if [ "$STATUS_CODE" -eq 200 ]; then
+              echo "Health check passed on attempt $i. Status code: $STATUS_CODE"
+              exit 0
+            fi
+            echo "Attempt $i: Health check failed with status code $STATUS_CODE. Retrying in $SLEEP_INTERVAL seconds..."
+            sleep $SLEEP_INTERVAL
+          done
+
+          echo "Health check failed after $MAX_RETRIES attempts. Exiting with failure."
+          exit 1
             
