@@ -85,7 +85,6 @@ export default function Login() {
     return (
         <div className="min-h-screen flex flex-col lg:flex-row bg-slate-950">
 
-            {/* Left: brand + reassurance */}
             <div className="lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-10 lg:px-16 border-b lg:border-b-0 lg:border-r border-slate-800">
                 <div className="flex items-center gap-2 text-teal-400 mb-6">
                     <Radio className="h-5 w-5" />
@@ -107,7 +106,7 @@ export default function Login() {
 
             {/* Right: login form */}
             <div className="lg:w-1/2 flex items-center justify-center px-4 py-12 sm:px-6">
-                <Card className="w-full max-w-md bg-slate-900/60 border-slate-800 backdrop-blur space-y-6">
+                <Card className="w-full max-w-md bg-slate-900/60 border-slate-800 backdrop-blur space-y-6 rounded shadow-md">
                     <CardHeader className="flex justify-center items-center flex-col mt-3">
                         <CardTitle as="h2" className="text-2xl font-semibold text-slate-50"> Log in </CardTitle>
                         <CardDescription className="text-slate-400"> Welcome back! Please sign in to your account. </CardDescription>
@@ -118,7 +117,7 @@ export default function Login() {
                                 <Controller name="email" control={form.control} render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="email" className="text-slate-300"> Email </FieldLabel>
-                                        <Input {...field} id="email" aria-invalid={fieldState.invalid} placeholder="Enter Your Email" autoComplete="off" className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                        <Input {...field} id="email" aria-invalid={fieldState.invalid} placeholder="Enter Your Email" autoComplete="off" className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all rounded" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                     </Field>
                                 )} />
@@ -126,7 +125,7 @@ export default function Login() {
                                 <Controller name="password" control={form.control} render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="password" className="text-slate-300"> Password </FieldLabel>
-                                        <Input {...field} id="password" type='password' aria-invalid={fieldState.invalid} placeholder="Enter your Password" autoComplete="off" className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                        <Input {...field} id="password" type='password' aria-invalid={fieldState.invalid} placeholder="Enter your Password" autoComplete="off" className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all rounded" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                     </Field>
                                 )} />
@@ -134,7 +133,7 @@ export default function Login() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-10 rounded-lg cursor-pointer mt-2 bg-teal-600 text-white hover:bg-teal-500 transition-colors text-[16px]"
+                                className="w-full h-10 rounded cursor-pointer mt-2 bg-teal-600 text-white hover:bg-teal-500 transition-colors text-[16px]"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting && (
