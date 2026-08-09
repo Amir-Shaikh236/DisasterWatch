@@ -148,7 +148,7 @@ export default function SignUp() {
 
             {/* Right: registration form */}
             <div className="lg:w-1/2 flex items-center justify-center px-4 py-12 sm:px-6">
-                <Card className="w-full max-w-lg bg-slate-900/60 border-slate-800 backdrop-blur space-y-6">
+                <Card className="w-full max-w-lg bg-slate-900/60 border-slate-800 backdrop-blur space-y-6 shadow-lg rounded">
                     <CardHeader className="flex items-center justify-center flex-col mt-4">
                         <CardTitle className="text-2xl font-semibold text-slate-50">Create your account</CardTitle>
                         <CardDescription className="text-slate-400">Start receiving alerts for your area</CardDescription>
@@ -161,7 +161,7 @@ export default function SignUp() {
                                     <Controller name="firstName" control={form.control} render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor='firstName' className="pb-1 text-slate-300"> First Name</FieldLabel>
-                                            <Input {...field} id='firstName' aria-invalid={fieldState.invalid} placeholder='Enter Your First Name' className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                            <Input {...field} id='firstName' aria-invalid={fieldState.invalid} placeholder='Enter Your First Name' className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none rounded" />
                                             {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                         </Field>
                                     )} />
@@ -171,7 +171,7 @@ export default function SignUp() {
                                     <Controller name="lastName" control={form.control} render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor='lastName' className="pb-1 text-slate-300"> Last Name</FieldLabel>
-                                            <Input {...field} id='lastName' aria-invalid={fieldState.invalid} placeholder='Enter Your last Name' className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                            <Input {...field} id='lastName' aria-invalid={fieldState.invalid} placeholder='Enter Your last Name' className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none rounded" />
                                             {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                         </Field>
                                     )} />
@@ -182,7 +182,7 @@ export default function SignUp() {
                                 <Controller name="email" control={form.control} render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="email" className="text-slate-300"> Email </FieldLabel>
-                                        <Input {...field} id="email" aria-invalid={fieldState.invalid} placeholder="Email" autoComplete="off" className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                        <Input {...field} id="email" aria-invalid={fieldState.invalid} placeholder="Email" autoComplete="off" className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none rounded" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                     </Field>
                                 )} />
@@ -192,7 +192,7 @@ export default function SignUp() {
                                 <Controller name="password" control={form.control} render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="password" className="text-slate-300"> Password </FieldLabel>
-                                        <Input {...field} type='password' id='password' aria-invalid={fieldState.invalid} placeholder='password' autoComplete="off" className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                        <Input {...field} type='password' id='password' aria-invalid={fieldState.invalid} placeholder='password' autoComplete="off" className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none rounded" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                     </Field>
                                 )} />
@@ -202,13 +202,13 @@ export default function SignUp() {
                                 <Controller name="confirmPassword" control={form.control} render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="confirmPassword" className="text-slate-300"> Confirm Password </FieldLabel>
-                                        <Input {...field} type='password' id='confirmPassword' aria-invalid={fieldState.invalid} placeholder='Confirm Password' autoComplete="off" className="w-full h-10 px-4 rounded-lg bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none" />
+                                        <Input {...field} type='password' id='confirmPassword' aria-invalid={fieldState.invalid} placeholder='Confirm Password' autoComplete="off" className="w-full h-10 px-4 bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-2 focus-visible:ring-teal-500/20 focus-visible:border-teal-400 transition-all outline-none rounded" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
                                     </Field>
                                 )} />
                             </FieldGroup>
 
-                            <Button type='submit' disabled={isLoading} className="w-full h-10 cursor-pointer rounded-lg bg-teal-600 text-white hover:bg-teal-500 transition-colors text-[16px]">
+                            <Button type='submit' disabled={isLoading} className="w-full h-10 cursor-pointer bg-teal-600 text-white hover:bg-teal-500 transition-colors text-[16px] rounded">
                                 {isLoading && (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)} {isLoading ? "Creating Account..." : "Register"}
                             </Button>
                         </form>

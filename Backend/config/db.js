@@ -10,12 +10,12 @@ export const connectDB = async () => {
       throw new Error("Data Layer Error: MONGO_URI environment is missing.");
     }
 
-    // Enterprise Mongoose connection tuning parameters
+
     const options = {
       autoIndex: process.env.NODE_ENV !== 'production', // Disable auto-indexing in production for performance
-      maxPoolSize: 10,                                  // Maintain up to 10 concurrent socket connections
-      serverSelectionTimeoutMS: 5000,                  // Fail fast after 5 seconds instead of hanging
-      socketTimeoutMS: 45000,                           // Close inactive sockets after 45 seconds
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     };
 
     const conn = await mongoose.connect(mongoUri, options);
