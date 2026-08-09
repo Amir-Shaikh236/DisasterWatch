@@ -1,10 +1,11 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-
 export default function Dashboard() {
-    return (
-        <Card className="min-h-screen">
-            <CardHeader> Welcome to DisasterWatch</CardHeader>
-            <CardContent> Hope You are safe </CardContent>
-        </Card>
-    )
+    // return (
+    //     <div>
+    //         <div className="flex items-center justify-around">
+    //             <h1> Real-time Overview</h1>
+    //             <h1> Real-time Overview</h1>
+    //             <h1> Real-time Overview</h1>
+    //         </div>
+    //     </div>
+    // )
 }
