@@ -47,7 +47,7 @@ export default function AppSidebar() {
 
     return (
         <aside aria-label="Primary sidebar">
-            <Sidebar className="border-r border-sidebar-border p-0.5 rounded" collapsible="icon">
+            <Sidebar className="border-r border-sidebar-border rounded" collapsible="icon">
 
                 <SidebarHeader className="border-b border-sidebar-border">
                     <SidebarMenu>
@@ -108,7 +108,7 @@ export default function AppSidebar() {
                                 <DropdownMenuContent
                                     side="top"
                                     align="end"
-                                    className="w-[--radix-popper-anchor-width] min-w-56 rounded"
+                                    className="w-[--radix-popper-anchor-width] min-w-46 rounded"
                                 >
                                     <DropdownMenuGroup>
                                         <DropdownMenuLabel className="font-normal">
