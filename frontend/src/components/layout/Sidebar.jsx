@@ -80,7 +80,7 @@ export default function AppSidebar() {
                                     return (
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton isActive={isActive} tooltip={item.title} render={
-                                                <Link to={item.url} className="flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                                                <Link to={item.url} className="mb-1 flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
                                                     <item.icon className={`h-4 w-4 ${isActive ? `text-primary` : 'none'} `} /> <span> {item.title} </span> </Link>
                                             } />
                                         </SidebarMenuItem>
@@ -99,7 +99,7 @@ export default function AppSidebar() {
                                     render={
                                         <SidebarMenuButton disabled={isLoggingOut} className="data-[state=open]:bg-sidebar-accent cursor-pointer">
                                             <div className="flex w-6 h-6 items-center justify-center rounded-full bg-sidebar-accent text-xs font-medium">
-                                                <User2 className="h-3.5 w-3.5" />
+                                                <User2 className="h-4 w-4" />
                                             </div>
                                             <span className="truncate text-sm"> Amir Shaikh </span>
                                             <ChevronsUpDown className="ml-auto h-3.5 w-3.5 opacity-50" />
@@ -108,7 +108,7 @@ export default function AppSidebar() {
                                 <DropdownMenuContent
                                     side="top"
                                     align="end"
-                                    className="w-[--radix-popper-anchor-width] min-w-46 rounded"
+                                    className="w-[--radix-popper-anchor-width] min-w-46 rounded p-1"
                                 >
                                     <DropdownMenuGroup>
                                         <DropdownMenuLabel className="font-normal">
@@ -122,7 +122,7 @@ export default function AppSidebar() {
                                     <DropdownMenuSeparator />
 
                                     <DropdownMenuGroup>
-                                        <DropdownMenuItem className="cursor-pointer" render={
+                                        <DropdownMenuItem className="cursor-pointer mb-1" render={
                                             <Link to="/setting">
                                                 <Settings className="mr-2 h-4 w-4" />
                                                 <span> Profile Setting </span>
@@ -139,7 +139,7 @@ export default function AppSidebar() {
                                     <DropdownMenuSeparator />
 
                                     <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut} className="cursor-pointer">
-                                        <LogOut />
+                                        <LogOut className="h-4 w-4 mr-2" />
                                         <span>Log Out</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
