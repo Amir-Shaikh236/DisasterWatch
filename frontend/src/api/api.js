@@ -44,6 +44,7 @@ export const setInterceptors = (getAccessToken, setAccessToken, clearSession) =>
         if (originalRequest.url?.includes('/api/auth/refresh')) {
             clearSession();
             return Promise.reject(error);
+
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -55,6 +56,7 @@ export const setInterceptors = (getAccessToken, setAccessToken, clearSession) =>
                     originalRequest.headers['Authorization'] = `Bearer ${token}`
                     return privateClient(originalRequest)
                 }).catch(err => Promise.reject(err));
+
             }
 
             originalRequest._retry = true;
@@ -71,13 +73,17 @@ export const setInterceptors = (getAccessToken, setAccessToken, clearSession) =>
 
                 originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
                 return privateClient(originalRequest);
+
             } catch (refreshError) {
                 processQueue(refreshError, null);
                 isRefreshing = false;
                 clearSession();
                 return Promise.reject(refreshError)
+
             }
+
         }
+
         return Promise.reject(error);
     })
 };
