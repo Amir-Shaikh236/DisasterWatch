@@ -290,7 +290,7 @@ export default function Alerts() {
                             </CardContent>
 
                             <CardFooter className="border-t border-border/70 bg-muted/10 px-5 py-3">
-                                <Button variant="ghost" className=" ml-auto h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
+                                <Button variant="ghost" className="ml-auto h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
                                     View Details
                                     <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Button>
