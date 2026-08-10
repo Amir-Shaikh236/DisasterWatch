@@ -244,7 +244,7 @@ export default function Alerts() {
 
                                 <img src={data.imageUrl} alt={data.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
 
-                                <div className="absolute inset-0 bg-gradient-to-t  from-slate-950/75  via-slate-950/10 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t  from-slate-950/75  via-slate-950/10 to-transparent" />
 
                                 <div className=" absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
                                     <disasterType.icon className={`h-3.5 w-3.5 ${disasterType.iconColor}`} />
