@@ -1,14 +1,48 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, ArrowUpRight, Camera, Plus } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Camera, Eye, FileText, Plus, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+
+    const TotalAlerts = [
+        {
+            name: "Total Reports",
+            length: 128,
+            icon: FileText,
+            iconClass: "text-blue-400"
+        },
+
+        {
+            name: "Active Alerts",
+            length: 24,
+            icon: AlertTriangle,
+            iconClass: "text-destructive animate-pulse"
+        },
+
+        {
+            name: "Critical Alerts",
+            length: 4,
+            icon: TrendingUp,
+            iconClass: "text-amber-300"
+        },
+
+        {
+            name: "Verified Report",
+            length: 85,
+            icon: Eye,
+            iconClass: "text-emerald-300"
+        },
+    ];
+
+
     return (
-        <div className="bg-background p-4 mt-4">
-            <div className="overflow-auto flex justify-between">
-                <div className="flex items-center">
-                    <h1 className="text-2xl"> Real-time Overview Of All Activities </h1>
+        <div className="flex-1 bg-background p-6 lg:p-9">
+            <div className="overflow-auto flex items-center justify-between">
+                <div className="flex-1 items-center">
+                    <h1 className="text-2xl font-bold tracking-tight"> Welcome Back </h1>
+                    <h1 className="text-md text-muted-foreground">  Here's what's happening across the disaster monitoring network. </h1>
                 </div>
 
                 <div className="flex items-center space-x-3">
@@ -28,7 +62,35 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-6 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
+            <div className="mb-8 mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {TotalAlerts.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                        <Card key={item.name} className="cursor-pointer border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+                            <CardContent className="flex items-center justify-between px-6 py-1">
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground"> {item.name} </p>
+                                    <p className="mt-1 text-2xl font-bold tracking-tight text-foreground"> {item.length} </p>
+                                </div>
+
+                                <div className={`flex h-11 w-11 items-center justify-center rounded`}>
+                                    <Icon className={`h-8 w-8 ${item.iconClass}`} />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
+
+            </div>
+
+            <Separator className="mt-2 mb-5" />
+
+            <div>
+                <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
+            </div>
+
+            <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
                 <div className="flex items-center justify-around space-x-3">
 
                     <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
@@ -48,7 +110,7 @@ export default function Dashboard() {
                 </Button>
             </div>
 
-            <Separator className="mt-5 mb-5" />
+            {/* <Separator className="mt-5 mb-5" /> */}
         </div>
     )
 }
