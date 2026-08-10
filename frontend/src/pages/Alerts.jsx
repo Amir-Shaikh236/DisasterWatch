@@ -2,6 +2,7 @@ import { Activity, AlertTriangle, ArrowUpRight, Clock3, Eye, Flame, MapPin, Moun
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function Alerts() {
 
@@ -52,10 +53,10 @@ export default function Alerts() {
             id: 4,
             title: "Landslide Blocks Mountain Access Road",
             description: "Heavy rainfall has triggered a landslide along a mountain road. Mud, rocks, and debris have blocked the roadway and disrupted local transportation.",
-            imageUrl: "https://images.unsplash.com/photo-1610631066894-1f7f2f2a1b6c?w=1200&q=80",
+            imageUrl: "https://images.unsplash.com/photo-1647125849914-5238985ab21a?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             disasterType: "landslide",
             severity: "high",
-            status: "investigating",
+            status: "unverified",
             confidence: 78,
             location: "Munnar, Kerala",
             reportedAt: "47 minutes ago",
@@ -66,20 +67,20 @@ export default function Alerts() {
     const STATUS_STYLE = {
         verified: {
             label: "Verified",
-            badgeClass: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
-            accent: "bg-emerald-400",
+            badgeClass: "border-emerald-300/40 bg-emerald-950/85 text-emerald-200 shadow-lg shadow-black/20 backdrop-blur-md",
+            accent: "bg-emerald-300",
         },
 
         investigating: {
             label: "Investigating",
-            badgeClass: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-            accent: "bg-amber-400",
+            badgeClass: "border-amber-300/40 bg-amber-950/85 text-amber-400 shadow-lg shadow-black/20 backdrop-blur-md animate-pulse",
+            accent: "bg-amber-600",
         },
 
         unverified: {
             label: "Unverified",
-            badgeClass: "border-border bg-muted/60 text-muted-foreground",
-            accent: "bg-muted-foreground",
+            badgeClass: "border-slate-300/30 bg-slate-950/85 text-slate-200 shadow-lg shadow-black/20 backdrop-blur-md",
+            accent: "bg-slate-300",
         },
     };
 
@@ -136,7 +137,7 @@ export default function Alerts() {
             name: "Critical Alerts",
             length: AlertData.filter((alert) => alert.severity === 'critical').length,
             icon: AlertTriangle,
-            iconClass: "text-destructive"
+            iconClass: "text-destructive animate-pulse"
         },
 
         {
@@ -179,8 +180,8 @@ export default function Alerts() {
 
             <div className="mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
-                        <AlertTriangle className="h-7 w-7 text-destructive" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded bg-primary/10 ring-1 ring-primary/20">
+                        <AlertTriangle className="h-8 w-8 text-destructive" />
                     </div>
 
                     <div>
@@ -205,7 +206,7 @@ export default function Alerts() {
                                     <p className="mt-1 text-2xl font-bold tracking-tight text-foreground"> {item.length} </p>
                                 </div>
 
-                                <div className={`flex h-11 w-11 items-center justify-center rounded-xl`}>
+                                <div className={`flex h-11 w-11 items-center justify-center rounded`}>
                                     <Icon className={`h-8 w-8 ${item.iconClass}`} />
                                 </div>
                             </CardContent>
@@ -226,6 +227,7 @@ export default function Alerts() {
                 <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary"> {AlertData.length} Active </Badge>
             </div>
 
+            <Separator className="mt-4 mb-4" />
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {AlertData.map((data) => {
@@ -249,8 +251,8 @@ export default function Alerts() {
                                     <span className="text-xs font-semibold"> {data.disasterType}</span>
                                 </div>
 
-                                <Badge variant="outline" className={`absolute right-4 top-4 rounded-full border px-2.5 py-1 backdrop-blur-md ${statusStyle.badgeClass}`}>
-                                    <span className={`mr-1.5 h-2 w-2 rounded-full ${statusStyle.accent}`} /> {statusStyle.label}
+                                <Badge variant="outline" className={`absolute right-4 top-4 rounded-full border px-2.5 py-3 backdrop-blur-md ${statusStyle.badgeClass}`}>
+                                    <span className={`mr-0.5 h-2 w-2 rounded-full ${statusStyle.accent}`} /> {statusStyle.label}
                                 </Badge>
 
                                 <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-xs font-medium text-white">
