@@ -81,7 +81,7 @@ export default function AppSidebar() {
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton isActive={isActive} tooltip={item.title} render={
                                                 <Link to={item.url} className="flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                                                    <item.icon fill={isActive ? `currentColor` : 'none'} className="h-4 w-4" /> <span> {item.title} </span> </Link>
+                                                    <item.icon className={`h-4 w-4 ${isActive ? `text-primary` : 'none'} `} /> <span> {item.title} </span> </Link>
                                             } />
                                         </SidebarMenuItem>
                                     )
