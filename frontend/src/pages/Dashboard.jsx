@@ -1,3 +1,5 @@
+import DisasterActivity from "@/components/shared/DisasterActivity";
+import DisasterType from "@/components/shared/DisasterType";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -36,9 +38,8 @@ export default function Dashboard() {
         },
     ];
 
-
     return (
-        <div className="flex-1 bg-background p-6 lg:p-9">
+        <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">
             <div className="overflow-auto flex items-center justify-between">
                 <div className="flex-1 items-center">
                     <h1 className="text-2xl font-bold tracking-tight"> Welcome Back </h1>
@@ -110,7 +111,12 @@ export default function Dashboard() {
                 </Button>
             </div>
 
-            {/* <Separator className="mt-5 mb-5" /> */}
-        </div>
+            <Separator className="mt-5 mb-5" />
+
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <DisasterType />
+                <DisasterActivity />
+            </div >
+        </div >
     )
 }
