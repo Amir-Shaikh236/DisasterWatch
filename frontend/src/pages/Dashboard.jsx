@@ -1,4 +1,5 @@
 import DisasterActivity from "@/components/shared/DisasterActivity";
+import DisasterMap from "@/components/shared/DisasterMap";
 import DisasterType from "@/components/shared/DisasterType";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -117,6 +118,10 @@ export default function Dashboard() {
                 <DisasterType />
                 <DisasterActivity />
             </div >
+
+            <div>
+                <DisasterMap />
+            </div>
         </div >
     )
 }

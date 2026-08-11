@@ -205,3 +205,26 @@
         background: var(--primary);
     }
 }
+
+
+@keyframes disaster-pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+
+    70% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+}
+
+.custom-disaster-marker {
+    background: transparent !important;
+    border: none !important;
+}
