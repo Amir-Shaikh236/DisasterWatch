@@ -235,7 +235,7 @@ export default function Alerts() {
 
                     const severityStyle = SEVERITY_STYLE[data.severity] ?? SEVERITY_STYLE.moderate;
 
-                    const disasterType = DISASTER_ICON[data.disasterType] ?? { icon: AlertTriangle, iconColor: 'text-muted-foreground' };
+                    const disasterIcon = DISASTER_ICON[data.disasterType] ?? { icon: AlertTriangle, iconColor: 'text-muted-foreground' };
 
                     return (
 
@@ -247,7 +247,7 @@ export default function Alerts() {
                                 <div className="absolute inset-0 bg-linear-to-t  from-slate-950/75  via-slate-950/10 to-transparent" />
 
                                 <div className=" absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
-                                    <disasterType.icon className={`h-3.5 w-3.5 ${disasterType.iconColor}`} />
+                                    <disasterIcon.icon className={`h-3.5 w-3.5 ${disasterIcon.iconColor}`} />
                                     <span className="text-xs font-semibold"> {data.disasterType}</span>
                                 </div>
 

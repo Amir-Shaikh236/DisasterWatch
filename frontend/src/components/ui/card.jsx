@@ -35,8 +35,8 @@ function CardHeader({
 }
 
 function CardTitle({
-  className,
   as: Component = "div",
+  className,
   ...props
 }) {
   return (
