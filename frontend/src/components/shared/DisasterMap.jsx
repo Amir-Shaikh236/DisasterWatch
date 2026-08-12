@@ -1,10 +1,13 @@
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from 'leaflet';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Flame, Mountain, Waves } from "lucide-react";
+import { useState } from "react";
+import FilterModal from "@/components/shared/FilterModal";
 
 
 export default function DisasterMap() {
+    const [filters, setFilters] = useState({ disasterType: [], severity: 'all' });
 
     const AlertData = [
         {
@@ -99,9 +102,7 @@ export default function DisasterMap() {
     };
 
     const createPulseIcon = (disasterType) => {
-
         const disaster = DISASTER_ICON[disasterType]
-
         const color = disaster?.color ?? "#94a3b8";
 
         return L.divIcon({
@@ -111,6 +112,15 @@ export default function DisasterMap() {
             iconAnchor: [10, 10],
         });
     };
+
+    const leafletZIndexFix = `
+  .leaflet-pane { z-index: 1 !important; }
+  .leaflet-tile-pane { z-index: 1 !important; }
+  .leaflet-overlay-pane { z-index: 2 !important; }
+  .leaflet-marker-pane { z-index: 3 !important; }
+  .leaflet-popup-pane { z-index: 4 !important; }
+  .leaflet-control-container { z-index: 10 !important; }
+`;
 
     const customIconStyle =
         `.custom-pulse-icon .pulse-ring {
@@ -125,30 +135,37 @@ export default function DisasterMap() {
         100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }`;
 
+    const filteredAlerts = AlertData.filter((alert) => {
+        const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType);
+        const matchesSeverity = filters.severity === "all" || filters.severity.includes(alert.severity);
+        return matchesDisasterTypes && matchesSeverity;
+
+    });
 
     return (
         <div>
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle> Disaster Map </CardTitle>
-                    <CardDescription> Live Disaster Alerts </CardDescription>
+            <Card className="mt-6 border bg-card shadow-md">
+                <CardHeader className="flex items-center justify-between">
+                    <div>
+                        <CardTitle className="font-semibold tracking-tight"> Disaster Map </CardTitle>
+                        <CardDescription className="text-sm tracking-wider text-muted-foreground -mt-1"> Live Disaster Alerts </CardDescription>
+                    </div>
+                    <FilterModal filters={filters} onApply={setFilters} onReset={() => setFilters({ disasterType: [], severity: 'all' })} />
                 </CardHeader>
                 <CardContent>
-                    <style>{customIconStyle}</style>
-                    <MapContainer center={[20.5937, 78.9629]} zoom={5} scrollWheelZoom={true} className="h-150 w-full rounded-xl" >
+                    <style>{leafletZIndexFix + customIconStyle}</style>
+                    <MapContainer center={[20.5937, 78.9629]} zoom={5} scrollWheelZoom={true} className="h-150 w-full rounded-lg" >
                         <TileLayer attribution="&copy; OpenStreetmap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {AlertData.map((data) => {
+                        {filteredAlerts.map((data) => {
                             return (
-                                < Marker
-                                    key={data.id}
-                                    position={[data.location.coordinates[1], data.location.coordinates[0]]}
-                                    icon={createPulseIcon(data.disasterType)}
-                                >
+                                < Marker key={data.id} position={[data.location.coordinates[1], data.location.coordinates[0]]} icon={createPulseIcon(data.disasterType)} >
                                     <Popup>
-                                        <div>
-                                            <h3 className="font-semibold"> {data.title} </h3>
-                                            <p> {data.description} </p>
-                                            <p> {data.disasterType} </p>
+                                        <div className="font-sans">
+                                            <h3 className="font-bold text-base mb-1"> {data.title} </h3>
+                                            <p className="text-sm text-gray-700"> {data.description} </p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Type: {" "} <span className="font-semibold capitalize"> {data.disasterType} </span>
+                                            </p>
                                         </div>
                                     </Popup>
                                 </Marker>
@@ -156,9 +173,6 @@ export default function DisasterMap() {
                         })}
                     </MapContainer>
                 </CardContent>
-                <CardFooter>
-
-                </CardFooter>
             </Card>
         </div >
     )
