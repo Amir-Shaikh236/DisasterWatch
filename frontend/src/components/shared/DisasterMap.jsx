@@ -1,7 +1,6 @@
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from 'leaflet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Flame, Mountain, Waves } from "lucide-react";
 import { useState } from "react";
 import FilterModal from "@/components/shared/FilterModal";
 
@@ -79,30 +78,30 @@ export default function DisasterMap() {
         },
     ];
 
-    const DISASTER_ICON = {
+    const DISASTER_CONFIG = {
         earthquake: {
-            icon: Activity,
+            label: "Earthquake",
             color: "#a78bfa",
         },
 
         landslide: {
-            icon: Mountain,
+            label: "Landslide",
             color: "#fbbf24",
         },
 
         flood: {
-            icon: Waves,
+            label: "Flood",
             color: "#22d3ee",
         },
 
         wildfire: {
-            icon: Flame,
+            label: "Wildfire",
             color: "#fb923c",
         },
     };
 
     const createPulseIcon = (disasterType) => {
-        const disaster = DISASTER_ICON[disasterType]
+        const disaster = DISASTER_CONFIG[disasterType]
         const color = disaster?.color ?? "#94a3b8";
 
         return L.divIcon({
@@ -142,6 +141,8 @@ export default function DisasterMap() {
 
     });
 
+    const DISASTER_LEGEND = Object.values(DISASTER_CONFIG);
+
     return (
         <div>
             <Card className="mt-6 border bg-card shadow-md">
@@ -171,6 +172,18 @@ export default function DisasterMap() {
                                 </Marker>
                             )
                         })}
+
+                        <div className="absolute bottom-4 left-4 z-10 bg-card/90 backdrop-blur-md p-3 rounded-xl shadow-lg border">
+                            <h4 className="text-sm font-semibold text-card-foreground mb-3"> Disaster Types </h4>
+                            <div className="flex flex-col gap-2.5">
+                                {DISASTER_LEGEND.map(item => (
+                                    <div key={item.label} className="flex items-center gap-2.5 text-xs ">
+                                        <span className="w-3 h-3 rounded-full shrink-0 ring-2 ring-background" style={{ backgroundColor: item.color }} />
+                                        <span className="text-muted-foreground">{item.label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </MapContainer>
                 </CardContent>
             </Card>

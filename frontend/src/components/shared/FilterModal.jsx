@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Filter, RotateCcw } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-
 
 const DEFAULT_FITLERS = {
     disasterType: [],
@@ -18,11 +17,11 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
     const [open, setOpen] = useState(false);
     const [localfilter, setLocalFilters] = useState(filters);
 
-    useEffect(() => {
-        if (open) {
-            setLocalFilters(filters);
-        }
-    }, [open, filters]);
+    // useEffect(() => {
+    //     if (open) {
+    //         setLocalFilters(filters);
+    //     }
+    // }, [open, filters]);
 
     const toggleArrayValue = (key, value) => {
         setLocalFilters((previous) => {
@@ -48,7 +47,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
 
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(value) => { setOpen(value); if (value) { setLocalFilters(filters); } }} >
             <DialogTrigger render={
                 <Button variant="outline" className="gap-2 cursor-pointer">
                     <Filter className="h-4 w-4" /> Filter
