@@ -17,11 +17,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
     const [open, setOpen] = useState(false);
     const [localfilter, setLocalFilters] = useState(filters);
 
-    // useEffect(() => {
-    //     if (open) {
-    //         setLocalFilters(filters);
-    //     }
-    // }, [open, filters]);
+
 
     const toggleArrayValue = (key, value) => {
         setLocalFilters((previous) => {
@@ -52,7 +48,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
                 <Button variant="outline" className="gap-2 cursor-pointer">
                     <Filter className="h-4 w-4" /> Filter
                     {ActiveFilters > 0 && (
-                        <Badge variant="secondary" className="ml-1 rounded-full px-2 text-xs py-0.5"> {ActiveFilters}</Badge>
+                        <Badge variant="secondary" className="ml-1 rounded-full px-2 text-xs py-0.5"> {ActiveFilters} </Badge>
                     )}
                 </Button>
             }

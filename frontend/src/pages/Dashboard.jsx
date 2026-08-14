@@ -1,13 +1,16 @@
 import DisasterActivity from "@/components/shared/DisasterActivity";
 import DisasterMap from "@/components/shared/DisasterMap";
 import DisasterType from "@/components/shared/DisasterType";
+import ReportModal from "@/components/shared/ReportModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, ArrowUpRight, Camera, Eye, FileText, Plus, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
     const TotalAlerts = [
         {
@@ -56,7 +59,7 @@ export default function Dashboard() {
                     </div>
 
                     <div>
-                        <Button variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
                             <Plus className="h-4 w-4" />
                             <span> Submit Report </span>
                         </Button>
@@ -122,6 +125,8 @@ export default function Dashboard() {
             <div>
                 <DisasterMap />
             </div>
+
+            <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} />
         </div >
     )
 }
