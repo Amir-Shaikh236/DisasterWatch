@@ -1,6 +1,7 @@
 import DisasterActivity from "@/components/shared/DisasterActivity";
 import DisasterMap from "@/components/shared/DisasterMap";
 import DisasterType from "@/components/shared/DisasterType";
+import ImageAnalysisModal from "@/components/shared/ImageAnalysis";
 import ReportModal from "@/components/shared/ReportModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Link } from "react-router-dom";
 
 export default function Dashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+    const [isImageAnalyzerOpen, setIsImageAnalyzerOpen] = useState(false)
 
     const TotalAlerts = [
         {
@@ -52,7 +54,7 @@ export default function Dashboard() {
 
                 <div className="flex items-center space-x-3">
                     <div>
-                        <Button variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
                             <Camera className="h-4 w-4" />
                             <span> Image Analyzer </span>
                         </Button>
@@ -127,6 +129,7 @@ export default function Dashboard() {
             </div>
 
             <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} />
+            <ImageAnalysisModal isOpen={isImageAnalyzerOpen} onClose={() => setIsImageAnalyzerOpen(false)} />
         </div >
     )
 }
