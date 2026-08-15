@@ -27,11 +27,11 @@ const addReport = async (req, res, next) => {
             return next(new AppError(400, `Please Proivde ${missingFields.join(', ')}`));
         }
 
-        if (!Array.isArray(location) || location.length !== 2) {
+        if (!Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
             return next(new AppError(400, 'Coordinates must be an array of [Longitude, latitude].'));
         }
 
-        const [lng, lat] = location.map(Number);
+        const [lng, lat] = location.coordinates.map(Number);
 
         if (Number.isNaN(lng) || Number.isNaN(lat)) {
             return next(new AppError(400, 'Coordinates must contain valid numbers'));
@@ -48,7 +48,8 @@ const addReport = async (req, res, next) => {
             locationName: locationName,
             location: {
                 type: 'Point',
-                coordinates: [lng, lat]
+                coordinates: [lng, lat],
+                address: location.address
             },
             status: 'investigating'
         });
