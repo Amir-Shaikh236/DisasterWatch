@@ -4,8 +4,7 @@ const PointSchema = new mongoose.Schema({
     type: {
         type: String,
         enum: ['Point'],
-        default: 'Point',
-        required: true
+        required: true,
     },
 
     coordinates: {
@@ -19,7 +18,14 @@ const PointSchema = new mongoose.Schema({
             },
             message: 'Coordinates must be [longitude, latitude] within valid range.'
         }
+    },
+
+    address: {
+        type: String,
+        required: true,
+        trim: true,
     }
+
 }, { _id: false });
 
 export default PointSchema;
