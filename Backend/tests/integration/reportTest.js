@@ -27,7 +27,11 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         "title": "Severe Flooding in Riverside District",
         "disasterType": "Flood",
         "description": "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
-        "location": [72.8311, 21.1702]
+        "location": {
+            coordinates: [72.8311, 21.1702],
+            address: "Shivaji Nagar Pune"
+        }
+
     }
 
     beforeEach(async () => {
@@ -50,7 +54,8 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
             description: report.description,
             location: {
                 type: 'Point',
-                coordinates: report.location
+                coordinates: report.location.coordinates,
+                address: report.location.address
             },
             status: 'investigating'
         }));
@@ -84,7 +89,10 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
-                location: "72.8311, 21.1702"
+                location: {
+                    coordinates: "72.8311, 21.1702",
+                    address: report.location.address
+                }
             })
             .expect(400);
 
@@ -101,7 +109,10 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
-                location: ['abc', 'xyz']
+                location: {
+                    coordinates: ['abc', 'xyz'],
+                    address: report.location.coordinates
+                }
             })
             .expect(400);
 
@@ -118,7 +129,10 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
-                location: [200, 100]
+                location: {
+                    coordinates: [200, 100],
+                    address: report.location.address
+                }
             })
             .expect(400);
 

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Camera, Upload } from "lucide-react"
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
@@ -72,7 +72,12 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                             </div>
                         )}
                     </div>
+
+                    <DialogFooter className="pt-4">
+                        <Button className="cursor-pointer" onClick={handleClose}> Close </Button>
+                    </DialogFooter>
                 </DialogContent>
+
             </Dialog>
         </div>
     )
