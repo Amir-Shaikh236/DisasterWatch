@@ -126,9 +126,6 @@ Field notes:
 
         const requestConfig = {
             contents: [{ role: "user", parts: promptParts }],
-            generationConfig: {
-                responseMimeType: "application/json",
-            }
         };
 
         // Google Search grounding lets the model actually check for corroboration

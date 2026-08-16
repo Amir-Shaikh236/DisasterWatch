@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 import AutoComplete from "@/components/shared/location/AutoComplete";
 import { getAddressFromCoordinates } from "@/lib/googleMaps";
+import { publicClient } from "@/api/api";
 
 export default function ReportModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
@@ -129,25 +130,23 @@ export default function ReportModal({ isOpen, onClose }) {
         setIsLoading(true);
 
         try {
-
-            setTimeout(() => {
-                console.log(data);
-            }, 2000)
-
-
             const formData = new FormData();
             formData.append("disasterType", data.disasterType);
-
             formData.append("description", data.description);
-
             formData.append("location", JSON.stringify(data.location));
-
             files.forEach((item) => {
                 formData.append("images", item.file);
             });
 
+            const response = await publicClient.post('/api/reports/add', formData)
+            console.log(response.data.report);
+
+        } catch (error) {
+            console.log(error.response?.data || error.message)
+
         } finally {
             setIsLoading(false);
+
         }
     };
 

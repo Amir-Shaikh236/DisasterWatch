@@ -16,9 +16,11 @@ const getReports = async (req, res, next) => {
 
 const addReport = async (req, res, next) => {
     try {
-        const { title, disasterType, description, locationName, location } = req.body;
 
-        const requiredFields = { title, disasterType, description, location }
+        const { disasterType, description } = req.body;
+        const location = JSON.parse(req.body.location);
+
+        const requiredFields = { disasterType, description, location }
         const missingFields = Object.entries(requiredFields)
             .filter(([_, value]) => value === undefined || value === null || value === '')
             .map(([key]) => key);
@@ -42,16 +44,13 @@ const addReport = async (req, res, next) => {
         }
 
         const report = await Reports.create({
-            title: title,
             disasterType: disasterType,
             description: description,
-            locationName: locationName,
             location: {
                 type: 'Point',
                 coordinates: [lng, lat],
                 address: location.address
             },
-            status: 'investigating'
         });
 
         res.status(201).json({ status: 'created', report: report });

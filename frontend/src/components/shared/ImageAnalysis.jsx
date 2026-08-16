@@ -44,7 +44,6 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
             ImageData.append("image", file)
 
             const response = await publicClient.post('/api/ai/analyze-image', ImageData);
-            console.log(response);
             setAnalysisResult(response.data.analysis);
 
         } catch (error) {
