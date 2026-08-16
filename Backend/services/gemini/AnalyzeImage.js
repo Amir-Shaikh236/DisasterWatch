@@ -1,5 +1,6 @@
-require('dotenv').config();
-const { GoogleGenerativeAI: gemini } = require('@google/generative-ai');
+import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
+import dotenv from 'dotenv'
+dotenv.config();
 
 if (!process.env.GEMINI_API_KEY) {
     console.error("GEMINI API KEY is not defined in your .env file.");
@@ -9,15 +10,6 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new gemini(process.env.GEMINI_API_KEY);
 
 /**
- * Standalone, open-ended image triage — no claimed type/location from a user report.
- * Used to screen raw incoming images (e.g. social feeds, CCTV snapshots) for possible
- * disasters before a full report even exists.
- *
- * Kept in sync with AnalyzeDisasterReport's conventions:
- *  - same realism gate before anything else is trusted
- *  - same "flags" pattern as ReportAnalyzer's rejectionReasons (fixed codes + user-facing message)
- *  - same field names where the concept overlaps (keyIndicators, misinformationScore, isRealPhoto, estimatedDate)
- *
  * @param {string} base64Image
  * @param {string} mimeType
  * @param {string} assumedLocation - default region for contextual inference, e.g. "Pune, Maharashtra, India"
@@ -102,9 +94,6 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
                     { inlineData: { data: base64Image, mimeType } },
                 ],
             }],
-            generationConfig: {
-                responseMimeType: "application/json",
-            },
         };
 
         if (useGrounding) {
@@ -167,6 +156,4 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
     }
 }
 
-module.exports = {
-    AI_AnalyzeImageForDisaster
-};
+export { AI_AnalyzeImageForDisaster }
