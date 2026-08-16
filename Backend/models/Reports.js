@@ -2,18 +2,12 @@ import mongoose from "mongoose";
 import PointSchema from "./PointSchema.js";
 
 const mediaSchema = new mongoose.Schema({
-    url: { type: String, required: true },
-    publicId: { type: String, required: true }
+    url: { type: String }, // add required after getting images successfully
+    publicId: { type: String }
 
 }, { _id: false });
 
 const ReportSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-
     disasterType: {
         type: String,
         required: true,

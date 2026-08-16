@@ -24,7 +24,6 @@ afterAll(async () => {
 describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     const report = {
-        "title": "Severe Flooding in Riverside District",
         "disasterType": "Flood",
         "description": "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
         "location": {
@@ -49,7 +48,6 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         // Verifying Report
         expect(response.body.status).toBe('created')
         expect(response.body.report).toEqual(expect.objectContaining({
-            title: report.title,
             disasterType: report.disasterType,
             description: report.description,
             location: {
@@ -62,7 +60,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
         const saved = await Reports.findById(response.body.report._id);
         expect(saved).not.toBeNull();
-        expect(saved.title).toBe(report.title);
+        expect(saved.disasterType).toBe(report.disasterType);
     });
 
     it('Should Reject a Report For Not Providing Required Fields', async () => {
@@ -71,13 +69,12 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
             .post('/api/reports/add')
             .send({
                 disasterType: report.disasterType,
-                description: report.description,
                 location: report.location
             })
             .expect(400);
 
         expect(response.body.status).toBe('fail')
-        expect(response.body.message).toBe('Please Proivde title')
+        expect(response.body.message).toBe('Please Proivde description')
 
     });
 
@@ -86,7 +83,6 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         const response = await request(app)
             .post('/api/reports/add')
             .send({
-                title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
                 location: {
@@ -106,7 +102,6 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         const response = await request(app)
             .post('/api/reports/add')
             .send({
-                title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
                 location: {
@@ -126,7 +121,6 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         const response = await request(app)
             .post('/api/reports/add')
             .send({
-                title: report.title,
                 disasterType: report.disasterType,
                 description: report.description,
                 location: {

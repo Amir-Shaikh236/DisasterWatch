@@ -81,8 +81,6 @@ export default function AutoComplete({ value, onChange, onLocationSelect }) {
                     longitude: place.location?.lng()
                 },
             };
-
-            console.log("Selected Location", selectedLocation);
             onChange(place.formattedAddress || "");
             onLocationSelect?.(selectedLocation);
             setSuggestions([]);
