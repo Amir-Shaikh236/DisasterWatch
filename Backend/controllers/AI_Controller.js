@@ -12,7 +12,6 @@ export const analyzeImage = async (req, res, next) => {
         return res.status(200).json({ status: 'success', analysis });
 
     } catch (error) {
-        console.error("Image analysis error", error);
         next(error);
 
     }

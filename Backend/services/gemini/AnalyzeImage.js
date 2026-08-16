@@ -2,11 +2,6 @@ import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
 import dotenv from 'dotenv'
 dotenv.config();
 
-if (!process.env.GEMINI_API_KEY) {
-    console.error("GEMINI API KEY is not defined in your .env file.");
-    throw new Error('GEMINI API KEY is Missing');
-}
-
 const genAI = new gemini(process.env.GEMINI_API_KEY);
 
 /**
@@ -23,6 +18,10 @@ async function AI_AnalyzeImageForDisaster(
     currentDate = new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
     useGrounding = true
 ) {
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error('GEMINI API KEY is Missing');
+    }
+
     const PROMPT = `
 **ROLE**
 You are the same verification engine used by DisasterWatch's ReportAnalyzer, running here in standalone triage mode — no user claim to check against, just raw image screening. Apply the identical standards for realism and freshness that the full report pipeline uses, so a photo can't pass here and fail there (or vice versa).
