@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js'
 import healthRoutes from './routes/healthRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import ReportsRoutes from './routes/ReportsRoutes.js'
+import AI_Routes from './routes/AI_Routes.js'
 import { errorHandler } from './middleware/errorMiddleware.js'
 import dotenv from 'dotenv'
 dotenv.config();
@@ -33,6 +34,7 @@ app.get("/", (req, res) => {
 app.use('/api', healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/reports', ReportsRoutes);
+app.use('/api/ai/', AI_Routes);
 
 app.use(errorHandler);
 app.listen(PORT, () => console.log(`Server is Running on ${PORT}`));

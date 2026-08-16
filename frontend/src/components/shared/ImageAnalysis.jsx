@@ -5,42 +5,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { publicClient } from "@/api/api"
 
 export default function ImageAnalysisModal({ isOpen, onClose }) {
     const [file, setFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState("")
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [analysisResult, setAnalysisResult] = useState(null)
-
-    const dummyAnalysis = {
-        isRealPhoto: true,
-        isDisaster: true,
-        disasterType: "flood",
-        confidence: 0.94,
-        confidenceReasoning: "The image shows significant water accumulation across residential streets, partially submerged vehicles, and visible flooding indicators.",
-        severity: "high",
-        location: "Shivaji Nagar, Pune, Maharashtra, India",
-        areaType: "urban residential area",
-        estimatedDate: "2026-08-16",
-        description: "Severe flooding has affected a residential urban area. Water has accumulated across roads and appears to have entered nearby properties, creating hazardous conditions for residents and vehicles.",
-        keyIndicators: [
-            "Extensive water accumulation on roads",
-            "Partially submerged vehicles",
-            "Flooded residential surroundings",
-            "Restricted road access",
-            "High water level"
-        ],
-        potentialImpact: "The flooding may cause property damage, vehicle damage, disruption of transportation, and risks to residents in affected areas.",
-        recommendedActions: [
-            "Avoid entering flooded roads",
-            "Move to higher ground if water levels continue to rise",
-            "Keep electrical equipment away from floodwater",
-            "Follow instructions from local authorities",
-            "Contact emergency services if immediate assistance is required"
-        ],
-        misinformationScore: 0.04,
-        flags: []
-    }
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files?.[0]
@@ -65,9 +36,20 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
     }
 
     const handleAnalyze = async () => {
+        if (!file) return;
         setIsAnalyzing(true)
+
         try {
-            setAnalysisResult(dummyAnalysis)
+            const ImageData = new FormData()
+            ImageData.append("image", file)
+
+            const response = await publicClient.post('/api/ai/analyze-image', ImageData);
+            console.log(response);
+            setAnalysisResult(response.data.analysis);
+
+        } catch (error) {
+            console.error(error.response?.data || error.message || "Image Analysis Failed");
+
         } finally {
             setIsAnalyzing(false)
         }
@@ -130,7 +112,7 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                                                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
                                                     <Button className="cursor-pointer px-6 py-3 text-base shadow-lg transition-transform duration-200 hover:scale-105"
                                                         onClick={handleAnalyze}>
-                                                        {isAnalyzing ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyze Image.... </> : <> <Activity className="h-4 w-4 mr-2" /> Analyze Image </>}
+                                                        {isAnalyzing ? <> <Loader2 className="mr-1 h-6 w-6 animate-spin" /> Analyzing.... </> : <> <Activity className="h-4 w-4 mr-2" /> Analyze Image </>}
                                                     </Button>
                                                 </div>
                                             )}
@@ -331,7 +313,21 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                                                             {analysisResult.flags.map((flag, index) => (
                                                                 <div key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
                                                                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                                                                    <span>{flag}</span>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-sm font-medium text-foreground">
+                                                                            {flag.code}
+                                                                        </p>
+
+                                                                        <p className="mt-1 text-sm text-muted-foreground">
+                                                                            {flag.message}
+                                                                        </p>
+
+                                                                        {flag.estimatedDate && (
+                                                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                                                Estimated date: {flag.estimatedDate}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             ))}
                                                         </div>

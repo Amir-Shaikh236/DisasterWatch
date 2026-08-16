@@ -1,5 +1,6 @@
-require('dotenv').config();
-const { GoogleGenerativeAI: gemini } = require("@google/generative-ai");
+import dotenv from 'dotenv'
+dotenv.config();
+import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
 
 if (!process.env.GEMINI_API_KEY) {
     console.error("GEMINI API KEY is not defined in your .env file.");
@@ -189,4 +190,4 @@ Field notes:
     }
 }
 
-module.exports = { AnalyzeDisasterReport };
+export { AnalyzeDisasterReport };
