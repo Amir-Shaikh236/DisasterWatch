@@ -37,12 +37,20 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         await clearTestDB();
     });
 
+    const postReport = (payload) => {
+        const req = request(app).post('/api/reports/add');
+
+        if (payload.disasterType !== undefined) req.field('disasterType', payload.disasterType);
+        if (payload.description !== undefined) req.field('description', payload.description);
+        if (payload.location !== undefined) req.field('location', JSON.stringify(payload.location));
+
+        return req;
+    };
+
     it('Should Create Report and save it in DB Upon valid Data.', async () => {
 
         // Sending Request
-        const response = await request(app)
-            .post("/api/reports/add")
-            .send(report)
+        const response = await postReport(report)
             .expect(201);
 
         // Verifying Report
@@ -65,12 +73,10 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     it('Should Reject a Report For Not Providing Required Fields', async () => {
 
-        const response = await request(app)
-            .post('/api/reports/add')
-            .send({
-                disasterType: report.disasterType,
-                location: report.location
-            })
+        const response = await postReport({
+            disasterType: report.disasterType,
+            location: report.location
+        })
             .expect(400);
 
         expect(response.body.status).toBe('fail')
@@ -80,16 +86,14 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     it('Should Reject a Report For Providing location longitude and latitude without array', async () => {
 
-        const response = await request(app)
-            .post('/api/reports/add')
-            .send({
-                disasterType: report.disasterType,
-                description: report.description,
-                location: {
-                    coordinates: "72.8311, 21.1702",
-                    address: report.location.address
-                }
-            })
+        const response = await postReport({
+            disasterType: report.disasterType,
+            description: report.description,
+            location: {
+                coordinates: "72.8311, 21.1702",
+                address: report.location.address
+            }
+        })
             .expect(400);
 
         expect(response.body.status).toBe('fail')
@@ -99,16 +103,14 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     it('Should Reject a Report For Providing location, longitude and latitude within array but in string', async () => {
 
-        const response = await request(app)
-            .post('/api/reports/add')
-            .send({
-                disasterType: report.disasterType,
-                description: report.description,
-                location: {
-                    coordinates: ['abc', 'xyz'],
-                    address: report.location.coordinates
-                }
-            })
+        const response = await postReport({
+            disasterType: report.disasterType,
+            description: report.description,
+            location: {
+                coordinates: ['abc', 'xyz'],
+                address: report.location.coordinates
+            }
+        })
             .expect(400);
 
         expect(response.body.status).toBe('fail')
@@ -118,16 +120,14 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     it('Should Reject a Report For Providing location with out of range Coordinates', async () => {
 
-        const response = await request(app)
-            .post('/api/reports/add')
-            .send({
-                disasterType: report.disasterType,
-                description: report.description,
-                location: {
-                    coordinates: [200, 100],
-                    address: report.location.address
-                }
-            })
+        const response = await postReport({
+            disasterType: report.disasterType,
+            description: report.description,
+            location: {
+                coordinates: [200, 100],
+                address: report.location.address
+            }
+        })
             .expect(400);
 
         expect(response.body.status).toBe('fail')
