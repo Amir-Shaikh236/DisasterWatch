@@ -2,14 +2,13 @@ import dotenv from 'dotenv'
 dotenv.config();
 import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
 
-if (!process.env.GEMINI_API_KEY) {
-    console.error("GEMINI API KEY is not defined in your .env file.");
-    throw new Error('GEMINI API KEY is Missing');
-}
-
 const genAI = new gemini(process.env.GEMINI_API_KEY);
 
 async function AnalyzeDisasterReport(images, claimedType, text, location, currentDate, useGrounding = true) {
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error('GEMINI API KEY is Missing');
+    }
+
     const PROMPT = `
 **ROLE**
 You are the single verification-and-alerting engine for DisasterWatch, a live crowd-reporting system. You replace three legacy stages (text check, image check, alert-title generation) with one pass. Be conservative: when evidence is thin or stale, say so plainly rather than guessing.
