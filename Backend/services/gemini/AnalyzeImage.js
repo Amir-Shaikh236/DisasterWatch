@@ -11,7 +11,7 @@ const genAI = new gemini(process.env.GEMINI_API_KEY);
  * @param {string} currentDate - e.g. "2026-08-06", used for the same freshness logic as ReportAnalyzer
  * @param {boolean} useGrounding - attach Google Search grounding to help estimate image origin/date
  */
-async function AI_AnalyzeImageForDisaster(
+export async function AI_AnalyzeImageForDisaster(
     base64Image,
     mimeType,
     assumedLocation = "Pune, Maharashtra, India",
@@ -129,6 +129,7 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
                 : 1.0,
             flags: Array.isArray(analysis.flags) ? analysis.flags : [],
         };
+
     } catch (error) {
         console.error("Failed to analyze image for disaster:", error);
         return {
@@ -152,7 +153,6 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
                 estimatedDate: null,
             }],
         };
+
     }
 }
-
-export { AI_AnalyzeImageForDisaster }

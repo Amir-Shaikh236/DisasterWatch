@@ -4,7 +4,7 @@ import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
 
 const genAI = new gemini(process.env.GEMINI_API_KEY);
 
-async function AnalyzeDisasterReport(images, claimedType, text, location, currentDate, useGrounding = true) {
+export async function AnalyzeDisasterReport(images, claimedType, text, location, currentDate, useGrounding = true) {
     if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI API KEY is Missing');
     }
@@ -159,6 +159,7 @@ Field notes:
             rejectionReasons: approved ? [] : rejectionReasons,
             imageAnalysis: Array.isArray(analysis.imageAnalysis) ? analysis.imageAnalysis : [],
         };
+
     } catch (error) {
         console.error("Failed to analyze disaster report:", error.message);
         return {
@@ -183,7 +184,6 @@ Field notes:
             ],
             imageAnalysis: [],
         };
+
     }
 }
-
-export { AnalyzeDisasterReport };
