@@ -1,5 +1,7 @@
 import Reports from "../models/Reports.js";
+import { AnalyzeDisasterReport } from "../services/gemini/AnalyzeDisasterReport.js";
 import AppError from "../utils/AppError.js";
+import { convertImages, ValidateLocation, ValidateRequiredFields } from "../utils/validator.js";
 
 const getReports = async (req, res, next) => {
     try {
@@ -15,33 +17,20 @@ const getReports = async (req, res, next) => {
 }
 
 const addReport = async (req, res, next) => {
-    try {
 
+    try {
         const { disasterType, description } = req.body;
         const location = JSON.parse(req.body.location);
 
-        const requiredFields = { disasterType, description, location }
-        const missingFields = Object.entries(requiredFields)
-            .filter(([_, value]) => value === undefined || value === null || value === '')
-            .map(([key]) => key);
+        ValidateRequiredFields({ disasterType, description, location });
+        const { lng, lat } = ValidateLocation(location);
 
-        if (missingFields.length > 0) {
-            return next(new AppError(400, `Please Proivde ${missingFields.join(', ')}`));
-        }
+        const images = convertImages(req.files);
+        const currentDate = new Date().toISOString().split("T")[0];
 
-        if (!Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
-            return next(new AppError(400, 'Coordinates must be an array of [Longitude, latitude].'));
-        }
+        const analysis = await AnalyzeDisasterReport(images, disasterType, description, location.address, currentDate);
 
-        const [lng, lat] = location.coordinates.map(Number);
-
-        if (Number.isNaN(lng) || Number.isNaN(lat)) {
-            return next(new AppError(400, 'Coordinates must contain valid numbers'));
-        }
-
-        if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
-            return next(new AppError(400, 'Coordinates out of valid range'));
-        }
+        const status = analysis.status === "approved" ? "investigating" : "rejected";
 
         const report = await Reports.create({
             disasterType: disasterType,
@@ -51,8 +40,11 @@ const addReport = async (req, res, next) => {
                 coordinates: [lng, lat],
                 address: location.address
             },
+            status,
+            aiAnalysis: analysis
         });
 
+        console.log("Report: ", report);
         res.status(201).json({ status: 'created', report: report });
 
     } catch (error) {

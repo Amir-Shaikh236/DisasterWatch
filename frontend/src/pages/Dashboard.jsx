@@ -47,6 +47,7 @@ export default function Dashboard() {
     return (
         <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">
             <div className="overflow-auto flex items-center justify-between">
+
                 <div className="flex-1 items-center">
                     <h1 className="text-2xl font-bold tracking-tight"> Welcome Back </h1>
                     <h1 className="text-md text-muted-foreground">  Here's what's happening across the disaster monitoring network. </h1>
@@ -67,6 +68,7 @@ export default function Dashboard() {
                         </Button>
                     </div>
                 </div>
+
             </div>
 
             <div className="mb-8 mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
