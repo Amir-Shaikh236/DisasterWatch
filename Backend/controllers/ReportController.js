@@ -1,7 +1,7 @@
 import Reports from "../models/Reports.js";
 import { AnalyzeDisasterReport } from "../services/gemini/AnalyzeDisasterReport.js";
 import AppError from "../utils/AppError.js";
-import { convertImages, ValidateLocation, ValidateRequiredFields } from "../utils/Validator.js";
+import { convertImages, ValidateLocation, ValidateRequiredFields } from "../utils/validator.js";
 
 const getReports = async (req, res, next) => {
     try {
