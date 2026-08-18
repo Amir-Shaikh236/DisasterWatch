@@ -14,6 +14,7 @@ import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field
 import AutoComplete from "@/components/shared/location/AutoComplete";
 import { getAddressFromCoordinates } from "@/lib/googleMaps";
 import { publicClient } from "@/api/api";
+import { toast } from "sonner";
 
 export default function ReportModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
@@ -83,7 +84,7 @@ export default function ReportModal({ isOpen, onClose }) {
     }
 
     const handleGPS = () => {
-        if (!navigator.geolocation) return console.error("GeoLocation is not supported.");
+        if (!navigator.geolocation) return toast.error("GeoLocation is not supported.");
 
         setIsLoading(true);
 
@@ -105,7 +106,7 @@ export default function ReportModal({ isOpen, onClose }) {
                     }
                 );
             } catch (error) {
-                console.error("Failed to resolve GPS", error);
+                toast.error("Failed to resolve GPS location.");
 
             } finally {
                 setIsLoading(false)
@@ -114,7 +115,7 @@ export default function ReportModal({ isOpen, onClose }) {
 
         },
             (error) => {
-                console.error("Unable to get Location: ", error);
+                toast.error("Failed to get location.");
                 setIsLoading(false)
             },
 
@@ -138,11 +139,13 @@ export default function ReportModal({ isOpen, onClose }) {
                 formData.append("images", item.file);
             });
 
-            const response = await publicClient.post('/api/reports/add', formData)
-            console.log(response.data.report);
+            await publicClient.post('/api/reports/add', formData)
+            toast.success("Report Submitted Successfully! Our AI will verify your report and update the status soon.");
+            handleClose();
 
         } catch (error) {
-            console.log(error.response?.data || error.message)
+            toast.error("Failed to submit report. Please try again.");
+            console.error(error.response?.data || error.message);
 
         } finally {
             setIsLoading(false);
@@ -200,7 +203,6 @@ export default function ReportModal({ isOpen, onClose }) {
                                     <div className="flex gap-1">
                                         <AutoComplete value={field.value.address} onChange={(text) => field.onChange({ ...field.value, address: text })}
                                             onLocationSelect={(location) => {
-                                                console.log("selected: ", location)
                                                 form.setValue("location", {
                                                     type: "Point",
                                                     coordinates: [location.coordinates.longitude, location.coordinates.latitude],

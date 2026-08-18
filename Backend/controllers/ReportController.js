@@ -18,6 +18,10 @@ const getReports = async (req, res, next) => {
 
 const addReport = async (req, res, next) => {
 
+    const REJECT_THRESHOLDS = {
+        minConfidence: 4, maxMisinforamtionScore: 0.6
+    }
+
     try {
         const { disasterType, description } = req.body;
         const location = JSON.parse(req.body.location);
@@ -28,7 +32,14 @@ const addReport = async (req, res, next) => {
         const images = convertImages(req.files);
         const currentDate = new Date().toISOString().split("T")[0];
 
-        const analysis = await AnalyzeDisasterReport(images, disasterType, description, location.address, currentDate);
+        // const analysis = await AnalyzeDisasterReport(images, disasterType, description, location.address, currentDate);
+        const analysis = await AnalyzeDisasterReport(images, disasterType, description);
+        console.log(analysis);
+
+        const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence ||
+            analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinforamtionScore;
+
+        if (shouldReject) return res.status(422).json({ success: "false", message: "Report could not be verified", reasons: analysis.rejectionReasons });
 
         const status = analysis.status === "approved" ? "investigating" : "rejected";
 
@@ -48,6 +59,7 @@ const addReport = async (req, res, next) => {
         res.status(201).json({ status: 'created', report: report });
 
     } catch (error) {
+        if (error.status === 503) return next(new AppError(503, "AI verification service is temporarily unavailable. Please try again shortly."))
         next(error);
 
     }
