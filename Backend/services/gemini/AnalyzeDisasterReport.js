@@ -591,6 +591,7 @@ No code fences.
 
         try {
             analysis = JSON.parse(responseText);
+
         } catch (parseError) {
             const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 

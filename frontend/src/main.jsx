@@ -11,7 +11,23 @@ createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthProvider>
       <App />
-      <Toaster />
+
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          classNames: {
+            toast:
+              "bg-card border-primary/30 text-card-foreground shadow-xl",
+            description:
+              "text-muted-foreground",
+            success:
+              "border-primary/40 bg-primary/5",
+            error:
+              "border-destructive/40 bg-destructive/5",
+          },
+        }}
+      />
+
     </AuthProvider>
   </BrowserRouter>
   // </StrictMode>,

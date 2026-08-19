@@ -3,7 +3,7 @@ import { AnalyzeDisasterReport } from "../services/gemini/AnalyzeDisasterReport.
 import AppError from "../utils/AppError.js";
 import { convertImages, ValidateLocation, ValidateRequiredFields } from "../utils/validator.js";
 
-const getReports = async (req, res, next) => {
+export const getReports = async (req, res, next) => {
     try {
         const reports = await Reports.find({});
         if (!reports) return next(new AppError(404, 'Reports Not Found'));
@@ -16,10 +16,10 @@ const getReports = async (req, res, next) => {
     }
 }
 
-const addReport = async (req, res, next) => {
+export const addReport = async (req, res, next) => {
 
     const REJECT_THRESHOLDS = {
-        minConfidence: 4, maxMisinforamtionScore: 0.6
+        minConfidence: 0.70, maxMisinforamtionScore: 0.60
     }
 
     try {
@@ -34,7 +34,6 @@ const addReport = async (req, res, next) => {
 
         // const analysis = await AnalyzeDisasterReport(images, disasterType, description, location.address, currentDate);
         const analysis = await AnalyzeDisasterReport(images, disasterType, description);
-        console.log(analysis);
 
         const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence ||
             analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinforamtionScore;
@@ -55,7 +54,6 @@ const addReport = async (req, res, next) => {
             aiAnalysis: analysis
         });
 
-        console.log("Report: ", report);
         res.status(201).json({ status: 'created', report: report });
 
     } catch (error) {
@@ -65,6 +63,3 @@ const addReport = async (req, res, next) => {
     }
 };
 
-
-
-export { getReports, addReport }
