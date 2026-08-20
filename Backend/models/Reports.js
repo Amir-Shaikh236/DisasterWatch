@@ -30,8 +30,8 @@ const ReportSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['verified', 'rejected', 'investigating'],
-        default: 'investigating',
+        enum: ['verified', 'rejected'],
+        default: 'rejected',
         index: true,
     },
 

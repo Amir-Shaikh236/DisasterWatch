@@ -15,7 +15,7 @@ export const uploadAnalyzeImage = multer({
 
 export const uploadImages = multer({
     AnalyzeStore,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { files: 5, fileSize: 10 * 1024 * 1024 },
     fileFilter
 });
 
