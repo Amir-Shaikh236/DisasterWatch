@@ -1,11 +1,6 @@
 import mongoose from "mongoose";
 import PointSchema from "./PointSchema.js";
-
-const mediaSchema = new mongoose.Schema({
-    url: { type: String }, // add required after getting images successfully
-    publicId: { type: String }
-
-}, { _id: false });
+import mediaSchema from "./mediaSchema.js";
 
 const ReportSchema = new mongoose.Schema({
     disasterType: {
