@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import PointSchema from "./PointSchema.js";
+import mediaSchema from "./mediaSchema.js";
 
 const AlertSchema = new mongoose.Schema({
 
@@ -7,7 +8,7 @@ const AlertSchema = new mongoose.Schema({
     disasterType: {
         type: String,
         required: true,
-        enum: ['flood, earthquake', 'wildfire', 'landslide'],
+        enum: ['flood', 'earthquake', 'wildfire', 'landslide'],
         index: true,
     },
 
@@ -15,7 +16,8 @@ const AlertSchema = new mongoose.Schema({
 
     severity: {
         type: String,
-        enum: ['medium', 'high', 'critical']
+        enum: ['medium', 'high', 'critical'],
+        required: true
     },
 
     confidence: { type: Number, required: true },
@@ -24,6 +26,8 @@ const AlertSchema = new mongoose.Schema({
         type: PointSchema,
         required: true,
     },
+
+    media: [mediaSchema],
 
     status: {
         type: String,

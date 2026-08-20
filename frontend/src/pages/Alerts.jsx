@@ -3,82 +3,42 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react";
+import { getAlerts } from "@/api/alertApi";
+import { formatDate } from "@/utils/Helpers";
 
 export default function Alerts() {
+    const [alerts, setAlerts] = useState([]);
 
-    const AlertData = [
-        {
-            id: 1,
-            title: "Strong Earthquake Reported Near Pune",
-            description: "A strong earthquake has been reported across several areas near Pune. Multiple residents have reported intense shaking, cracked walls, and minor structural damage.",
-            imageUrl: "https://images.unsplash.com/photo-1561485132-59468cd0b553?w=1200&q=80",
-            disasterType: "earthquake",
-            severity: "critical",
-            status: "verified",
-            confidence: 96,
-            location: "Pune District, Maharashtra",
-            reportedAt: "8 minutes ago",
-            reportCount: 24,
-        },
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            try {
+                const data = await getAlerts();
+                setAlerts(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error("Error while Fetching Alerts: ", error);
+                setAlerts([]);
+            }
+        }
+        fetchAlerts();
 
-        {
-            id: 2,
-            title: "Flooding Reported Across Riverside Areas",
-            description: "Heavy rainfall has caused significant flooding across low-lying residential areas. Several roads are submerged and emergency teams have been requested.",
-            imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=1200&q=80",
-            disasterType: "flood",
-            severity: "critical",
-            status: "investigating",
-            confidence: 89,
-            location: "Surat District, Gujarat",
-            reportedAt: "15 minutes ago",
-            reportCount: 18,
-        },
-
-        {
-            id: 3,
-            title: "Wildfire Spreading Through Forest Region",
-            description: "A rapidly spreading wildfire has been observed in a forested region. Thick smoke is visible from nearby communities and authorities are monitoring the fire.",
-            imageUrl: "https://www.drought.gov/sites/default/files/hero/news/western-wildfires.jpg",
-            disasterType: "wildfire",
-            severity: "high",
-            status: "verified",
-            confidence: 93,
-            location: "Nashik District, Maharashtra",
-            reportedAt: "32 minutes ago",
-            reportCount: 15,
-        },
-
-        {
-            id: 4,
-            title: "Landslide Blocks Mountain Access Road",
-            description: "Heavy rainfall has triggered a landslide along a mountain road. Mud, rocks, and debris have blocked the roadway and disrupted local transportation.",
-            imageUrl: "https://images.unsplash.com/photo-1647125849914-5238985ab21a?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            disasterType: "landslide",
-            severity: "high",
-            status: "unverified",
-            confidence: 78,
-            location: "Munnar, Kerala",
-            reportedAt: "47 minutes ago",
-            reportCount: 9,
-        },
-    ];
+    }, [])
 
     const STATUS_STYLE = {
-        verified: {
-            label: "Verified",
-            badgeClass: "border-emerald-300/40 bg-emerald-950/85 text-emerald-200 shadow-lg shadow-black/20 backdrop-blur-md",
-            accent: "bg-emerald-300",
+        Active: {
+            label: "Active",
+            badgeClass: "border-red-300/40 bg-red-950/85 text-red-200 shadow-lg shadow-black/20 backdrop-blur-md",
+            accent: "bg-red-300",
         },
 
-        investigating: {
-            label: "Investigating",
-            badgeClass: "border-amber-300/40 bg-amber-950/85 text-amber-400 shadow-lg shadow-black/20 backdrop-blur-md animate-pulse",
-            accent: "bg-amber-600",
+        Resolved: {
+            label: "Resolved",
+            badgeClass: "border-green-300/40 bg-green-950/85 text-green-400 shadow-lg shadow-black/20 backdrop-blur-md",
+            accent: "bg-green-600",
         },
 
-        unverified: {
-            label: "Unverified",
+        false_alarm: {
+            label: "False Alarm",
             badgeClass: "border-slate-300/30 bg-slate-950/85 text-slate-200 shadow-lg shadow-black/20 backdrop-blur-md",
             accent: "bg-slate-300",
         },
@@ -97,8 +57,8 @@ export default function Alerts() {
             text: "text-amber-300",
         },
 
-        moderate: {
-            label: "Moderate",
+        medium: {
+            label: "Medium",
             color: "bg-muted-foreground",
             text: "text-muted-foreground",
         },
@@ -125,31 +85,31 @@ export default function Alerts() {
         }
     };
 
-    const TotalAlerts = [
+    const AlertState = [
         {
             name: "Total Alerts",
-            length: AlertData.length,
+            length: alerts.length,
             icon: AlertTriangle,
             iconClass: "text-primary"
         },
 
         {
             name: "Critical Alerts",
-            length: AlertData.filter((alert) => alert.severity === 'critical').length,
+            length: alerts.filter((alert) => alert.severity === 'critical').length,
             icon: AlertTriangle,
             iconClass: "text-destructive animate-pulse"
         },
 
         {
             name: "High Priority",
-            length: AlertData.filter((alert) => alert.severity === 'high').length,
+            length: alerts.filter((alert) => alert.severity === 'high').length,
             icon: TrendingUp,
             iconClass: "text-amber-300"
         },
 
         {
             name: "Average Confidence",
-            length: `${(AlertData.reduce((total, alert) => total + alert.confidence, 0) / AlertData.length).toFixed(1)}%`,
+            length: `${(alerts.reduce((total, alert) => total + alert.confidence, 0) / alerts.length).toFixed(1)}%`,
             icon: Eye,
             iconClass: "text-emerald-300"
         },
@@ -195,7 +155,7 @@ export default function Alerts() {
             </div>
 
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {TotalAlerts.map((item) => {
+                {AlertState.map((item) => {
                     const Icon = item.icon;
 
                     return (
@@ -224,25 +184,32 @@ export default function Alerts() {
                     </p>
                 </div>
 
-                <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary"> {AlertData.length} Active </Badge>
+                <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary"> {alerts.length} Active </Badge>
             </div>
 
             <Separator className="mt-4 mb-4" />
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {AlertData.map((data) => {
-                    const statusStyle = STATUS_STYLE[data.status] ?? STATUS_STYLE.unverified;
+                {alerts.map((data) => {
+                    const statusStyle = STATUS_STYLE[data.status] ?? STATUS_STYLE.Active;
 
-                    const severityStyle = SEVERITY_STYLE[data.severity] ?? SEVERITY_STYLE.moderate;
+                    const severityStyle = SEVERITY_STYLE[data.severity] ?? SEVERITY_STYLE.medium;
 
                     const disasterIcon = DISASTER_ICON[data.disasterType] ?? { icon: AlertTriangle, iconColor: 'text-muted-foreground' };
 
+                    const imageUrl = data.media?.[0]?.url;
+
                     return (
 
-                        <Card key={data.id} className="group overflow-hidden border-border/70 bg-card p-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5">
+                        <Card key={data._id} className="group overflow-hidden border-border/70 bg-card p-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5">
                             <div className="relative h-44 overflow-hidden cursor-pointer">
-
-                                <img src={data.imageUrl} alt={data.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                                {imageUrl ? (
+                                    <img src={imageUrl} alt={data.title || "Alert Image"} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                                        <ShieldCheck className="h-10 w-10 text-muted-foreground" />
+                                    </div>
+                                )}
 
                                 <div className="absolute inset-0 bg-linear-to-t  from-slate-950/75  via-slate-950/10 to-transparent" />
 
@@ -256,8 +223,8 @@ export default function Alerts() {
                                 </Badge>
 
                                 <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-xs font-medium text-white">
-                                    <MapPin className="h-3.5 w-3.5 text-primary" />
-                                    <span> {data.location} </span>
+                                    <MapPin className="h-5 w-5 text-primary" />
+                                    <span>  {data.location?.address} </span>
                                 </div>
                             </div>
 
@@ -274,17 +241,17 @@ export default function Alerts() {
                                 </h3>
                                 <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground"> {data.description} </p>
 
-                                <ConfidenceMeter value={data.confidence} />
+                                <ConfidenceMeter value={(data.confidence * 100).toFixed(2)} />
 
                                 <div className="flex items-center justify-between border-t border-border/70 pt-4">
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                         <ShieldCheck className="h-3.5 w-3.5" />
-                                        <span> {data.reportCount} Reports </span>
+                                        <span> Reports: {data.alertCount} </span>
                                     </div>
 
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                         <Clock3 className="h-3.5 w-3.5" />
-                                        <span> {data.reportedAt} </span>
+                                        <span> Created: {formatDate(data.createdAt)} </span>
                                     </div>
                                 </div>
                             </CardContent>

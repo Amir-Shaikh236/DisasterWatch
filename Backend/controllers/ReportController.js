@@ -1,8 +1,8 @@
 import Reports from "../models/Reports.js";
 import { AnalyzeDisasterReport } from "../services/gemini/AnalyzeDisasterReport.js";
+import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
-import { UploadToCloud } from "../utils/cloudinaryUpload.js";
-import { convertImages, ValidateLocation, ValidateRequiredFields } from "../utils/validator.js";
+import { convertImages, ValidateRequiredFields } from "../utils/validator.js";
 
 export const getReports = async (req, res, next) => {
     try {
@@ -18,63 +18,26 @@ export const getReports = async (req, res, next) => {
 }
 
 export const addReport = async (req, res, next) => {
-    const REJECT_THRESHOLDS = {
-        minConfidence: 0.70, maxMisinforamtionScore: 0.60
-    }
-
     try {
         const { disasterType, description } = req.body;
         const location = JSON.parse(req.body.location);
 
         ValidateRequiredFields({ disasterType, description, location });
-        const { lng, lat } = ValidateLocation(location);
 
-        const images = convertImages(req.files);
+        const images = req.files;
         const currentDate = new Date().toISOString().split("T")[0];
 
-        // const analysis = await AnalyzeDisasterReport(images, disasterType, description, location.address, currentDate);
-        const analysis = await AnalyzeDisasterReport(images, disasterType, description);
+        const result = await ProcessReport({ images, disasterType, description, location, currentDate });
 
-        const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence ||
-            analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinforamtionScore;
-
-        if (shouldReject) return res.status(422).json({ success: "false", message: "Report could not be verified", reasons: analysis.rejectionReasons });
-
-        const status = analysis.status === "approved" ? "verified" : "rejected";
-
-
-        const uploadedImages = [];
-        for (const file of req.files || []) {
-            const result = await UploadToCloud(file.buffer);
-
-            uploadedImages.push({
-                url: result.secure_url,
-                publicId: result.public_id
-            })
+        if (!result.approved) {
+            return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
         }
 
-        const reportData = {
-            disasterType: disasterType,
-            description: description,
-            location: {
-                type: 'Point',
-                coordinates: [lng, lat],
-                address: location.address
-            },
-
-            media: uploadedImages,
-            status,
-            aiAnalysis: analysis
-        };
-
-        const report = await Reports.create(reportData);
-        res.status(201).json({ status: 'created', report: report });
+        return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report });
 
     } catch (error) {
         if (error.status === 503) return next(new AppError(503, "AI verification service is temporarily unavailable. Please try again shortly."))
         next(error);
 
-
     }
 };
-
