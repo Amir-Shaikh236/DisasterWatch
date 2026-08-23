@@ -1,6 +1,10 @@
 import { messaging } from "../../config/firebaseAdmin.js";
 
 export const sendNotification = async ({ token, title, body, data = {}, }) => {
+    if (!messaging) {
+        throw new Error("Firebase messaging is not configured");
+    }
+
     const message = {
         token,
 
