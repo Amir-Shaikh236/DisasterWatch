@@ -7,5 +7,15 @@ const serviceAccount = {
     private_key: process.env.FIREBASE_PRIVATE_KEY
 }
 
-const firebaseAdmin = initializeApp({ credential: cert(serviceAccount) });
-export const messaging = getMessaging(firebaseAdmin);
+const hasValidServiceAccount = Object.values(serviceAccount).every(
+    (value) => typeof value === "string" && value.trim() !== ""
+);
+
+let messaging = null;
+
+if (hasValidServiceAccount) {
+    const firebaseAdmin = initializeApp({ credential: cert(serviceAccount) });
+    messaging = getMessaging(firebaseAdmin);
+}
+
+export { messaging };
