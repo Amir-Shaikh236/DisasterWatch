@@ -1,6 +1,10 @@
-import { initializeApp, cert } from "firebase-admin/app";
-import { getMessaging } from "firebase-admin/messaging";
-import serviceAccount from '../config/serviceAccountKey.json' with {type: "json"};
+import admin from 'firebase-admin'
 
-const firebaseAdmin = initializeApp({ credential: cert(serviceAccount) });
-export const messaging = getMessaging(firebaseAdmin);
+const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJEECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY
+}
+
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+export const messaging = admin.messaging();
