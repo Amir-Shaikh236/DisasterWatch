@@ -1,4 +1,5 @@
 import { getAlerts } from "@/api/alertApi";
+import { privateClient } from "@/api/api";
 import { getReports } from "@/api/reportApi";
 import DisasterActivity from "@/components/shared/DisasterActivity";
 import DisasterMap from "@/components/shared/DisasterMap";
@@ -8,9 +9,11 @@ import ReportModal from "@/components/shared/ReportModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { requestNotificationPermission } from "@/services/notification";
 import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Dashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
@@ -41,6 +44,14 @@ export default function Dashboard() {
         fetchReports();
         fetchAlerts();
     }, [])
+
+    const enableNotification = async () => {
+        const token = await requestNotificationPermission();
+        if (token) {
+            await privateClient.post('/api/auth/user/update', { token });
+            toast.success('Proximity Alert Enabled');
+        }
+    }
 
     const TotalStats = [
         {
@@ -77,9 +88,13 @@ export default function Dashboard() {
 
                 <div className="flex items-center space-x-3">
                     <div>
-                        <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        {/* <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
                             <Camera className="h-4 w-4" />
                             <span> Image Analyzer </span>
+                        </Button> */}
+                        <Button onClick={enableNotification} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                            <Camera className="h-4 w-4" />
+                            <span> Enable Notification </span>
                         </Button>
                     </div>
 

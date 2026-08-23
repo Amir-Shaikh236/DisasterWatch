@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express'
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet'
@@ -9,8 +10,6 @@ import ReportsRoutes from './routes/ReportsRoutes.js'
 import AI_Routes from './routes/AI_Routes.js'
 import alertRoutes from "./routes/alertRoutes.js"
 import { errorHandler } from './middleware/errorMiddleware.js'
-import dotenv from 'dotenv'
-dotenv.config();
 
 const app = express();
 

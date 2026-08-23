@@ -2,6 +2,10 @@
 node_modules/
 .pnpm-store/
 
+config/serviceAccountKey.json
+config/*serviceAccount*.json
+config/*firebase-admin*.json
+
 # Environment Variables & Secrets (CRITICAL SECURITY)
 .env
 .env.local
