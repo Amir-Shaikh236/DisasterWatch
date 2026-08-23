@@ -9,9 +9,9 @@ const serviceAccount = {
     private_key: process.env.FIREBASE_PRIVATE_KEY
 }
 
-const isValidAccount = Object.values(serviceAccount).every((value) => typeof value === "string" && value.trim() !== "");
+const hasValidServiceAccount = Object.values(serviceAccount).every((value) => typeof value === "string" && value.trim() !== "");
 
-if (isValidAccount) {
+if (hasValidServiceAccount) {
     const firebaseAdmin = initializeApp({ credential: cert(serviceAccount) });
     messaging = getMessaging(firebaseAdmin);
 }
