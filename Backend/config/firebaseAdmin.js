@@ -3,11 +3,7 @@ import { getMessaging } from "firebase-admin/messaging";
 
 let messaging = null
 
-const serviceAccount = {
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    private_key: process.env.FIREBASE_PRIVATE_KEY
-}
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8"));
 
 const hasValidServiceAccount = Object.values(serviceAccount).every((value) => typeof value === "string" && value.trim() !== "");
 

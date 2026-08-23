@@ -126,9 +126,7 @@ jobs:
                 JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
                 JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
                 FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-                FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-                FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-                FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+                FIREBASE_SERVICE_ACCOUNT_BASE64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
               run: npm run test:e2e
 
             - name: Upload Playwright Report
