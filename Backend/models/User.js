@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import bcrypt from 'bcryptjs'
 import validator from 'validator'
+import PointSchema from "./PointSchema.js";
 
 
 const userSchema = new mongoose.Schema(
@@ -45,12 +46,20 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
 
+    location: {
+      type: PointSchema,
+      required: false
+    },
+
+    fcmTokens: [{ type: String }],
+
     refreshTokens: {
       type: [String],
       default: [],
       select: false
     },
   },
+
   {
     timestamps: true,
     toJSON: {
@@ -63,6 +72,8 @@ const userSchema = new mongoose.Schema(
     },
   },
 );
+
+userSchema.index({ location: "2dsphere" });
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

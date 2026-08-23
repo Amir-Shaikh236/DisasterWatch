@@ -1,8 +1,7 @@
 import Reports from "../models/Reports.js";
-import { AnalyzeDisasterReport } from "../services/gemini/AnalyzeDisasterReport.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
-import { convertImages, ValidateRequiredFields } from "../utils/validator.js";
+import { ValidateRequiredFields } from "../utils/validator.js";
 
 export const getReports = async (req, res, next) => {
     try {
@@ -28,10 +27,7 @@ export const addReport = async (req, res, next) => {
         const currentDate = new Date().toISOString().split("T")[0];
 
         const result = await ProcessReport({ images, disasterType, description, location, currentDate });
-
-        if (!result.approved) {
-            return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
-        }
+        if (!result.approved) return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
 
         return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report });
 

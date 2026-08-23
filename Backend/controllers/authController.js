@@ -163,4 +163,28 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-export { register, login, refreshToken, logout, deleteUser }
+const UpdateUser = async (req, res, next) => {
+  try {
+    console.log('TOken: ', req.body);
+    console.log("User: ", req.user);
+
+    const { token } = req.body;
+    if (!token) return next(new AppError(404, "Token Not Found"));
+
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError(404, 'User Not Found'));
+
+    if (!user.fcmTokens.includes(token)) {
+      user.fcmTokens.push(token);
+      user.save();
+    }
+    res.status(200).json({ success: 'success', message: 'FCM Token Saved Successfully' });
+
+  } catch (error) {
+    console.error('Update User Error: ', error);
+    next(error);
+
+  }
+}
+
+export { register, login, refreshToken, logout, deleteUser, UpdateUser }

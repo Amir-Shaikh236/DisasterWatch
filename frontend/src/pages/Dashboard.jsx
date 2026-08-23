@@ -1,3 +1,6 @@
+import { getAlerts } from "@/api/alertApi";
+import { privateClient } from "@/api/api";
+import { getReports } from "@/api/reportApi";
 import DisasterActivity from "@/components/shared/DisasterActivity";
 import DisasterMap from "@/components/shared/DisasterMap";
 import DisasterType from "@/components/shared/DisasterType";
@@ -6,42 +9,72 @@ import ReportModal from "@/components/shared/ReportModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, ArrowUpRight, Camera, Eye, FileText, Plus, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { requestNotificationPermission } from "@/services/notification";
+import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Dashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
     const [isImageAnalyzerOpen, setIsImageAnalyzerOpen] = useState(false)
+    const [reports, setReports] = useState([]);
+    const [alerts, setAlerts] = useState([]);
 
-    const TotalAlerts = [
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const data = await getReports();
+                setReports(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error('Failed to Load Reports: ', error)
+                setReports([])
+            }
+        }
+
+        const fetchAlerts = async () => {
+            try {
+                const data = await getAlerts();
+                setAlerts(Array.isArray(data) ? data : [])
+            } catch (error) {
+                console.error('Failed to Fetch Alerts: ', error)
+            }
+        }
+
+        fetchReports();
+        fetchAlerts();
+    }, [])
+
+    const enableNotification = async () => {
+        const token = await requestNotificationPermission();
+        if (token) {
+            await privateClient.post('/api/auth/user/update', { token });
+            toast.success('Proximity Alert Enabled');
+        }
+    }
+
+    const TotalStats = [
         {
             name: "Total Reports",
-            length: 128,
+            length: reports.length,
             icon: FileText,
             iconClass: "text-blue-400"
         },
 
         {
             name: "Active Alerts",
-            length: 24,
+            length: alerts.length,
             icon: AlertTriangle,
             iconClass: "text-destructive animate-pulse"
         },
 
         {
             name: "Critical Alerts",
-            length: 4,
+            length: alerts.filter((data) => data.severity === 'critical').length,
             icon: TrendingUp,
             iconClass: "text-amber-300"
         },
 
-        {
-            name: "Verified Report",
-            length: 85,
-            icon: Eye,
-            iconClass: "text-emerald-300"
-        },
     ];
 
     return (
@@ -55,9 +88,13 @@ export default function Dashboard() {
 
                 <div className="flex items-center space-x-3">
                     <div>
-                        <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        {/* <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
                             <Camera className="h-4 w-4" />
                             <span> Image Analyzer </span>
+                        </Button> */}
+                        <Button onClick={enableNotification} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                            <Camera className="h-4 w-4" />
+                            <span> Enable Notification </span>
                         </Button>
                     </div>
 
@@ -71,8 +108,8 @@ export default function Dashboard() {
 
             </div>
 
-            <div className="mb-8 mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {TotalAlerts.map((item) => {
+            <div className="mb-8 mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {TotalStats.map((item) => {
                     const Icon = item.icon;
 
                     return (

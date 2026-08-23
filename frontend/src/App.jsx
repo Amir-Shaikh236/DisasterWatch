@@ -10,9 +10,23 @@ import Protected from '@/store/Protected'
 import Dashboard from '@/pages/Dashboard'
 import Reports from '@/pages/Reports'
 import Alerts from '@/pages/Alerts'
+import { useEffect } from 'react'
+import { listenForNotifications } from './services/notification'
+
+
 
 
 function App() {
+
+  useEffect(() => {
+    const unsubscribe = listenForNotifications();
+
+    return () => {
+      unsubscribe()
+    }
+
+  }, []);
+
   return (
     <Routes>
       {/* Public Routes */}

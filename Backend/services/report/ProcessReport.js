@@ -1,12 +1,14 @@
 import Alerts from "../../models/Alerts.js";
 import Reports from "../../models/Reports.js";
+import User from "../../models/User.js";
 import { convertImages, ValidateLocation } from "../../utils/validator.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
 import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
+import { sendNotification } from "../Notification/sendNotification.js";
 
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate }) => {
     const REJECT_THRESHOLDS = {
-        minConfidence: 0.70, maxMisinforamtionScore: 0.60
+        minConfidence: 0.70, maxMisinformationScore: 0.60
     }
 
     const { lng, lat } = ValidateLocation(location);
@@ -15,7 +17,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     const analysis = await AnalyzeDisasterReport(base64Image, disasterType, description);
 
     const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence
-        || analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinforamtionScore;
+        || analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinformationScore;
 
     if (shouldReject) return { approved: false, analysis };
 
@@ -60,6 +62,36 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     }
 
     const alert = await Alerts.create(alertData);
+
+    try {
+        const users = await User.find({ fcmTokens: { $exists: true, $ne: [] } }).select('fcmTokens');
+        for (const user of users) {
+            if (!user.fcmTokens?.length) continue;
+
+            for (const token of user.fcmTokens) {
+                try {
+                    await sendNotification({
+                        token,
+                        title: `${analysis.alertTitle || "Disater Alert"}`,
+
+                        body: analysis.description,
+
+                        data: {
+                            alertId: alert._id.toString(),
+                            disasterType,
+                            severity: analysis.severity
+                        },
+                    });
+                } catch (error) {
+                    console.error('Failed to send Notifications: ', error);
+                }
+            }
+
+        }
+
+    } catch (error) {
+        console.error('Notification System Error: ', error);
+    }
 
     return { approved: true, report, alert, analysis }
 }
