@@ -6,7 +6,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     let testUser;
 
     const clearAll = async (request) => {
-        await request.post(`${backendBaseURL}/api/auth/deleteUser`, {
+        await request.post(`${backendBaseURL}/api/auth/user/delete`, {
             data: { email: testUser.email },
             failOnStatusCode: false,
         });
