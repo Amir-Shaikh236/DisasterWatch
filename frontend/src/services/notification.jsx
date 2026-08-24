@@ -1,6 +1,7 @@
 import { getToken, onMessage } from "firebase/messaging";
 import { messaging } from "@/config/firebase";
 import { toast } from "sonner";
+import { Flame, Mountain, Waves, Activity, AlertTriangle } from "lucide-react";
 
 export const requestNotificationPermission = async () => {
     try {
@@ -32,40 +33,71 @@ export const requestNotificationPermission = async () => {
     }
 }
 
+const shortBody = (text, maxLength = 100) => {
+    if (!text) return "";
+    return text.length > maxLength ? `${text.slice(0, maxLength).trim()}.....` : text;
+}
+
+
+const disasterIcons = {
+    flood: Waves,
+    wildfire: Flame,
+    landslide: Mountain,
+    earthquake: Activity
+}
+
 export const listenForNotifications = () => {
     return onMessage(messaging, (payload) => {
-        const title = payload.notification?.title || payload.data?.title || "Disaster Alerrt"
-        const body = payload.notification?.body || payload.data?.body || "A Disaster has been reported near You"
+        const Icon = disasterIcons[payload.data?.disasterType] || AlertTriangle;
+        const title = payload.notification?.title || payload.data?.title || "Disaster Alert";
+        const body = payload.notification?.body || payload.data?.body || "A Disaster has been reported near You";
 
         if (Notification.permission === 'granted') {
 
             toast.custom(
                 (toastId) => (
-                    <div className="w-95 rounded-xl border border-teal-400/20 bg-[#00282c] p-4 shadow-2xl">
+                    <div className="relative w-95 overflow-hidden rounded-xl border border-red-500/30">
+                        <div className="p-4 pl-5">
 
-                        <h3 className="text-sm font-semibold text-white"> {title} </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-slate-300"> {body} </p>
+                            <div className="flex items-center gap-3">
+                                <div className="relative shrink-0">
+                                    <span className="absolute inset-0 animate-ping rounded-lg bg-red-500/30" />
+                                    <div className="relative rounded-lg bg-red-500/15 p-2 ring-1 ring-red-500/30">
+                                        <Icon className="h-4 w-5 text-red-400" />
+                                    </div>
+                                </div>
 
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button onClick={() => toast.dismiss(toastId)} className="rounded-lg px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5">
-                                Dismiss
-                            </button>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="truncate text-white">{title}</h3>
+                                </div>
+                            </div>
 
-                            <button
-                                onClick={() => {
-                                    toast.dismiss(toastId);
-                                    window.location.href = "/alerts";
-                                }}
-                                className="rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-400"
-                            >
-                                View Alert
-                            </button>
+                            <div className="w-full">
+                                <p className="mt-2 text-sm leading-5 text-slate-300">{shortBody(body, 100)}</p>
+                            </div>
+
+                            <div className="mt-3 flex justify-end gap-2">
+                                <button onClick={() => toast.dismiss(toastId)}
+                                    className="rounded-lg px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 cursor-pointer"
+                                >
+                                    Dismiss
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        toast.dismiss(toastId)
+                                        window.location.href = "/alerts";
+                                    }}
+                                    className="rounded-lg bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-400 cursor-pointer"
+                                >
+                                    View Alert
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ),
                 {
                     duration: 10000,
-                    position: "top-right",
                 }
             );
         }
