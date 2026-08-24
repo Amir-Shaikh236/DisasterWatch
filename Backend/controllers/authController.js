@@ -165,9 +165,6 @@ const deleteUser = async (req, res, next) => {
 
 const UpdateUser = async (req, res, next) => {
   try {
-    console.log('TOken: ', req.body);
-    console.log("User: ", req.user);
-
     const { token } = req.body;
     if (!token) return next(new AppError(404, "Token Not Found"));
 

@@ -38,7 +38,6 @@ const shortBody = (text, maxLength = 100) => {
     return text.length > maxLength ? `${text.slice(0, maxLength).trim()}.....` : text;
 }
 
-
 const disasterIcons = {
     flood: Waves,
     wildfire: Flame,

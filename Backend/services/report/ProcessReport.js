@@ -4,7 +4,7 @@ import User from "../../models/User.js";
 import { convertImages, ValidateLocation } from "../../utils/validator.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
 import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
-import { sendNotification } from "../Notification/sendNotification.js";
+import { notifyNearByUser } from "../Notification/notifyNearUsers.js";
 
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate }) => {
     const REJECT_THRESHOLDS = {
@@ -63,35 +63,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
 
     const alert = await Alerts.create(alertData);
 
-    try {
-        const users = await User.find({ fcmTokens: { $exists: true, $ne: [] } }).select('fcmTokens');
-        for (const user of users) {
-            if (!user.fcmTokens?.length) continue;
-
-            for (const token of user.fcmTokens) {
-                try {
-                    await sendNotification({
-                        token,
-                        title: `${analysis.alertTitle || "Disater Alert"}`,
-
-                        body: analysis.description,
-
-                        data: {
-                            alertId: alert._id.toString(),
-                            disasterType,
-                            severity: analysis.severity
-                        },
-                    });
-                } catch (error) {
-                    console.error('Failed to send Notifications: ', error);
-                }
-            }
-
-        }
-
-    } catch (error) {
-        console.error('Notification System Error: ', error);
-    }
+    await notifyNearByUser(alert);
 
     return { approved: true, report, alert, analysis }
 }
