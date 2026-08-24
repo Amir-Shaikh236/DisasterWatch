@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs'
 import validator from 'validator'
 import PointSchema from "./PointSchema.js";
 
-
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -49,6 +48,18 @@ const userSchema = new mongoose.Schema(
     location: {
       type: PointSchema,
       required: false
+    },
+
+    notification: {
+      type: Boolean,
+      default: true
+    },
+
+    notificationRadius: {
+      type: Number,
+      default: 5,
+      min: 1,
+      max: 15
     },
 
     fcmTokens: [{ type: String }],

@@ -11,7 +11,8 @@ import Dashboard from '@/pages/Dashboard'
 import Reports from '@/pages/Reports'
 import Alerts from '@/pages/Alerts'
 import { useEffect } from 'react'
-import { listenForNotifications } from './services/notification'
+import { listenForNotifications } from '@/services/notification'
+import Setting from '@/pages/Setting'
 
 
 
@@ -39,6 +40,7 @@ function App() {
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/reports' element={<Reports />} />
           <Route path='/alerts' element={<Alerts />} />
+          <Route path='/setting' element={<Setting />} />
         </Route>
       </Route>
 
