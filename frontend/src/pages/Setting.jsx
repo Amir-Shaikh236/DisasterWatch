@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export default function Setting() {
     const [loading, setLoading] = useState(false);
+
     const user = useUser((state) => state.user);
     const setUser = useUser((state) => state.setUser);
     const sharingEnabled = Boolean(user?.notification);
