@@ -15,8 +15,6 @@ export const requestNotificationPermission = async () => {
         }
 
         const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js")
-        console.log("FCM Service Worker Registered: ", registration)
-
         const token = await getToken(messaging, {
             vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
             serviceWorkerRegistration: registration
@@ -55,7 +53,7 @@ export const listenForNotifications = () => {
 
             toast.custom(
                 (toastId) => (
-                    <div className="relative w-95 overflow-hidden rounded-xl border border-red-500/30">
+                    <div className="relative w-95 overflow-hidden rounded-lg border border-red-500/30">
                         <div className="p-4 pl-5">
 
                             <div className="flex items-center gap-3">

@@ -12,14 +12,15 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 import AutoComplete from "@/components/shared/location/AutoComplete";
-import { getAddressFromCoordinates } from "@/lib/googleMaps";
 import { publicClient } from "@/api/api";
 import { toast } from "sonner";
+import { GPSLocation } from "@/utils/Helpers";
 
 export default function ReportModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
     const [files, setFiles] = useState([]);
-    const [isLoading, setIsLoading] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isLocating, setIsLocating] = useState(false)
 
     const reportSchema = z.object({
         disasterType: z.enum(["earthquake", "flood", "landslide", "wildfire"]),
@@ -69,6 +70,20 @@ export default function ReportModal({ isOpen, onClose }) {
         form.setValue("images", updated.map((item) => item.file), { shouldValidate: true });
     };
 
+    const handleGPS = async () => {
+        setIsLocating(true);
+        const location = await GPSLocation();
+        setIsLocating(false);
+
+        if (!location) return;
+
+        form.setValue("location", {
+            type: "Point",
+            coordinates: [location.longitude, location.latitude],
+            address: location.address
+        }, { shouldValidate: true });
+    }
+
 
     const handleReset = () => {
         files.forEach((item) => {
@@ -83,52 +98,8 @@ export default function ReportModal({ isOpen, onClose }) {
         onClose();
     }
 
-    const handleGPS = () => {
-        if (!navigator.geolocation) return toast.error("GeoLocation is not supported.");
-
-        setIsLoading(true);
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            try {
-
-                const { latitude, longitude } = position.coords;
-
-                const address = await getAddressFromCoordinates(latitude, longitude);
-
-                form.setValue("location", {
-                    type: "Point",
-                    coordinates: [longitude, latitude],
-                    address: address
-                },
-                    {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                    }
-                );
-            } catch (error) {
-                toast.error("Failed to resolve GPS location.");
-
-            } finally {
-                setIsLoading(false)
-
-            }
-
-        },
-            (error) => {
-                toast.error("Failed to get location.");
-                setIsLoading(false)
-            },
-
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
-            }
-        );
-    }
-
     const handleSubmit = async (data) => {
-        setIsLoading(true);
+        setIsSubmitting(true);
 
         try {
             const formData = new FormData();
@@ -148,7 +119,7 @@ export default function ReportModal({ isOpen, onClose }) {
             console.error(error.response?.data || error.message);
 
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
 
         }
     };
@@ -210,7 +181,7 @@ export default function ReportModal({ isOpen, onClose }) {
                                                 }, { shouldValidate: true });
                                                 form.setValue("placeId", location.placeId)
                                             }} />
-                                        {isLoading ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
+                                        {isLocating ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
                                             <Button type="button" variant="outline" className="cursor-pointer rounded-md" onClick={handleGPS}> <MapPin className="h-4 w-4" /> GPS </Button>
                                         }
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
@@ -252,11 +223,11 @@ export default function ReportModal({ isOpen, onClose }) {
 
                     <DialogFooter className="flex items-center justify-between">
                         <div>
-                            <Button type="button" variant="outline" className="cursor-pointer" onClick={() => handleClose()} disabled={isLoading}> Cancel </Button>
+                            <Button type="button" variant="outline" className="cursor-pointer" onClick={() => handleClose()} disabled={isSubmitting}> Cancel </Button>
                         </div>
                         <div className="flex gap-2">
-                            <Button type="button" variant="outline" className="cursor-pointer px-4" onClick={handleReset} disabled={isLoading}>Reset</Button>
-                            {isLoading ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" />Submiting... </Button> :
+                            <Button type="button" variant="outline" className="cursor-pointer px-4" onClick={handleReset} disabled={isSubmitting}>Reset</Button>
+                            {isSubmitting ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" />Submitting... </Button> :
                                 <Button type="submit" variant="secondary" className="cursor-pointer">Submit</Button>}
                         </div>
                     </DialogFooter>

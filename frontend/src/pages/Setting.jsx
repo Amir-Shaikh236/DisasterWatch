@@ -1,17 +1,94 @@
+import { privateClient } from "@/api/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { requestNotificationPermission } from "@/services/notification";
+import { GPSLocation } from "@/utils/Helpers";
 import { Settings } from "lucide-react";
 import { useState } from "react";
-
+import { toast } from "sonner";
 
 export default function Setting() {
-    const [isSharing, setIsSharing] = useState(false)
-    const [loading] = useState(false)
+    const [isSharing, setIsSharing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleSharing = (checked) => {
-        setIsSharing(checked)
-    }
+    const enableNotification = async () => {
+        const token = await requestNotificationPermission();
+
+        if (!token) {
+            setIsSharing(false);
+            return;
+        }
+
+        let location;
+        try {
+            const gpsLocation = await GPSLocation();
+
+            if (!gpsLocation) {
+                toast.error('Location access is required to enable proximity alerts.');
+                setIsSharing(false);
+                return;
+            }
+
+            location = {
+                type: 'Point',
+                coordinates: [gpsLocation.longitude, gpsLocation.latitude],
+                address: gpsLocation.address,
+            };
+
+        } catch (error) {
+            console.error('Location fetch failed:', error);
+            toast.error('Location access is required to enable proximity alerts.');
+            setIsSharing(false);
+            return;
+        }
+
+        await privateClient.post('/api/auth/user/update', {
+            token,
+            notification: true,
+            location,
+        });
+
+        setIsSharing(true);
+        toast.success('Proximity Alert Enabled');
+    };
+
+    const disableNotification = async () => {
+        try {
+            await privateClient.post('/api/auth/user/update', {
+                notification: false,
+                location: null,
+                token: null,
+            });
+
+            setIsSharing(false);
+            toast.success('Proximity Alert Disabled');
+        } catch (error) {
+            setIsSharing(true);
+            toast.error(error.response?.data?.message || 'Failed to disable proximity alerts.');
+        }
+    };
+
+    const handleSharing = async (checked) => {
+        setLoading(true);
+
+        try {
+            if (checked) {
+                await enableNotification();
+
+            } else {
+                await disableNotification();
+
+            }
+        } catch (error) {
+            setIsSharing(!checked);
+            toast.error(error.response?.data?.message || 'Failed to update notification settings.');
+
+        } finally {
+            setLoading(false);
+
+        }
+    };
 
     return (
         <div className="min-h-screen flex-1 bg-background p-6 text-foreground lg:p-9">
@@ -43,6 +120,6 @@ export default function Setting() {
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }
 
