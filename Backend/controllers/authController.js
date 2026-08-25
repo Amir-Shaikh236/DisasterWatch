@@ -24,11 +24,13 @@ const register = async (req, res, next) => {
     await User.updateOne({ _id: user._id }, { $push: { refreshTokens: refreshToken } }, { runValidators: false });
 
     setRefreshCookie(res, refreshToken);
+
     res.status(201).json({
       status: "success",
-      user: { id: user._id, email: user.email },
+      user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName },
       accessToken,
     });
+
   } catch (error) {
     next(error);
   }
@@ -72,6 +74,19 @@ const login = async (req, res, next) => {
     next(error);
   }
 };
+
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError(404, 'User Not Found'));
+
+    res.status(200).json({ status: 'success', user });
+
+  } catch (error) {
+    next(error)
+
+  }
+}
 
 const refreshToken = async (req, res, next) => {
   try {
@@ -218,4 +233,4 @@ const UpdateUser = async (req, res, next) => {
   }
 };
 
-export { register, login, refreshToken, logout, deleteUser, UpdateUser }
+export { register, login, refreshToken, logout, deleteUser, UpdateUser, getCurrentUser }

@@ -10,14 +10,21 @@ import Protected from '@/store/Protected'
 import Dashboard from '@/pages/Dashboard'
 import Reports from '@/pages/Reports'
 import Alerts from '@/pages/Alerts'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { listenForNotifications } from '@/services/notification'
 import Setting from '@/pages/Setting'
-
-
-
+import { useUser } from './store/useUser'
+import { AuthContext } from '@/store/AuthProvider'
 
 function App() {
+  const { isInitializing, isAuthenticated } = useContext(AuthContext)
+  const fetchUser = useUser((state) => state.fetchUser);
+
+  useEffect(() => {
+    if (isInitializing) return;
+    if (isAuthenticated) fetchUser();
+
+  }, [isInitializing, isAuthenticated, fetchUser]);
 
   useEffect(() => {
     const unsubscribe = listenForNotifications();
