@@ -1,7 +1,7 @@
 import Reports from "../models/Reports.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
-import { ValidateRequiredFields } from "../utils/validator.js";
+import { ValidateRequiredFields } from "../utils/Validator.js";
 
 export const getReports = async (req, res, next) => {
     try {

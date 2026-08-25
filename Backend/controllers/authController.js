@@ -2,6 +2,7 @@ import User from "../models/User.js"
 import { SignToken, setRefreshCookie } from "../services/authService.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/AppError.js";
+import { ValidateLocation } from "../utils/Validator.js";
 
 const register = async (req, res, next) => {
   try {
@@ -165,23 +166,56 @@ const deleteUser = async (req, res, next) => {
 
 const UpdateUser = async (req, res, next) => {
   try {
-    const { token } = req.body;
-    if (!token) return next(new AppError(404, "Token Not Found"));
+    const { token, notification, location } = req.body;
 
     const user = await User.findById(req.user._id);
-    if (!user) return next(new AppError(404, 'User Not Found'));
+    if (!user) return next(new AppError(404, "User Not Found"));
+
+    if (typeof notification === 'boolean') {
+      user.notification = notification;
+    }
+
+    if (user.notification === false) {
+      user.fcmTokens = [];
+      user.location = null;
+
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(200).json({
+        success: true,
+        message: 'User settings updated successfully',
+        notification: false,
+      });
+    }
+
+    if (!token) return next(new AppError(400, 'FCM token is required when notifications are enabled'));
 
     if (!user.fcmTokens.includes(token)) {
       user.fcmTokens.push(token);
-      user.save();
     }
-    res.status(200).json({ success: 'success', message: 'FCM Token Saved Successfully' });
+
+    if (!location) return next(new AppError(400, 'Location is required when notifications are enabled'));
+
+    const { lng, lat } = ValidateLocation(location);
+
+    user.location = {
+      type: 'Point',
+      coordinates: [lng, lat],
+      address: location.address
+    }
+
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'User settings updated successfully',
+      notification: user.notification,
+    });
 
   } catch (error) {
     console.error('Update User Error: ', error);
     next(error);
-
   }
-}
+};
 
 export { register, login, refreshToken, logout, deleteUser, UpdateUser }

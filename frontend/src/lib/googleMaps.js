@@ -20,7 +20,9 @@ export function loadGoogleMaps() {
 
 export const getAddressFromCoordinates = async (lat, lng) => {
     try {
-        const { Geocoder } = await importLibrary("geocoding");
+        await loadGoogleMaps();
+
+        const { Geocoder } = await importLibrary('geocoding');
         const geocoder = new Geocoder();
 
         const response = await geocoder.geocode({ location: { lat, lng } });
