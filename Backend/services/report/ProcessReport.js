@@ -1,6 +1,6 @@
 import Alerts from "../../models/Alerts.js";
 import Reports from "../../models/Reports.js";
-import { convertImages, ValidateLocation } from "../../utils/Validator.js";
+import { convertImages, ValidateLocation } from "../../utils/validator.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
 import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
 import { notifyNearByUser } from "../Notification/notifyNearUsers.js";

@@ -2,7 +2,7 @@ import User from "../models/User.js"
 import { SignToken, setRefreshCookie } from "../services/authService.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/AppError.js";
-import { ValidateLocation } from "../utils/Validator.js";
+import { ValidateLocation } from "../utils/validator.js";
 
 const register = async (req, res, next) => {
   try {
