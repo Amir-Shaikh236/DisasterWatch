@@ -3,21 +3,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { requestNotificationPermission } from "@/services/notification";
+import { useUser } from "@/store/useUser";
 import { GPSLocation } from "@/utils/Helpers";
 import { Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Setting() {
-    const [isSharing, setIsSharing] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const user = useUser((state) => state.user);
+    const setUser = useUser((state) => state.setUser);
+    const sharingEnabled = Boolean(user?.notification);
 
     const enableNotification = async () => {
         const token = await requestNotificationPermission();
 
         if (!token) {
-            setIsSharing(false);
-            return;
+            throw new Error("Notification permission was denied.");
         }
 
         let location;
@@ -25,9 +28,7 @@ export default function Setting() {
             const gpsLocation = await GPSLocation();
 
             if (!gpsLocation) {
-                toast.error('Location access is required to enable proximity alerts.');
-                setIsSharing(false);
-                return;
+                throw new Error('Location access is required to enable proximity alerts.');
             }
 
             location = {
@@ -36,11 +37,9 @@ export default function Setting() {
                 address: gpsLocation.address,
             };
 
-        } catch (error) {
-            console.error('Location fetch failed:', error);
-            toast.error('Location access is required to enable proximity alerts.');
-            setIsSharing(false);
-            return;
+        } catch {
+            throw new Error('Location access is required to enable proximity alerts.');
+
         }
 
         await privateClient.post('/api/auth/user/update', {
@@ -49,27 +48,25 @@ export default function Setting() {
             location,
         });
 
-        setIsSharing(true);
         toast.success('Proximity Alert Enabled');
     };
 
     const disableNotification = async () => {
-        try {
-            await privateClient.post('/api/auth/user/update', {
-                notification: false,
-                location: null,
-                token: null,
-            });
+        await privateClient.post('/api/auth/user/update', {
+            notification: false,
+            location: null,
+            token: null,
+        });
 
-            setIsSharing(false);
-            toast.success('Proximity Alert Disabled');
-        } catch (error) {
-            setIsSharing(true);
-            toast.error(error.response?.data?.message || 'Failed to disable proximity alerts.');
-        }
+        toast.success('Proximity Alert Disabled');
     };
 
     const handleSharing = async (checked) => {
+        if (!user) {
+            toast.error('User data is not loaded yet.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -80,8 +77,8 @@ export default function Setting() {
                 await disableNotification();
 
             }
+            setUser({ ...user, notification: checked });
         } catch (error) {
-            setIsSharing(!checked);
             toast.error(error.response?.data?.message || 'Failed to update notification settings.');
 
         } finally {
@@ -113,9 +110,9 @@ export default function Setting() {
                     <CardDescription className="hidden text-muted-foreground sm:block"> Enable or disable location sharing for real-time Notification. </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center space-y-2 pt-6">
-                    <Switch checked={isSharing} onCheckedChange={handleSharing} disabled={loading} className="cursor-pointer" />
-                    <Label className={`hidden sm:block ${isSharing ? "text-green-600" : "text-red-600"}`}>
-                        {isSharing ? "Sharing Enabled" : "Sharing Disabled"}
+                    <Switch checked={sharingEnabled} onCheckedChange={handleSharing} disabled={loading} className="cursor-pointer" />
+                    <Label className={`hidden sm:block ${sharingEnabled ? "text-green-600" : "text-red-600"}`}>
+                        {sharingEnabled ? "Sharing Enabled" : "Sharing Disabled"}
                     </Label>
                 </CardContent>
             </Card>

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AuthContext } from "@/store/AuthProvider";
 import { publicClient } from "@/api/api";
 import { useContext, useState } from "react";
+import { useUser } from "@/store/useUser";
 
 export default function AppSidebar() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -13,6 +14,7 @@ export default function AppSidebar() {
     const navigate = useNavigate()
     const location = useLocation()
     const { open } = useSidebar()
+    const user = useUser((state) => state.user);
 
     const Menu = [
         { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
@@ -101,20 +103,20 @@ export default function AppSidebar() {
                                             <div className="flex w-6 h-6 items-center justify-center rounded-full bg-sidebar-accent text-xs font-medium">
                                                 <User2 className="h-4 w-4" />
                                             </div>
-                                            <span className="truncate text-sm"> Amir Shaikh </span>
+                                            <span className="truncate text-sm">{user?.firstName} {user?.lastName}</span>
                                             <ChevronsUpDown className="ml-auto h-3.5 w-3.5 opacity-50" />
                                         </SidebarMenuButton>
                                     } />
                                 <DropdownMenuContent
                                     side="top"
                                     align="end"
-                                    className="w-[--radix-popper-anchor-width] min-w-46 rounded p-1"
+                                    className="w-[--radix-popper-anchor-width] min-w-46 rounded-md p-1"
                                 >
                                     <DropdownMenuGroup>
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="text-sm font-medium leading-none"> Amir Shaikh </span>
-                                                <span className="text-xs text-muted-foreground truncate"> skamir2410@gmail.com </span>
+                                                <span className="text-sm font-medium leading-none"> {user?.firstName} {user?.lastName} </span>
+                                                <span className="text-xs text-muted-foreground truncate"> {user?.email} </span>
                                             </div>
                                         </DropdownMenuLabel>
                                     </DropdownMenuGroup>

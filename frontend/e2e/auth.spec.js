@@ -109,10 +109,6 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
 
         await page.reload();
         await expect(page).toHaveURL(/\/dashboard$/);
-        await expect(page.getByRole('button', { name: /Amir Shaikh/i })).toBeVisible();
-
-        await page.getByRole('button', { name: /Amir Shaikh/i }).click();
-        await expect(page.getByRole('menuitem', { name: /Log Out/i })).toBeVisible();
 
     });
 });

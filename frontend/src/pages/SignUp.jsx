@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useContext, useState } from "react"
 import { toast } from "sonner"
 import { publicClient } from "@/api/api"
+import { useUser } from "@/store/useUser"
 
 
 const formSchema = z.object({
@@ -52,6 +53,7 @@ export default function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
     const { updateToken } = useContext(AuthContext);
     const navigate = useNavigate()
+    const { setUser } = useUser.getState();
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -88,15 +90,16 @@ export default function SignUp() {
                 loading: 'Creating your account...',
                 success: (response) => {
                     const { accessToken } = response.data;
-
+                    setUser(response.data?.user);
                     updateToken(accessToken)
 
                     form.reset();
                     navigate('/dashboard');
                     return `${payload.firstName} ${payload.lastName} account created successfully!`;
                 },
+
                 error: (error) => error.response?.data?.message || "Failed creating account",
-                finally: () => setIsLoading(false),
+                finally: () => setIsLoading(false)
             }
         );
     }

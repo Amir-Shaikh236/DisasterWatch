@@ -10,8 +10,9 @@ import { Loader2, Radio, ShieldCheck, BellRing } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/store/AuthProvider";
 import { toast } from "sonner";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { publicClient } from "@/api/api";
+import { useUser } from "@/store/useUser";
 
 const formSchema = z.object({
     email: z.string().email({ message: "Invalid Email Address" }),
@@ -30,9 +31,10 @@ function StatusItem({ icon: Icon, text }) {
 }
 
 export default function Login() {
-
+    const [isLoading, setIsLoading] = useState(false)
     const { updateToken, accessToken } = useContext(AuthContext)
     const navigate = useNavigate();
+    const { setUser } = useUser.getState();
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -41,8 +43,6 @@ export default function Login() {
             password: ""
         },
     });
-
-    const { isSubmitting } = form.formState;
 
     useEffect(() => {
         if (accessToken) navigate('/dashboard');
@@ -56,30 +56,31 @@ export default function Login() {
     }
 
     const onsubmit = async (data) => {
+        setIsLoading(true);
+
         const payload = {
             email: data.email,
             password: data.password
         }
 
-        const loginPromise = withMinDelay(publicClient.post('/api/auth/login', payload), 2500);
-
-        toast.promise(loginPromise, {
+        toast.promise(withMinDelay(publicClient.post('/api/auth/login', payload), 2500), {
             loading: 'Logging you in...',
+
             success: (response) => {
-                const { user } = response.data;
+                const { user, accessToken } = response.data;
+                updateToken(accessToken);
+                setUser(user);
+
+                form.reset();
+                navigate('/dashboard');
                 return `Logged in successfully, ${user?.firstName} ${user?.lastName}!`;
             },
+
             error: (error) => error.response?.data?.message || "Incorrect email or password",
+
+            finally: () => setIsLoading(false)
         });
 
-        const response = await loginPromise;
-        const { accessToken } = response.data;
-
-        updateToken(accessToken);
-        navigate('/dashboard');
-        form.reset();
-
-        return response;
     }
 
     return (
@@ -134,11 +135,11 @@ export default function Login() {
                             <Button
                                 type="submit"
                                 className="w-full h-10 rounded cursor-pointer mt-2 bg-teal-600 text-white hover:bg-teal-500 transition-colors text-[16px]"
-                                disabled={isSubmitting}
+                                disabled={isLoading}
                             >
-                                {isSubmitting && (
+                                {isLoading && (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )} {isSubmitting ? 'Logging in...' : 'Login'}
+                                )} {isLoading ? 'Logging in...' : 'Login'}
                             </Button>
                         </form>
                     </CardContent>

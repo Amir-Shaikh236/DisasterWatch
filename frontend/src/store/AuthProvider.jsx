@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import { createContext, useState, useRef, useCallback, useEffect } from "react";
 import { setInterceptors, privateClient } from "@/api/api";
 import PropTypes from "prop-types";
