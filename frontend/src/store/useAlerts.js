@@ -20,7 +20,11 @@ export const useAlerts = create((set) => ({
     },
 
     addAlert: (alert) => {
-        if (alert) set((state) => ({ alerts: [...state.alerts, alert] }));
+        set((state) => {
+            const exists = state.alerts.some((existalert) => existalert._id === alert._id);
+            if (exists) return state;
+            return { alerts: [alert, ...state.alerts] };
+        });
     },
 
     clearAlerts: () => {

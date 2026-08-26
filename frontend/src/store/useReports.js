@@ -19,11 +19,11 @@ export const useReports = create((set) => ({
         }
     },
 
-    clearReports: () => {
-        set({ reports: [], isLoading: false, error: null })
+    addReport: (report) => {
+        if (report) set((state) => ({ reports: [report, ...state.reports] }))
     },
 
-    addReport: (report) => {
-        if (report) set((state) => ({ reports: [...state.reports, report] }))
+    clearReports: () => {
+        set({ reports: [], isLoading: false, error: null })
     }
-}))
+}));

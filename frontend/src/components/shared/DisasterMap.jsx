@@ -92,7 +92,7 @@ export default function DisasterMap() {
                         <TileLayer attribution="&copy; OpenStreetmap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         {filteredAlerts.map((data) => {
                             return (
-                                < Marker key={data.id} position={[data.location.coordinates[1], data.location.coordinates[0]]} icon={createPulseIcon(data.disasterType)} >
+                                < Marker key={data._id} position={[data.location.coordinates[1], data.location.coordinates[0]]} icon={createPulseIcon(data.disasterType)} >
                                     <Popup>
                                         <div className="font-sans">
                                             <h3 className="font-bold text-base mb-1"> {data.title} </h3>

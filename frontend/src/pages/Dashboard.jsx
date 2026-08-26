@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAlerts } from "@/store/useAlerts";
 import { useReports } from "@/store/useReports";
-import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, TrendingUp } from "lucide-react";
+import { shortBody } from "@/utils/Helpers";
+import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, ShieldCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -42,7 +43,7 @@ export default function Dashboard() {
         },
     ];
 
-    const criticalAlert = alerts.filter((data) => data.severity === 'critical');
+    const criticalAlert = alerts.find((alert) => alert.severity === 'high');
 
     return (
         <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">
@@ -95,13 +96,13 @@ export default function Dashboard() {
 
             <Separator className="mt-2 mb-5" />
 
-            {criticalAlert.length > 0 ? (
+            {criticalAlert ? (
                 <>
                     <div>
                         <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
                     </div>
 
-                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
+                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
                         <div className="flex items-center justify-around space-x-3">
 
                             <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
@@ -110,7 +111,7 @@ export default function Dashboard() {
 
                             <div>
                                 <h1 className="font-semibold"> {criticalAlert.title} </h1>
-                                <span className="text-sm text-muted-foreground"> {criticalAlert.description} </span>
+                                <span className="text-sm text-muted-foreground"> {shortBody(criticalAlert.description, 280)} </span>
                             </div>
 
                         </div>
@@ -124,24 +125,24 @@ export default function Dashboard() {
             ) : (
                 <>
                     <div>
-                        <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
+                        <h1 className="text-lg font-semibold"> Critical Alert Near You  </h1>
                     </div>
 
-                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
+                    <div className="bg-emerald-500/10 rounded-lg flex items-center justify-between mt-3 border border-emerald-500/25 p-6 cursor-pointer hover:emerald-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
                         <div className="flex items-center justify-around space-x-3">
 
-                            <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
-                                <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
+                            <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-emerald-500/25 bg-emerald-500/10">
+                                <ShieldCheck className="h-6 w-6 text-emerald-400 animate-pulse" />
                             </div>
 
                             <div>
-                                <h1 className="font-semibold"> {criticalAlert.title} </h1>
-                                <span className="text-sm text-muted-foreground"> {criticalAlert.description} </span>
+                                <h1 className="font-semibold"> No Critical Alert Found Near You </h1>
+                                <span className="text-sm text-muted-foreground"> You Can Check Out All Alerts Instead </span>
                             </div>
 
                         </div>
 
-                        <Button variant="outline" className="cursor-pointer shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
+                        <Button variant="outline" className="cursor-pointer shrink-0 text-emerald-300 hover:text-emerald-200 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50">
                             <Link to="/alerts"> View Details </Link>
                             <ArrowUpRight className="h-3.5 w-3.5" />
                         </Button>
