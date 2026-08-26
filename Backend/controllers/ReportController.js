@@ -29,7 +29,7 @@ export const addReport = async (req, res, next) => {
         const result = await ProcessReport({ images, disasterType, description, location, currentDate });
         if (!result.approved) return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
 
-        return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report });
+        return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report, alert: result.alert });
 
     } catch (error) {
         if (error.status === 503) return next(new AppError(503, "AI verification service is temporarily unavailable. Please try again shortly."))

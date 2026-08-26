@@ -3,80 +3,13 @@ import L from 'leaflet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import FilterModal from "@/components/shared/FilterModal";
+import { useAlerts } from "@/store/useAlerts";
 
 
 export default function DisasterMap() {
     const [filters, setFilters] = useState({ disasterType: [], severity: 'all' });
 
-    const AlertData = [
-        {
-            id: 1,
-            title: "Strong Earthquake Reported Near Pune",
-            description: "A strong earthquake has been reported across several areas near Pune. Multiple residents have reported intense shaking, cracked walls, and minor structural damage.",
-            imageUrl: "https://images.unsplash.com/photo-1561485132-59468cd0b553?w=1200&q=80",
-            disasterType: "earthquake",
-            severity: "critical",
-            status: "verified",
-            confidence: 96,
-            location: {
-                type: "Point",
-                coordinates: [18.5204, 73.8567],
-            },
-            reportedAt: "8 minutes ago",
-            reportCount: 24,
-        },
-
-        {
-            id: 2,
-            title: "Flooding Reported Across Riverside Areas",
-            description: "Heavy rainfall has caused significant flooding across low-lying residential areas. Several roads are submerged and emergency teams have been requested.",
-            imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=1200&q=80",
-            disasterType: "flood",
-            severity: "critical",
-            status: "investigating",
-            confidence: 89,
-            location: {
-                type: "Point",
-                coordinates: [72.8311, 21.1702],
-            },
-            reportedAt: "15 minutes ago",
-            reportCount: 18,
-        },
-
-        {
-            id: 3,
-            title: "Wildfire Spreading Through Forest Region",
-            description: "A rapidly spreading wildfire has been observed in a forested region. Thick smoke is visible from nearby communities and authorities are monitoring the fire.",
-            imageUrl: "https://www.drought.gov/sites/default/files/hero/news/western-wildfires.jpg",
-            disasterType: "wildfire",
-            severity: "high",
-            status: "verified",
-            confidence: 93,
-            location: {
-                type: "Point",
-                coordinates: [73.7898, 19.9975],
-            },
-            reportedAt: "32 minutes ago",
-            reportCount: 15,
-        },
-
-        {
-            id: 4,
-            title: "Landslide Blocks Mountain Access Road",
-            description: "Heavy rainfall has triggered a landslide along a mountain road. Mud, rocks, and debris have blocked the roadway and disrupted local transportation.",
-            imageUrl: "https://images.unsplash.com/photo-1647125849914-5238985ab21a?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            disasterType: "landslide",
-            severity: "high",
-            status: "unverified",
-            confidence: 78,
-            location: {
-                type: "Point",
-                coordinates: [73.0169, 19.2183],
-            },
-            reportedAt: "47 minutes ago",
-            reportCount: 9,
-        },
-    ];
+    const AlertData = useAlerts((state) => state.alerts)
 
     const DISASTER_CONFIG = {
         earthquake: {

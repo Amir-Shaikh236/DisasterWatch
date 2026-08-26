@@ -24,8 +24,7 @@ export const requestNotificationPermission = async () => {
 
         return token;
 
-    } catch (error) {
-        console.error('Failed to Initialize notifications', error)
+    } catch {
         return null;
 
     }

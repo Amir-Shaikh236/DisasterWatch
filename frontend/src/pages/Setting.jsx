@@ -11,7 +11,6 @@ import { toast } from "sonner";
 
 export default function Setting() {
     const [loading, setLoading] = useState(false);
-
     const user = useUser((state) => state.user);
     const setUser = useUser((state) => state.setUser);
     const sharingEnabled = Boolean(user?.notification);
@@ -19,17 +18,13 @@ export default function Setting() {
     const enableNotification = async () => {
         const token = await requestNotificationPermission();
 
-        if (!token) {
-            throw new Error("Notification permission was denied.");
-        }
+        if (!token) throw new Error("Notification permission was denied.");
 
         let location;
         try {
             const gpsLocation = await GPSLocation();
 
-            if (!gpsLocation) {
-                throw new Error('Location access is required to enable proximity alerts.');
-            }
+            if (!gpsLocation) throw new Error('Location access is required to enable proximity alerts.');
 
             location = {
                 type: 'Point',
@@ -62,10 +57,7 @@ export default function Setting() {
     };
 
     const handleSharing = async (checked) => {
-        if (!user) {
-            toast.error('User data is not loaded yet.');
-            return;
-        }
+        if (!user) return toast.error('User data is not loaded yet.');
 
         setLoading(true);
 
@@ -78,8 +70,9 @@ export default function Setting() {
 
             }
             setUser({ ...user, notification: checked });
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to update notification settings.');
+
+        } catch {
+            toast.message('Location Access is Required!');
 
         } finally {
             setLoading(false);
@@ -92,7 +85,7 @@ export default function Setting() {
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded bg-primary/10 ring-1 ring-primary/20">
-                        <Settings className="h-8 w-8 text-primary" />
+                        <Settings className="h-8 w-8 text-slate-300" />
                     </div>
 
                     <div>

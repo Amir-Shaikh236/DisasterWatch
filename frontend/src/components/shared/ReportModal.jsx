@@ -15,12 +15,19 @@ import AutoComplete from "@/components/shared/location/AutoComplete";
 import { publicClient } from "@/api/api";
 import { toast } from "sonner";
 import { GPSLocation } from "@/utils/Helpers";
+import { useReports } from "@/store/useReports";
+import { useNavigate } from "react-router-dom";
+import { useAlerts } from "@/store/useAlerts";
 
 export default function ReportModal({ isOpen, onClose }) {
     const fileInputRef = useRef(null);
     const [files, setFiles] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isLocating, setIsLocating] = useState(false)
+    const navigate = useNavigate()
+
+    const addReport = useReports((state) => state.addReport)
+    const addAlert = useAlerts((state) => state.addAlert)
 
     const reportSchema = z.object({
         disasterType: z.enum(["earthquake", "flood", "landslide", "wildfire"]),
@@ -110,13 +117,16 @@ export default function ReportModal({ isOpen, onClose }) {
                 formData.append("images", item.file);
             });
 
-            await publicClient.post('/api/reports/add', formData)
+            const response = await publicClient.post('/api/reports/add', formData)
+            const { report, alert } = response.data;
+            addReport(report);
+            addAlert(alert);
             toast.success("Report Submitted Successfully! Our AI will verify your report and update the status soon.");
             handleClose();
+            navigate('/alerts')
 
-        } catch (error) {
+        } catch {
             toast.error("Failed to submit report. Please try again.");
-            console.error(error.response?.data || error.message);
 
         } finally {
             setIsSubmitting(false);

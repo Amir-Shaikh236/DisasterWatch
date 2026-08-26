@@ -15,16 +15,25 @@ import { listenForNotifications } from '@/services/notification'
 import Setting from '@/pages/Setting'
 import { useUser } from './store/useUser'
 import { AuthContext } from '@/store/AuthProvider'
+import { useAlerts } from './store/useAlerts'
+import { useReports } from './store/useReports'
 
 function App() {
   const { isInitializing, isAuthenticated } = useContext(AuthContext)
   const fetchUser = useUser((state) => state.fetchUser);
+  const fetchAlerts = useAlerts((state) => state.fetchAlerts);
+  const fetchReports = useReports((state) => state.fetchReports);
 
   useEffect(() => {
     if (isInitializing) return;
-    if (isAuthenticated) fetchUser();
 
-  }, [isInitializing, isAuthenticated, fetchUser]);
+    if (isAuthenticated) {
+      fetchUser();
+      fetchAlerts();
+      fetchReports();
+    }
+
+  }, [isInitializing, isAuthenticated, fetchUser, fetchAlerts, fetchReports]);
 
   useEffect(() => {
     const unsubscribe = listenForNotifications();
