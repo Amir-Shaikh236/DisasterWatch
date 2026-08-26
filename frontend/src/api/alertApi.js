@@ -1,7 +1,6 @@
-import { publicClient } from "./api";
+import { privateClient } from "./api";
 
 export const getAlerts = async () => {
-    const response = await publicClient.get('/api/alerts/getAlerts');
+    const response = await privateClient.get('/api/alerts/getAlerts');
     return response.data;
-
 }

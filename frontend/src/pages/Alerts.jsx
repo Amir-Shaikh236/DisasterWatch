@@ -1,28 +1,12 @@
-import { Activity, AlertTriangle, ArrowUpRight, Clock3, Eye, Flame, MapPin, Mountain, ShieldCheck, TrendingUp, Waves } from "lucide-react";
+import { Activity, AlertTriangle, Clock3, Eye, Flame, MapPin, Mountain, ShieldCheck, TrendingUp, Waves } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
-import { getAlerts } from "@/api/alertApi";
 import { formatDate } from "@/utils/Helpers";
+import { useAlerts } from "@/store/useAlerts";
 
 export default function Alerts() {
-    const [alerts, setAlerts] = useState([]);
-
-    useEffect(() => {
-        const fetchAlerts = async () => {
-            try {
-                const data = await getAlerts();
-                setAlerts(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error("Error while Fetching Alerts: ", error);
-                setAlerts([]);
-            }
-        }
-        fetchAlerts();
-
-    }, [])
+    const alerts = useAlerts((state) => state.alerts)
 
     const STATUS_STYLE = {
         Active: {
@@ -256,12 +240,12 @@ export default function Alerts() {
                                 </div>
                             </CardContent>
 
-                            <CardFooter className="border-t border-border/70 bg-muted/10 px-5 py-3">
+                            {/* <CardFooter className="border-t border-border/70 bg-muted/10 px-5 py-3">
                                 <Button variant="ghost" className="ml-auto h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
                                     View Details
                                     <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Button>
-                            </CardFooter>
+                            </CardFooter> */}
                         </Card>
                     );
                 })}

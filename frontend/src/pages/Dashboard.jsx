@@ -1,5 +1,3 @@
-import { getAlerts } from "@/api/alertApi";
-import { getReports } from "@/api/reportApi";
 import DisasterActivity from "@/components/shared/DisasterActivity";
 import DisasterMap from "@/components/shared/DisasterMap";
 import DisasterType from "@/components/shared/DisasterType";
@@ -8,39 +6,18 @@ import ReportModal from "@/components/shared/ReportModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useAlerts } from "@/store/useAlerts";
+import { useReports } from "@/store/useReports";
 import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
     const [isImageAnalyzerOpen, setIsImageAnalyzerOpen] = useState(false)
-    const [reports, setReports] = useState([]);
-    const [alerts, setAlerts] = useState([]);
 
-    useEffect(() => {
-        const fetchReports = async () => {
-            try {
-                const data = await getReports();
-                setReports(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error('Failed to Load Reports: ', error)
-                setReports([])
-            }
-        }
-
-        const fetchAlerts = async () => {
-            try {
-                const data = await getAlerts();
-                setAlerts(Array.isArray(data) ? data : [])
-            } catch (error) {
-                console.error('Failed to Fetch Alerts: ', error)
-            }
-        }
-
-        fetchReports();
-        fetchAlerts();
-    }, [])
+    const reports = useReports((state) => state.reports)
+    const alerts = useAlerts((state) => state.alerts)
 
     const TotalStats = [
         {
@@ -63,8 +40,9 @@ export default function Dashboard() {
             icon: TrendingUp,
             iconClass: "text-amber-300"
         },
-
     ];
+
+    const criticalAlert = alerts.filter((data) => data.severity === 'critical');
 
     return (
         <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">
@@ -117,29 +95,59 @@ export default function Dashboard() {
 
             <Separator className="mt-2 mb-5" />
 
-            <div>
-                <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
-            </div>
-
-            <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
-                <div className="flex items-center justify-around space-x-3">
-
-                    <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
-                        <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
-                    </div>
-
+            {criticalAlert.length > 0 ? (
+                <>
                     <div>
-                        <h1 className="font-semibold"> Critical Wildfire Alert: Intense Wildfire Near JW Marriott Pune. </h1>
-                        <span className="text-sm text-muted-foreground">A massive and intense wildfire is actively burning across a wide area of trees and dry vegetation, with firefighters visible against towering flames.</span>
+                        <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
                     </div>
 
-                </div>
+                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
+                        <div className="flex items-center justify-around space-x-3">
 
-                <Button variant="outline" className="cursor-pointer shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
-                    <Link to="/alerts"> View Details </Link>
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                </Button>
-            </div>
+                            <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
+                                <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
+                            </div>
+
+                            <div>
+                                <h1 className="font-semibold"> {criticalAlert.title} </h1>
+                                <span className="text-sm text-muted-foreground"> {criticalAlert.description} </span>
+                            </div>
+
+                        </div>
+
+                        <Button variant="outline" className="cursor-pointer shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
+                            <Link to="/alerts"> View Details </Link>
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div>
+                        <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
+                    </div>
+
+                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5">
+                        <div className="flex items-center justify-around space-x-3">
+
+                            <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
+                                <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
+                            </div>
+
+                            <div>
+                                <h1 className="font-semibold"> {criticalAlert.title} </h1>
+                                <span className="text-sm text-muted-foreground"> {criticalAlert.description} </span>
+                            </div>
+
+                        </div>
+
+                        <Button variant="outline" className="cursor-pointer shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
+                            <Link to="/alerts"> View Details </Link>
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
+                </>
+            )}
 
             <Separator className="mt-5 mb-5" />
 

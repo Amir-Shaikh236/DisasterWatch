@@ -17,8 +17,6 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
     const [open, setOpen] = useState(false);
     const [localfilter, setLocalFilters] = useState(filters);
 
-
-
     const toggleArrayValue = (key, value) => {
         setLocalFilters((previous) => {
             const currentValues = previous[key];

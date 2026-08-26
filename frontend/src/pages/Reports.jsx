@@ -3,37 +3,16 @@ import { Activity, AlertTriangle, ArrowUpRight, Clock3, FileText, Flame, MapPin,
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
-import { getReports } from "@/api/reportApi";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDate, formatDisasterType } from "@/utils/Helpers";
 import ReportModal from "@/components/shared/ReportModal";
+import { useReports } from "@/store/useReports";
 
 export default function Reports() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
-    const [reports, setReports] = useState([])
-    const [isLoading, setIsLoading] = useState(false)
-
-    {/*Report Data */ }
-    useEffect(() => {
-        const fetchReports = async () => {
-            try {
-                setIsLoading(true);
-                const data = await getReports();
-                setReports(Array.isArray(data) ? data : []);
-
-            } catch (error) {
-                console.error("Failed to Load Reports: ", error)
-                setReports([]);
-
-            } finally {
-                setIsLoading(false)
-
-            }
-        }
-        fetchReports();
-
-    }, []);
+    const reports = useReports((state) => state.reports)
+    const isLoading = useReports((state) => state.isLoading)
 
     const TotalReports = [
         { name: 'Total Reports', length: reports.length, icon: FileText, iconClass: 'text-blue-400' },
