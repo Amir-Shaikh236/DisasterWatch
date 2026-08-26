@@ -26,4 +26,5 @@ export const useReports = create((set) => ({
     clearReports: () => {
         set({ reports: [], isLoading: false, error: null })
     }
+
 }));

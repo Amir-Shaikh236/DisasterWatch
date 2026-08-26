@@ -13,6 +13,7 @@ import { errorHandler } from './middleware/errorMiddleware.js'
 import { createServer } from "http";
 import { Server } from 'socket.io';
 import { InitializeSocket } from './services/socket/socket.js';
+import { connectRedis } from './config/redis.js';
 
 const app = express();
 app.use(cors({
@@ -43,10 +44,10 @@ io.on("connection", (socket) => {
   });
 });
 
-connectDB();
+await connectDB();
+await connectRedis()
 
 const PORT = process.env.PORT;
-
 app.get("/", (req, res) => {
   res.status(200).json({ status: "success", message: "API is Working Perfectly!" });
 });
