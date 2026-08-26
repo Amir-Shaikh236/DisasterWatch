@@ -17,6 +17,8 @@ import { useUser } from './store/useUser'
 import { AuthContext } from '@/store/AuthProvider'
 import { useAlerts } from './store/useAlerts'
 import { useReports } from './store/useReports'
+import { socket } from './socket/socket'
+import { removeSocketListeners, socketListeners } from '@/socket/socketListeners'
 
 function App() {
   const { isInitializing, isAuthenticated } = useContext(AuthContext)
@@ -28,9 +30,15 @@ function App() {
     if (isInitializing) return;
 
     if (isAuthenticated) {
+      socket.connect();
+      socketListeners();
       fetchUser();
       fetchAlerts();
       fetchReports();
+
+    } else {
+      socket.disconnect();
+      removeSocketListeners()
     }
 
   }, [isInitializing, isAuthenticated, fetchUser, fetchAlerts, fetchReports]);

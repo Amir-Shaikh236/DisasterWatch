@@ -4,11 +4,12 @@ import { convertImages, ValidateLocation } from "../../utils/validator.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
 import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
 import { notifyNearByUser } from "../Notification/notifyNearUsers.js";
+import { getIO } from "../socket/socket.js";
 
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate }) => {
-    const REJECT_THRESHOLDS = {
-        minConfidence: 0.70, maxMisinformationScore: 0.60
-    }
+    const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
+
+    const io = getIO();
 
     const { lng, lat } = ValidateLocation(location);
     const base64Image = convertImages(images)
@@ -61,6 +62,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     }
 
     const alert = await Alerts.create(alertData);
+    io.emit("alert:created", alert);
 
     await notifyNearByUser(alert);
 

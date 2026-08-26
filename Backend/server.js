@@ -10,19 +10,39 @@ import ReportsRoutes from './routes/ReportsRoutes.js'
 import AI_Routes from './routes/AI_Routes.js'
 import alertRoutes from "./routes/alertRoutes.js"
 import { errorHandler } from './middleware/errorMiddleware.js'
+import { createServer } from "http";
+import { Server } from 'socket.io';
+import { InitializeSocket } from './services/socket/socket.js';
 
 const app = express();
-
 app.use(cors({
-  origin: `${process.env.FRONTEND_URL}`,
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-app.use(express.json());
 app.use(helmet());
+app.use(express.json());
 app.use(cookieParser());
+
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }
+});
+InitializeSocket(io);
+
+io.on("connection", (socket) => {
+  console.log("🟢 Socket connected:", socket.id);
+
+  socket.on("disconnect", (reason) => {
+    console.log("🔴 Socket disconnected:", reason);
+  });
+});
+
 connectDB();
 
 const PORT = process.env.PORT;
@@ -38,6 +58,7 @@ app.use('/api/ai/', AI_Routes);
 app.use('/api/alerts/', alertRoutes)
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`Server is Running on ${PORT}`));
+
+server.listen(PORT, () => console.log(`Server is Running on ${PORT}`));
 
 export default app;

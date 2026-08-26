@@ -2,6 +2,7 @@ import { getToken, onMessage } from "firebase/messaging";
 import { messaging } from "@/config/firebase";
 import { toast } from "sonner";
 import { Flame, Mountain, Waves, Activity, AlertTriangle } from "lucide-react";
+import { shortBody } from "@/utils/Helpers";
 
 export const requestNotificationPermission = async () => {
     try {
@@ -28,11 +29,6 @@ export const requestNotificationPermission = async () => {
         return null;
 
     }
-}
-
-const shortBody = (text, maxLength = 100) => {
-    if (!text) return "";
-    return text.length > maxLength ? `${text.slice(0, maxLength).trim()}.....` : text;
 }
 
 const disasterIcons = {

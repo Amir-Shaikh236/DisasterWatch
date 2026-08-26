@@ -44,7 +44,7 @@ export const notifyNearByUser = async (alert) => {
                             severity: alert.severity
                         },
                     });
-                    console.log('Notification has been sent to: ', user.firstName);
+                    console.log('Notification has been sent to: ', user.firstName + " " + user?.lastName);
 
                 } catch (error) {
                     console.error(`Failed to send Notification to User: ${user.firstName}`, error.message);
