@@ -24,6 +24,17 @@ jobs:
             run:
               working-directory: Backend
 
+        services:
+          redis:
+            image: redis:7.0.11
+            ports:
+              - 6379:6379
+            options: >-
+              --health-cmd "redis-cli ping"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+
         steps:
           - name: Checkout Repositry
             uses: actions/checkout@v4
@@ -79,6 +90,17 @@ jobs:
         needs: 
           - frontend
           - Backend
+        
+        services:
+          redis:
+            image: redis:7.0.11
+            ports:
+              - 6379:6379
+            options: >-
+              --health-cmd "redis-cli ping"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
       
         steps:
             - name: Checkout Repositry
