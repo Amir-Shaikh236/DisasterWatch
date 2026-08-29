@@ -12,7 +12,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 import AutoComplete from "@/components/shared/location/AutoComplete";
-import { publicClient } from "@/api/api";
+import { privateClient } from "@/api/api";
 import { toast } from "sonner";
 import { GPSLocation } from "@/utils/Helpers";
 import { useNavigate } from "react-router-dom";
@@ -112,7 +112,7 @@ export default function ReportModal({ isOpen, onClose }) {
                 formData.append("images", item.file);
             });
 
-            await publicClient.post('/api/reports/add', formData)
+            await privateClient.post('/api/reports/add', formData)
             toast.success("Report Submitted Successfully! Our AI will verify your report and update the status soon.");
             handleClose();
             navigate('/alerts')

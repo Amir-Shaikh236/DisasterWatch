@@ -8,8 +8,8 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/refresh", refreshToken)
-router.post("/logout", logout);
-router.post("/user/delete", deleteUser);
+router.post("/logout", protect, logout);
+router.post("/user/delete", protect, deleteUser);
 router.post('/user/update', protect, UpdateUser);
 
 //GET Routes

@@ -34,6 +34,18 @@ const AlertSchema = new mongoose.Schema({
         enum: ['Active', 'Resolved', 'false_alarm'],
         default: 'Active',
         index: true,
+    },
+
+    reportId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Report',
+        required: true
+    },
+
+    alertBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 
 }, { timestamps: true });

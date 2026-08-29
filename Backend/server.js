@@ -28,21 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  }
-});
-InitializeSocket(io);
-
-io.on("connection", (socket) => {
-  console.log("🟢 Socket connected:", socket.id);
-
-  socket.on("disconnect", (reason) => {
-    console.log("🔴 Socket disconnected:", reason);
-  });
-});
+InitializeSocket(server);
 
 await connectDB();
 await connectRedis()

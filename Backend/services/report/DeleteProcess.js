@@ -1,5 +1,6 @@
 import cloudinary from "../../config/Cloudinary.js";
 import Reports from "../../models/Reports.js"
+import { DeleteAlert } from "../alert/DeleteAlert.js";
 import { getIO } from "../socket/socket.js";
 
 export const DeleteReport = async (id) => {
@@ -14,6 +15,8 @@ export const DeleteReport = async (id) => {
                 cloudinary.uploader.destroy(publicId)
             ));
         }
+
+        await DeleteAlert(report.alertId);
 
         await report.deleteOne();
         getIO().emit('report:deleted', { reportId: id });
