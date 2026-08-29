@@ -27,6 +27,12 @@ export const useAlerts = create((set) => ({
         });
     },
 
+    removeAlert: (alertId) => {
+        set((state) => ({
+            alerts: state.alerts.filter((alert) => alert._id !== alertId)
+        }))
+    },
+
     clearAlerts: () => {
         set({ alerts: [], error: null });
     },

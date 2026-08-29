@@ -1,12 +1,18 @@
-import { Activity, AlertTriangle, Clock3, Eye, Flame, MapPin, Mountain, ShieldCheck, TrendingUp, Waves } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, Clock3, Eye, Flame, MapPin, Mountain, ShieldCheck, Trash2, TrendingUp, Waves } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/utils/Helpers";
 import { useAlerts } from "@/store/useAlerts";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/store/useUser";
+import { deleteAlert } from "@/api/alertApi";
+import { toast } from "sonner";
 
 export default function Alerts() {
     const alerts = useAlerts((state) => state.alerts)
+    const user = useUser((state) => state.user)
+    const admin = user?.role === "admin" ? true : false;
 
     const STATUS_STYLE = {
         Active: {
@@ -117,6 +123,18 @@ export default function Alerts() {
                 </div>
             </div>
         );
+    }
+
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteAlert(id);
+            toast.success(`Alert Deleted `);
+
+        } catch (error) {
+            console.error('Report Deleting Error: ', error)
+
+        }
     }
 
     return (
@@ -240,12 +258,18 @@ export default function Alerts() {
                                 </div>
                             </CardContent>
 
-                            {/* <CardFooter className="border-t border-border/70 bg-muted/10 px-5 py-3">
-                                <Button variant="ghost" className="ml-auto h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
+                            <CardFooter className="justify-between border-t border-border/70 bg-muted/10 px-5 py-3">
+                                <Button variant="ghost" className="h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
                                     View Details
                                     <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Button>
-                            </CardFooter> */}
+                                {admin && (
+                                    <Button variant="ghost" onClick={() => handleDelete(data._id)} className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer">
+                                        <Trash2 className="h-4 w-4" />
+                                        <span> Delete </span>
+                                    </Button>
+                                )}
+                            </CardFooter>
                         </Card>
                     );
                 })}
