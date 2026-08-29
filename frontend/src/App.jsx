@@ -39,6 +39,7 @@ function App() {
     } else {
       socket.disconnect();
       removeSocketListeners()
+
     }
 
   }, [isInitializing, isAuthenticated, fetchUser, fetchAlerts, fetchReports]);

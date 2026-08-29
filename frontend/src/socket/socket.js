@@ -7,11 +7,3 @@ export const socket = io(SOCKET_URL, {
     withCredentials: true
 });
 
-socket.on("connect", () => {
-    console.log("Socket Connected: ", socket.id);
-});
-
-socket.on("disconnect", (reason) => {
-    console.log("Socket Disconnected: ", reason);
-});
-
