@@ -15,6 +15,7 @@ export const socketListeners = () => {
 
     socket.on("alert:deleted", ({ alertId }) => {
         console.log('Alert Deleted: ', alertId);
+        useAlerts.getState().removeAlert(alertId);
     });
 
     {/* Report Socket */ }
