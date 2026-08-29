@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator"
-import { Activity, AlertTriangle, ArrowUpRight, Clock3, FileText, Flame, MapPin, Mountain, ShieldCheck, Waves, Verified, ScanSearch, ShieldQuestion, Plus } from "lucide-react"
+import { Activity, AlertTriangle, ArrowUpRight, Clock3, FileText, Flame, MapPin, Mountain, ShieldCheck, Waves, Verified, ScanSearch, ShieldQuestion, Plus, Trash2 } from "lucide-react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +8,16 @@ import { Link } from "react-router-dom";
 import { formatDate, formatDisasterType } from "@/utils/Helpers";
 import ReportModal from "@/components/shared/ReportModal";
 import { useReports } from "@/store/useReports";
+import { useUser } from "@/store/useUser";
+import { deleteReport } from "@/api/reportApi";
+import { toast } from "sonner";
 
 export default function Reports() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
     const reports = useReports((state) => state.reports)
     const isLoading = useReports((state) => state.isLoading)
+    const user = useUser((state) => state.user)
+    const admin = user?.role === "admin" ? true : false;
 
     const TotalReports = [
         { name: 'Total Reports', length: reports.length, icon: FileText, iconClass: 'text-blue-400' },
@@ -61,6 +66,17 @@ export default function Reports() {
             iconColor: 'text-orange-400',
         }
     };
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteReport(id);
+            toast.success(`Report Deleted `);
+
+        } catch (error) {
+            console.error('Report Deleting Error: ', error)
+
+        }
+    }
 
     return (
         <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-9">
@@ -186,7 +202,7 @@ export default function Reports() {
                             <CardContent className="space-y-4 p-5">
                                 <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground"> {data.description} </p>
 
-                                <div className="grid grid-cols-3 gap-5 border-t border-border/70 pt-4">
+                                <div className="flex items-center justify-between border-t border-border/70 pt-4">
                                     <div>
                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                             <Clock3 className="h-3.5 w-3.5" />
@@ -203,14 +219,20 @@ export default function Reports() {
                                         <span> {formatDate(data.updatedAt)} </span>
                                     </div>
                                 </div>
-
                             </CardContent>
 
-                            <CardFooter className="border-t border-border/70 bg-muted/10 px-5 py-3">
-                                <Button variant="ghost" className=" ml-auto h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
+                            <CardFooter className="justify-between border-t border-border/70 bg-muted/10 px-5 py-3">
+                                <Button variant="ghost" className="h-8 gap-1.5 px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer">
                                     <Link to="/alerts"> View Details </Link>
                                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                 </Button>
+
+                                {admin && (
+                                    <Button variant="ghost" onClick={() => handleDelete(data._id)} className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer">
+                                        <Trash2 className="h-4 w-4" />
+                                        <span> Delete </span>
+                                    </Button>
+                                )}
                             </CardFooter>
                         </Card>
                     );

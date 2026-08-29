@@ -7,6 +7,9 @@ import { notifyNearByUser } from "../Notification/notifyNearUsers.js";
 import { deleteCache } from "../redis/cacheServices.js";
 import { getIO } from "../socket/socket.js";
 
+const REPORT_CACHE_KEY = "reports:all"
+const ALERT_CACHE_KEY = "alerts:all"
+
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate }) => {
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
 
@@ -46,6 +49,8 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     };
 
     const report = await Reports.create(reportData);
+    await deleteCache(REPORT_CACHE_KEY);
+    io.emit('report:created', report);
 
     const alertData = {
         title: analysis.alertTitle,
@@ -63,10 +68,9 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     }
 
     const alert = await Alerts.create(alertData);
-    await deleteCache("alerts:all")
+    await deleteCache(ALERT_CACHE_KEY)
     io.emit("alert:created", alert);
 
     await notifyNearByUser(alert);
-
     return { approved: true, report, alert, analysis }
 }

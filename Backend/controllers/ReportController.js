@@ -1,14 +1,22 @@
 import Reports from "../models/Reports.js";
+import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
 import { ValidateRequiredFields } from "../utils/validator.js";
+import { DeleteReport } from "../services/report/DeleteProcess.js";
+
+const REPORT_CACHE_KEY = "reports:all"
 
 export const getReports = async (req, res, next) => {
     try {
-        const reports = await Reports.find({});
+        const CacheReports = await getCache(REPORT_CACHE_KEY);
+        if (CacheReports) return res.status(200).json(CacheReports);
+
+        const reports = await Reports.find({}).sort({ createdAt: -1 });
         if (!reports) return next(new AppError(404, 'Reports Not Found'));
         if (reports.length <= 0) return res.status(404).json({ message: 'Not Reports have been submitted!' });
 
+        await setCache(REPORT_CACHE_KEY, reports, 300);
         res.status(200).json(reports);
 
     } catch (error) {
@@ -35,5 +43,20 @@ export const addReport = async (req, res, next) => {
         if (error.status === 503) return next(new AppError(503, "AI verification service is temporarily unavailable. Please try again shortly."))
         next(error);
 
+    }
+};
+
+export const deleteReport = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) return next(new AppError(400, "Report id is required"));
+
+        await DeleteReport(id);
+
+        await deleteCache(REPORT_CACHE_KEY);
+        return res.status(200).json({ message: "Report Deleted Successfully" });
+
+    } catch (error) {
+        next(error);
     }
 };

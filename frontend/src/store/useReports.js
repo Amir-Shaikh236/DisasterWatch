@@ -20,7 +20,17 @@ export const useReports = create((set) => ({
     },
 
     addReport: (report) => {
-        if (report) set((state) => ({ reports: [report, ...state.reports] }))
+        set((state) => {
+            const exists = state.reports.some((existreport) => existreport._id === report._id);
+            if (exists) return state;
+            return { reports: [report, ...state.reports] };
+        });
+    },
+
+    removeReport: (reportId) => {
+        set((state) => ({
+            reports: state.reports.filter((report) => report._id !== reportId)
+        }));
     },
 
     clearReports: () => {
