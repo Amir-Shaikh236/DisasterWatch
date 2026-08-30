@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 
-import app from "../../server.js"
+import app from '../../app.js';
 import User from "../../models/User.js"
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 

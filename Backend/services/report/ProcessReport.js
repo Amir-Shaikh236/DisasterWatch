@@ -13,8 +13,6 @@ const ALERT_CACHE_KEY = "alerts:all"
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate, userId }) => {
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
 
-    const io = getIO();
-
     const { lng, lat } = ValidateLocation(location);
     const base64Image = convertImages(images)
 
@@ -52,6 +50,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     const report = await Reports.create(reportData);
     await deleteCache(REPORT_CACHE_KEY);
 
+    const io = getIO();
     io.to(`user:${report.submittedBy}`).emit('report:created', report);
     io.to('admin').emit('report:created', report);
 
