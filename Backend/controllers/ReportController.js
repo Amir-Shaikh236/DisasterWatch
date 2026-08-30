@@ -35,7 +35,6 @@ export const addReport = async (req, res, next) => {
         const { disasterType, description } = req.body;
         const location = JSON.parse(req.body.location);
         const userId = req.user._id
-        console.log('User ID: ', userId)
 
         ValidateRequiredFields({ disasterType, description, location });
 
