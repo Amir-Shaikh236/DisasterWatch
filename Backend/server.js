@@ -46,6 +46,8 @@ app.use('/api/alerts/', alertRoutes)
 
 app.use(errorHandler);
 
-server.listen(PORT, () => console.log(`Server is Running on ${PORT}`));
+if (process.env.NODE_ENV !== "test") {
+  server.listen(PORT, () => console.log(`Server is Running on ${PORT}`));
+}
 
 export default app;

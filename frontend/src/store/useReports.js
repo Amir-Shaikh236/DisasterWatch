@@ -23,6 +23,7 @@ export const useReports = create((set) => ({
         set((state) => {
             const exists = state.reports.some((existreport) => existreport._id === report._id);
             if (exists) return state;
+
             return { reports: [report, ...state.reports] };
         });
     },

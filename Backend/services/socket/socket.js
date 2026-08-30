@@ -14,16 +14,13 @@ export const InitializeSocket = (server) => {
     io.use(socketAuth)
 
     io.on("connection", (socket) => {
-        console.log('Socket Connected: ', socket.id)
         const user = socket.user;
 
         if (user.role === 'admin') {
             socket.join('admin');
-            console.log(`Admin ${user._id} joined admin room`)
 
         } else {
             socket.join(`user: ${user._id}`)
-            console.log(`User ${user._id} joined their room`)
 
         }
     });
