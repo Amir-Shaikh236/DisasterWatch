@@ -1,9 +1,10 @@
 import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vitest"
 import request from "supertest"
 
-import app from "../../server.js"
+import app from "../../app.js"
 import User from "../../models/User.js"
 import Reports from "../../models/Reports.js"
+import { getIO } from "../../services/socket/socket.js"
 import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 
 vi.mock('../../config/db.js', () => ({
