@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import request from 'supertest';
-import mongoose from 'mongoose';
 
 import app from "../../server.js"
 import User from "../../models/User.js"

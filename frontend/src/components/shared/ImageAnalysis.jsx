@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { publicClient } from "@/api/api"
+import { privateClient } from "@/api/api"
 
 export default function ImageAnalysisModal({ isOpen, onClose }) {
     const [file, setFile] = useState(null)
@@ -43,7 +43,7 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
             const ImageData = new FormData()
             ImageData.append("image", file)
 
-            const response = await publicClient.post('/api/ai/analyze-image', ImageData);
+            const response = await privateClient.post('/api/ai/analyze-image', ImageData);
             setAnalysisResult(response.data.analysis);
 
         } catch (error) {

@@ -10,7 +10,7 @@ import { getIO } from "../socket/socket.js";
 const REPORT_CACHE_KEY = "reports:all"
 const ALERT_CACHE_KEY = "alerts:all"
 
-export const ProcessReport = async ({ images, disasterType, description, location, currentDate }) => {
+export const ProcessReport = async ({ images, disasterType, description, location, currentDate, userId }) => {
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
 
     const io = getIO();
@@ -45,12 +45,15 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
         },
         media: uploadedImages,
         status: "verified",
-        aiAnalysis: analysis
+        submittedBy: userId,
+        aiAnalysis: analysis,
     };
 
     const report = await Reports.create(reportData);
     await deleteCache(REPORT_CACHE_KEY);
-    io.emit('report:created', report);
+
+    io.to(`user:${report.submittedBy}`).emit('report:created', report);
+    io.to('admin').emit('report:created', report);
 
     const alertData = {
         title: analysis.alertTitle,
@@ -64,12 +67,17 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
             address: location.address
         },
         media: uploadedImages,
-        status: "Active"
+        status: "Active",
+        reportId: report._id,
+        alertBy: userId
     }
 
     const alert = await Alerts.create(alertData);
     await deleteCache(ALERT_CACHE_KEY)
     io.emit("alert:created", alert);
+
+    report.alertId = alert._id
+    await report.save();
 
     await notifyNearByUser(alert);
     return { approved: true, report, alert, analysis }

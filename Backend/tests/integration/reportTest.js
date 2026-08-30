@@ -1,8 +1,8 @@
 import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vitest"
 import request from "supertest"
-import mongoose from "mongoose"
 
 import app from "../../server.js"
+import User from "../../models/User.js"
 import Reports from "../../models/Reports.js"
 import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 
@@ -14,6 +14,8 @@ vi.mock('../../config/db.js', () => ({
 
 beforeAll(async () => {
     process.env.NODE_ENV = 'test';
+    process.env.JWT_ACCESS_SECRET = 'test_access_secret_999';
+    process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_999';
     await connectTestDB();
 });
 
@@ -22,6 +24,13 @@ afterAll(async () => {
 });
 
 describe('POST /api/reports/add - Validation & Flow Verification..', () => {
+
+    const testUser = {
+        firstName: "Amir",
+        lastName: "Asgar",
+        email: "skamir2410@gmail.com",
+        password: '123456789'
+    };
 
     const report = {
         "disasterType": "Flood",
@@ -35,17 +44,58 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     beforeEach(async () => {
         await clearTestDB();
+
+        const createdUser = new User(testUser);
+        createdUser.refreshTokens = [];
+        await createdUser.save();
     });
 
-    const postReport = (payload) => {
-        const req = request(app).post('/api/reports/add');
+    const loginAsUser = async () => {
+        const response = await request(app)
+            .post('/api/auth/login')
+            .send({ email: testUser.email, password: testUser.password })
+            .expect(200);
+
+        return response.body.accessToken;
+    };
+
+    const postReport = async (payload) => {
+        const accessToken = await loginAsUser();
+        const req = request(app)
+            .post('/api/reports/add')
+            .set('Authorization', `Bearer ${accessToken}`);
 
         if (payload.disasterType !== undefined) req.field('disasterType', payload.disasterType);
         if (payload.description !== undefined) req.field('description', payload.description);
         if (payload.location !== undefined) req.field('location', JSON.stringify(payload.location));
 
-        return req;
+        return await req;
     };
+
+    it("Should issue an accessToken and a secure HttpOnly refreshToken cookie upon a valid credentials", async () => {
+        const response = await request(app)
+            .post("/api/auth/login")
+            .send({ email: testUser.email, password: testUser.password })
+            .expect(200);
+
+        // 1. Verifying Response Payload
+        expect(response.body.status).toBe("success");
+        expect(response.body.accessToken).toBeDefined();
+        expect(typeof response.body.accessToken).toBe('string');
+        expect(response.body.user).toEqual(expect.objectContaining({
+            firstName: testUser.firstName,
+            lastName: testUser.lastName,
+            email: testUser.email,
+        }));
+        expect(response.body.password).toBeUndefined(); // Prevent Password Leakage
+
+        // 2. Verify Cookie Security Flags
+        const setCookieHeader = response.headers["set-cookie"];
+        expect(setCookieHeader).toBeDefined();
+        expect(setCookieHeader[0]).toMatch(/refreshToken=/);
+        expect(setCookieHeader[0]).toMatch(/HttpOnly/i);
+        expect(setCookieHeader[0]).toMatch(/SameSite=Strict/i);
+    });
 
     // it('Should Create Report and save it in DB Upon valid Data.', async () => {
 
@@ -76,11 +126,11 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         const response = await postReport({
             disasterType: report.disasterType,
             location: report.location
-        })
-            .expect(400);
+        });
 
-        expect(response.body.status).toBe('fail')
-        expect(response.body.message).toBe('Please proivde: description')
+        expect(response.status).toBe(400);
+        expect(response.body.status).toBe('fail');
+        expect(response.body.message).toBe('Please proivde: description');
 
     });
 
@@ -93,11 +143,11 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 coordinates: "72.8311, 21.1702",
                 address: report.location.address
             }
-        })
-            .expect(400);
+        });
 
-        expect(response.body.status).toBe('fail')
-        expect(response.body.message).toBe('Coordinates must be an array of [Longitude, latitude].')
+        expect(response.status).toBe(400);
+        expect(response.body.status).toBe('fail');
+        expect(response.body.message).toBe('Coordinates must be an array of [Longitude, latitude].');
 
     });
 
@@ -110,11 +160,11 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 coordinates: ['abc', 'xyz'],
                 address: report.location.coordinates
             }
-        })
-            .expect(400);
+        });
 
-        expect(response.body.status).toBe('fail')
-        expect(response.body.message).toBe('Coordinates must contain valid numbers')
+        expect(response.status).toBe(400);
+        expect(response.body.status).toBe('fail');
+        expect(response.body.message).toBe('Coordinates must contain valid numbers');
 
     });
 
@@ -127,11 +177,11 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
                 coordinates: [200, 100],
                 address: report.location.address
             }
-        })
-            .expect(400);
+        });
 
-        expect(response.body.status).toBe('fail')
-        expect(response.body.message).toBe('Coordinates out of valid range')
+        expect(response.status).toBe(400);
+        expect(response.body.status).toBe('fail');
+        expect(response.body.message).toBe('Coordinates out of valid range');
     });
 
 });

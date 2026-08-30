@@ -30,6 +30,19 @@ const ReportSchema = new mongoose.Schema({
         index: true,
     },
 
+    submittedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
+    },
+
+    alertId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Alert',
+        default: null
+    },
+
     aiAnalysis: { type: mongoose.Schema.Types.Mixed },
 
 }, { timestamps: true });

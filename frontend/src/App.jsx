@@ -21,7 +21,7 @@ import { socket } from './socket/socket'
 import { removeSocketListeners, socketListeners } from '@/socket/socketListeners'
 
 function App() {
-  const { isInitializing, isAuthenticated } = useContext(AuthContext)
+  const { isInitializing, isAuthenticated, accessToken } = useContext(AuthContext)
   const fetchUser = useUser((state) => state.fetchUser);
   const fetchAlerts = useAlerts((state) => state.fetchAlerts);
   const fetchReports = useReports((state) => state.fetchReports);
@@ -29,9 +29,11 @@ function App() {
   useEffect(() => {
     if (isInitializing) return;
 
-    if (isAuthenticated) {
+    if (isAuthenticated && accessToken) {
+      socket.auth = { token: accessToken };
       socket.connect();
       socketListeners();
+
       fetchUser();
       fetchAlerts();
       fetchReports();
@@ -42,7 +44,7 @@ function App() {
 
     }
 
-  }, [isInitializing, isAuthenticated, fetchUser, fetchAlerts, fetchReports]);
+  }, [isInitializing, isAuthenticated, fetchUser, fetchAlerts, fetchReports, accessToken]);
 
   useEffect(() => {
     const unsubscribe = listenForNotifications();
