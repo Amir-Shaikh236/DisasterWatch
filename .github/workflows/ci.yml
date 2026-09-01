@@ -136,6 +136,10 @@ jobs:
             - name: Install Playwright Browsers
               if: steps.playwright-cache.outputs.cache-hit != 'true'
               working-directory: frontend
+              run: npx playwright install 
+
+            - name: Install Playwright OS Dependencies
+              working-directory: frontend
               run: npx playwright install --with-deps
 
             # Run Playwright
