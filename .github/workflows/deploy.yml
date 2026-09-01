@@ -1,0 +1,61 @@
+name: Azure Continuous Deployment
+
+on:
+  workflow_run:
+      workflows: ["CI Pipeline"]
+      types: [completed]
+      branches: [main]
+
+permissions:
+    id-token: write    # Required for Azure OIDC Authentication
+    contents: read     # Grant read-only access to repo code
+
+concurrency:
+  group: cd-production            # Targets production deployment runs & Locks production deployments into a single queue.
+  cancel-in-progress: false       # Prevent stopping a live deploy in the middle
+
+jobs:
+    deploy-frontend:
+      if: github.event.workflow_run.conclusion == 'success'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+
+        - name: Build and Deploy Frontend
+          uses: Azure/static-web-apps-deploy@v1
+          with:
+            azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
+            action: "upload"
+            app_location: "frontend"
+            output_location: "dist"
+
+    deploy-azure:
+        if: github.event.workflow_run.conclusion == 'success'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            - name: Azure Login via OIDC
+              uses: azure/login@v2
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID}}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+              
+            - name: log in to ACR
+              run: az acr login --name disasterwatchregistry
+
+            - name: Build and Push Docker Image
+              run: |
+                docker build -t disasterwatchregistry.azurecr.io/backend:${{ github.sha }} ./Backend
+                docker push disasterwatchregistry.azurecr.io/backend:${{ github.sha }}
+
+            - name: Deploy to Azure Container Apps
+              run: |
+                az containerapp update \
+                  --name disasterwatch-backend \
+                  --resource-group disasterwatch-rg \
+                  --image disasterwatchregistry.azurecr.io/backend:${{ github.sha }}
