@@ -56,18 +56,18 @@ jobs:
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
               
             - name: log in to ACR
-              run: az acr login --name disasterwatchregistry
+              run: az acr login --name DWatchRegistry
 
             - name: Build and Push Docker Image
               run: |
-                docker build -t disasterwatchregistry-c3djdbgng2g0bvb2.azurecr.io/backend:${{ github.sha }} ./Backend
-                docker push disasterwatchregistry-c3djdbgng2g0bvb2.azurecr.io/backend:${{ github.sha }}
+                docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }} ./Backend
+                docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }}
 
             - name: Deploy to Azure Container Apps
               run: |
                 az containerapp update \
                   --name disasterwatch-backend \
                   --resource-group disasterwatch-rg \
-                  --image disasterwatchregistry-c3djdbgng2g0bvb2.azurecr.io/backend:${{ github.sha }}
+                  --image ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }}
 
                   
