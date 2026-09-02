@@ -29,7 +29,7 @@ jobs:
             repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for GitHub integrations (i.e., PR comments) and it will not be used for deployment.
             action: "upload"
             app_location: "frontend"
-            output_location: "dist"
+            output_location: "dist" # The build output folder for the frontend app. This is where the static files are located after the build process.
           env:
             VITE_API_URL: ${{ secrets.VITE_API_URL }} 
             VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
