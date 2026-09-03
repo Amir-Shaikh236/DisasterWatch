@@ -154,6 +154,7 @@ jobs:
                 JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
                 FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
                 VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+                VITE_API_URL: ${{ secrets.VITE_API_URL }}
                 FIREBASE_SERVICE_ACCOUNT_BASE64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
                 VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
                 VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
