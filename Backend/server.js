@@ -1,7 +1,12 @@
+// Import required modules
 import 'dotenv/config';
 import { createServer } from "http";
+
+// Import app and database connection
 import app from './app.js';
 import { connectDB } from './config/db.js'
+
+// Import Redis connection and Socket initialization
 import { connectRedis } from './config/redis.js';
 import { InitializeSocket } from './services/socket/socket.js';
 
