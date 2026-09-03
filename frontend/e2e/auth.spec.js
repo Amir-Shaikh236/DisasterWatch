@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test"
 
+const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+
 test.describe('End-To-End EnterPrise Authentication Gateway', () => {
-    const backendBaseURL = 'http://localhost:5000';
 
     let testUser;
 
