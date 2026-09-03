@@ -58,6 +58,18 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     });
 
     test.beforeEach(async ({ page }) => {
+        // TEMP DIAGNOSTIC — capture browser console + network + page errors into the CI log
+        page.on('console', msg => console.log(`[browser console:${msg.type()}]`, msg.text()));
+        page.on('pageerror', err => console.log('[browser pageerror]', err.message));
+        page.on('requestfailed', req =>
+            console.log('[request failed]', req.url(), req.failure()?.errorText)
+        );
+        page.on('response', res => {
+            if (res.status() >= 400) {
+                console.log('[bad response]', res.status(), res.url());
+            }
+        });
+
         await page.context().clearCookies();
         await page.goto('/');
         await expect(page.getByLabel(/email/i)).toBeVisible();
