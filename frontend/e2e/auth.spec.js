@@ -1,17 +1,30 @@
 /* eslint-disable */
 import { test, expect } from "@playwright/test"
 
-const backendBaseURL = process.env.VITE_API_URL || 'http://localhost:5000';
+const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe('End-To-End EnterPrise Authentication Gateway', () => {
 
     let testUser;
 
     const clearAll = async (request) => {
-        await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
             failOnStatusCode: false,
         });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (![200, 404].includes(deleteResponse.status())) {
+            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+        }
     };
 
     test.beforeAll(async ({ request }) => {
@@ -62,7 +75,8 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         // });
 
         await page.context().clearCookies();
-        await page.goto('/');
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        await expect(page.getByLabel('Email')).toBeVisible();
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
