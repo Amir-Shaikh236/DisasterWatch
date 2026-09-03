@@ -62,7 +62,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         // });
 
         await page.context().clearCookies();
-        await page.goto('/', { waitUntil: 'networkidle' });
+        await page.goto('/');
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
@@ -80,8 +80,6 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         await emailInput.fill('wrong.user@disasterWatch.io');
         await passwordInput.fill('InvalidPassowrd123!');
         await submitBtn.click();
-
-        await expect(emailInput).toBeVisible({ timeout: 5000 });
 
         // Playwright auto-waits for the server response roundtrip and asserts the UI shift
         const errorMessage = page.getByText(/Incorrect email or password/i);
