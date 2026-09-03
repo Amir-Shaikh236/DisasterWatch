@@ -1,17 +1,20 @@
 /* eslint-disable */
 import { defineConfig, devices } from '@playwright/test';
-import path from 'path'
+import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, "../Backend/.env") });
+// Playwright needs the same frontend environment used by the Vite app.
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const isCI = !!process.env.CI
+const isCI = !!process.env.CI;
 const backendDir = path.resolve(__dirname, '../Backend');
 const frontendDir = path.resolve(__dirname);
+
+const targetBaseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 export default defineConfig({
 
@@ -29,7 +32,7 @@ export default defineConfig({
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
     use: {
-        baseURL: 'http://localhost:5173',
+        baseURL: targetBaseUrl,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
@@ -50,7 +53,7 @@ export default defineConfig({
         },
     ],
 
-    webServer: [
+    webServer: process.env.FRONTEND_URL ? undefined : [
         {
             command: 'npm run dev',
             cwd: frontendDir,

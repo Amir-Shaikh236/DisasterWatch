@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test"
 
+const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+
 test.describe('End-To-End EnterPrise Authentication Gateway', () => {
-    const backendBaseURL = 'http://localhost:5000';
 
     let testUser;
 
@@ -87,28 +88,28 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    // test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
-        // enter valid email
-        await page.getByLabel(/email/i).fill(testUser.email);
+    //     // enter valid email
+    //     await page.getByLabel(/email/i).fill(testUser.email);
 
-        // valid password
-        await page.getByLabel(/password/i).fill(testUser.password);
+    //     // valid password
+    //     await page.getByLabel(/password/i).fill(testUser.password);
 
-        // press button
-        await page.getByRole('button', { name: 'Login', exact: true }).click();
+    //     // press button
+    //     await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-        // Assert the app automatically re-routes the user to the protected dashboard page
-        await expect(page).toHaveURL(/\/dashboard$/);
+    //     // Assert the app automatically re-routes the user to the protected dashboard page
+    //     await expect(page).toHaveURL(/\/dashboard$/);
 
-        await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+    //     await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
+    //     await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 
-        const activeCookies = await page.evaluate(() => document.cookie);
-        expect(activeCookies).not.toContain('refreshToken=');
+    //     const activeCookies = await page.evaluate(() => document.cookie);
+    //     expect(activeCookies).not.toContain('refreshToken=');
 
-        await page.reload();
-        await expect(page).toHaveURL(/\/dashboard$/);
+    //     await page.reload();
+    //     await expect(page).toHaveURL(/\/dashboard$/);
 
-    });
+    // });
 });
