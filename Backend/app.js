@@ -1,8 +1,10 @@
+// Import required modules
 import express from 'express'
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet'
 import cors from 'cors'
 
+// Import routes and middleware
 import healthRoutes from './routes/healthRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import ReportsRoutes from './routes/ReportsRoutes.js'
