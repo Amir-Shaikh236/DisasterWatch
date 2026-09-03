@@ -1,17 +1,30 @@
 /* eslint-disable */
 import { test, expect } from "@playwright/test"
 
-const backendBaseURL = process.env.VITE_API_URL || 'http://localhost:5000';
+const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe('End-To-End EnterPrise Authentication Gateway', () => {
 
     let testUser;
 
     const clearAll = async (request) => {
-        await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
             failOnStatusCode: false,
         });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (![200, 404].includes(deleteResponse.status())) {
+            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+        }
     };
 
     test.beforeAll(async ({ request }) => {
@@ -45,24 +58,9 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     });
 
     test.beforeEach(async ({ page }) => {
-        // These just for debugging errors while testing
-
-        // page.on('response', async (res) => {
-        //     if (res.request().method() === 'POST') {
-        //         console.log('POST →', res.url(), 'STATUS:', res.status());
-        //     }
-        // });
-
-        // page.on('requestfailed', (req) => {
-        //     console.log('REQUEST FAILED →', req.url(), req.failure()?.errorText);
-        // });
-
-        // page.on('console', (msg) => {
-        //     if (msg.type() === 'error') console.log('BROWSER CONSOLE ERROR:', msg.text());
-        // });
-
         await page.context().clearCookies();
         await page.goto('/');
+        await expect(page.getByLabel(/email/i)).toBeVisible();
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
