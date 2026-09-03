@@ -58,6 +58,8 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     });
 
     test.beforeEach(async ({ page }) => {
+        await page.goto('/', { waitUntil: 'networkidle' });
+
         // These just for debugging errors while testing
 
         // page.on('response', async (res) => {
@@ -75,12 +77,15 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         // });
 
         await page.context().clearCookies();
-        await page.goto('/', { waitUntil: 'domcontentloaded' });
-        await expect(page.getByLabel('Email')).toBeVisible();
+        await expect(page.getByLabel(/email/i)).toBeVisible();
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
         });
+
+        await page.reload({ waitUntil: 'networkidle' });
+        await expect(page.getByLabel(/email/i)).toBeVisible();
+
     });
 
     test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
