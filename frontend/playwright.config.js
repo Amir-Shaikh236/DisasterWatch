@@ -13,6 +13,8 @@ const isCI = !!process.env.CI
 const backendDir = path.resolve(__dirname, '../Backend');
 const frontendDir = path.resolve(__dirname);
 
+const targetBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 export default defineConfig({
 
     testDir: './e2e',
@@ -29,7 +31,7 @@ export default defineConfig({
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
     use: {
-        baseURL: 'http://localhost:5173',
+        baseURL: targetBaseUrl,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
@@ -50,7 +52,7 @@ export default defineConfig({
         },
     ],
 
-    webServer: [
+    webServer: process.env.FRONTEND_URL ? undefined : [
         {
             command: 'npm run dev',
             cwd: frontendDir,
