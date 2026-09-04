@@ -89,18 +89,6 @@ jobs:
 
         needs: 
           - frontend
-          - Backend
-        
-        services:
-          redis:
-            image: redis:7.0.11
-            ports:
-              - 6379:6379
-            options: >-
-              --health-cmd "redis-cli ping"
-              --health-interval 10s
-              --health-timeout 5s
-              --health-retries 5
       
         steps:
             - name: Checkout Repositry
@@ -111,15 +99,8 @@ jobs:
               with:
                 node-version: 22.x
                 cache: npm
-                cache-dependency-path: | 
-                  Backend/package-lock.json
-                  frontend/package-lock.json
-            
-            #Backend
-            - name: Install Backend Dependencies
-              working-directory: Backend
-              run: npm ci
-
+                cache-dependency-path: frontend/package-lock.json
+           
             #Frontend
             - name: Install Frontend Dependencies
               working-directory: frontend
@@ -140,7 +121,7 @@ jobs:
 
             - name: Install Playwright OS Dependencies
               working-directory: frontend
-              run: npx playwright install --with-deps
+              run: npx playwright install-deps
 
             # Run Playwright
             - name: Run Playwright

@@ -41,7 +41,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
         },
         media: uploadedImages,
         status: "verified",
-        // submittedBy: userId,
+        submittedBy: userId,
         aiAnalysis: analysis,
     };
 
