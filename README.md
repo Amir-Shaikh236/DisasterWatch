@@ -27,6 +27,7 @@ The long-term objective is to create a scalable disaster intelligence platform c
 ## Authentication
 
 - Secure JWT Authentication
+
 - Refresh Token Rotation
 - HTTP-Only Cookies
 - Protected Routes
