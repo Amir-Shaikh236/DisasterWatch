@@ -39,13 +39,26 @@ const AlertSchema = new mongoose.Schema({
     reportId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Report',
-        required: true
+    },
+
+    socialMediaPostId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SocialMediaPost',
     },
 
     alertBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+    },
+
+    source: {
+        type: String,
+        enum: ['report', 'social_media'],
+    },
+
+    sourceCount: {
+        type: Number,
+        default: 1
     }
 
 }, { timestamps: true });

@@ -1,14 +1,12 @@
-import Alerts from "../../models/Alerts.js";
 import Reports from "../../models/Reports.js";
 import { convertImages, ValidateLocation } from "../../utils/validator.js";
+import { createAlert } from "../alert/CreateAlert.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
 import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
-import { notifyNearByUser } from "../Notification/notifyNearUsers.js";
 import { deleteCache } from "../redis/cacheServices.js";
 import { getIO } from "../socket/socket.js";
 
 const REPORT_CACHE_KEY = "reports:all"
-const ALERT_CACHE_KEY = "alerts:all"
 
 export const ProcessReport = async ({ images, disasterType, description, location, currentDate, userId }) => {
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
@@ -43,7 +41,7 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
         },
         media: uploadedImages,
         status: "verified",
-        submittedBy: userId,
+        // submittedBy: userId,
         aiAnalysis: analysis,
     };
 
@@ -54,30 +52,10 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     io.to(`user:${report.submittedBy}`).emit('report:created', report);
     io.to('admin').emit('report:created', report);
 
-    const alertData = {
-        title: analysis.alertTitle,
-        disasterType: disasterType,
-        description: analysis.description,
-        severity: analysis.severity,
-        confidence: analysis.confidence,
-        location: {
-            type: 'Point',
-            coordinates: [lng, lat],
-            address: location.address
-        },
-        media: uploadedImages,
-        status: "Active",
-        reportId: report._id,
-        alertBy: userId
-    }
-
-    const alert = await Alerts.create(alertData);
-    await deleteCache(ALERT_CACHE_KEY)
-    io.emit("alert:created", alert);
+    const alert = await createAlert(report)
 
     report.alertId = alert._id
-    await report.save();
+    report.save();
 
-    await notifyNearByUser(alert);
     return { approved: true, report, alert, analysis }
 }

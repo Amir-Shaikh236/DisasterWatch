@@ -28,5 +28,4 @@ const LocationAlertSchema = new mongoose.Schema({
 
 LocationAlertSchema.index({ location: '2dsphere' });
 
-const LocationAlert = mongoose.model('LocationAlert', LocationAlertSchema);
-export default LocationAlert;
+export default mongoose.model('LocationAlert', LocationAlertSchema);
