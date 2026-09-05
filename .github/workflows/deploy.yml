@@ -59,9 +59,13 @@ jobs:
               run: az acr login --name DWatchRegistry
 
             - name: Build and Push Docker Image
-              run: |
-                docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }} ./Backend
-                docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }}
+              uses: docker/build-push-action/@v6
+              with:
+                context: ./Backend
+                push: true
+                tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/backend:${{ github.sha }}
+                cache-from: type=gha
+                cache-to: type=gha,mode=max
 
             - name: Deploy to Azure Container Apps
               run: |

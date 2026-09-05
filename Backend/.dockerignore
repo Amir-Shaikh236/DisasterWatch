@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Secrets / credentials
+.env
+.env.*
+config/serviceAccountKey.json
+config/*serviceAccount*.json
+config/*firebase-admin*.json
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Testing & coverage
+coverage/
+.vitest/
+playwright-report/
+test-results/
+tests/
+__tests__/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Documentation
+README.md
