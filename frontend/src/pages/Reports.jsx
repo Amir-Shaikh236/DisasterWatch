@@ -11,9 +11,13 @@ import { useReports } from "@/store/useReports";
 import { useUser } from "@/store/useUser";
 import { deleteReport } from "@/api/reportApi";
 import { toast } from "sonner";
+import DeleteConfirmDialog from "@/components/shared/ConfirmDialog";
 
 export default function Reports() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [selectedReportId, setSelectedReportId] = useState(null)
+    const [isDeleting, setIsDeleting] = useState(false);
     const reports = useReports((state) => state.reports)
     const isLoading = useReports((state) => state.isLoading)
     const user = useUser((state) => state.user)
@@ -67,14 +71,21 @@ export default function Reports() {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         try {
-            await deleteReport(id);
-            toast.success(`Report Deleted `);
+            setIsDeleting(true)
+
+            await deleteReport(selectedReportId);
+
+            setDeleteDialogOpen(false)
+            setSelectedReportId(null)
+            toast.success(`Report Deleted`);
 
         } catch (error) {
             console.error('Report Deleting Error: ', error)
 
+        } finally {
+            setIsDeleting(false);
         }
     }
 
@@ -228,7 +239,12 @@ export default function Reports() {
                                 </Button>
 
                                 {admin && (
-                                    <Button variant="ghost" onClick={() => handleDelete(data._id)} className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer">
+                                    <Button variant="ghost"
+                                        className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer"
+                                        onClick={() => {
+                                            setSelectedReportId(data._id)
+                                            setDeleteDialogOpen(true)
+                                        }}>
                                         <Trash2 className="h-4 w-4" />
                                         <span> Delete </span>
                                     </Button>
@@ -239,6 +255,7 @@ export default function Reports() {
                 })}
             </div>
             <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} />
+            <DeleteConfirmDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} loading={isDeleting} itemName="REPORT" />
         </div>
     )
 }
