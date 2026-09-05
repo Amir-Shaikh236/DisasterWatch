@@ -1,9 +1,9 @@
 import Reports from "../models/Reports.js";
+import { DeleteProcess } from "../services/Delete/DeleteProcess.js";
 import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
 import { ValidateRequiredFields } from "../utils/validator.js";
-import { DeleteReport } from "../services/report/DeleteProcess.js";
 
 const REPORT_CACHE_KEY = "reports:all"
 
@@ -58,7 +58,7 @@ export const deleteReport = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return next(new AppError(400, "Report id is required"));
 
-        await DeleteReport(id);
+        await DeleteProcess(id)
 
         await deleteCache(REPORT_CACHE_KEY);
         return res.status(200).json({ message: "Report Deleted Successfully" });
@@ -67,3 +67,4 @@ export const deleteReport = async (req, res, next) => {
         next(error);
     }
 };
+

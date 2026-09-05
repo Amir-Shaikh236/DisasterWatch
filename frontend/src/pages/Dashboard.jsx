@@ -43,7 +43,7 @@ export default function Dashboard() {
         },
     ];
 
-    const criticalAlert = alerts.find((alert) => alert.severity === 'high');
+    const criticalAlert = alerts.find((alert) => alert.severity === 'critical');
 
     return (
         <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">

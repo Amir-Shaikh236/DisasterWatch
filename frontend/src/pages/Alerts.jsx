@@ -8,11 +8,16 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/store/useUser";
 import { deleteAlert } from "@/api/alertApi";
 import { toast } from "sonner";
+import { useState } from "react";
+import DeleteConfirmDialog from "@/components/shared/ConfirmDialog";
 
 export default function Alerts() {
     const alerts = useAlerts((state) => state.alerts)
     const user = useUser((state) => state.user)
     const admin = user?.role === "admin" ? true : false;
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [selectedAlertId, setSelectedAlertId] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const STATUS_STYLE = {
         Active: {
@@ -126,14 +131,22 @@ export default function Alerts() {
     }
 
 
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         try {
-            await deleteAlert(id);
-            toast.success(`Alert Deleted `);
+
+            setIsDeleting(true)
+            await deleteAlert(selectedAlertId);
+
+            setDeleteDialogOpen(false)
+            setSelectedAlertId(null)
+
+            toast.success(`Alert Deleted`);
 
         } catch (error) {
-            console.error('Report Deleting Error: ', error)
+            console.error('Alert Deleting Error: ', error)
 
+        } finally {
+            setIsDeleting(false)
         }
     }
 
@@ -264,7 +277,12 @@ export default function Alerts() {
                                     <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Button>
                                 {admin && (
-                                    <Button variant="ghost" onClick={() => handleDelete(data._id)} className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer">
+                                    <Button variant="ghost"
+                                        className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer"
+                                        onClick={() => {
+                                            setSelectedAlertId(data._id)
+                                            setDeleteDialogOpen(true);
+                                        }}>
                                         <Trash2 className="h-4 w-4" />
                                         <span> Delete </span>
                                     </Button>
@@ -274,6 +292,8 @@ export default function Alerts() {
                     );
                 })}
             </div>
+
+            <DeleteConfirmDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} loading={isDeleting} itemName="ALERT" />
         </div >
     );
 }
