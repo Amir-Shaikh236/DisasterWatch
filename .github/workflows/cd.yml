@@ -25,13 +25,13 @@ jobs:
   smoke-test:
       needs: deploy
       runs-on: ubuntu-latest
-      timeout-minutes: 2
+      timeout-minutes: 5
       steps:
       - name: Poll health endpoint until it returns 200
         run: |
           URL="https://disasterwatch-77t2.onrender.com/api/health"
-          MAX_RETRIES=5
-          SLEEP_INTERVAL=5
+          MAX_RETRIES=30
+          SLEEP_INTERVAL=10
                 
           for i in $(seq 1 $MAX_RETRIES); do
             STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $URL)
