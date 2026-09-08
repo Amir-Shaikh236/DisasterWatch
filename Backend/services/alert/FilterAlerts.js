@@ -1,10 +1,11 @@
+import { isNewAlert } from "../redis/cacheServices.js";
+
 const RELEVANT_TYPES = {
     earthquake: ['earthquake', 'seismic'],
     flood: ['flood', 'flash flood', 'river flood', 'urban flood'],
     landslide: ['landslide', 'landslip', 'mudslide', 'avalanche'],
     wildfire: ['wildfire', 'forest fire', 'fire']
 };
-
 
 const severityMap = {
     alert: 'critical',
@@ -13,7 +14,6 @@ const severityMap = {
     yellow: 'medium',
     watch: 'medium'
 }
-
 
 function matchType(disasterType) {
     const typeLower = (disasterType || '').toLowerCase();
@@ -65,12 +65,28 @@ const normalizeAlert = (rawAlert, category) => {
 export const FilterAlerts = async (rawAlerts = []) => {
     if (!Array.isArray(rawAlerts) || rawAlerts.length === 0) return [];
 
-    return rawAlerts.map(alert => ({
+    const matchedAlerts = rawAlerts.map(alert => ({
         raw: alert,
         matchedCategory: matchType(alert.disaster_type)
     }))
         .filter(item => item.matchedCategory !== null)
-        .map(item => normalizeAlert(item.raw, item.matchedCategory));
+        .map(item => normalizeAlert(item.raw, item.matchedCategory))
 
-}
+    // const deduplicationResult = await Promise.all(
+    //     matchedAlerts.map(async (item) => {
+    //         const isNew = await isNewAlert(item.raw.identifier);
+    //         return {
+    //             ...item,
+    //             isNew
+    //         }
+    //     })
+    // );
+
+    // const FormattedAlerts = deduplicationResult.filter(item => item.isNew)
+    //     .map(item => normalizeAlert(item.raw, item.matchedCategory));
+
+    // return FormattedAlerts;
+
+    return matchedAlerts;
+};
 

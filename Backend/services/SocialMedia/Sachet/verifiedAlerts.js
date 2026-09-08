@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { FilterAlerts } from '../../alert/FilterAlerts.js';
+import { addAlertToQueue } from '../../queue/alertQueue.js';
 
 export const fetchAlerts = async () => {
     try {
+        console.log(`[Pipeline] Fetching raw Alerts from SACHET API....`)
         const response = await axios.post('https://sachet.ndma.gov.in/cap_public_website/FetchAllAlertDetails', {}, {
             headers: { "Content-Type": 'application/json', 'Accept': 'application/json' }, timeout: 10000
         });
@@ -10,10 +12,15 @@ export const fetchAlerts = async () => {
         const rawAlerts = response.data || [];
         const NormalizedAlerts = await FilterAlerts(rawAlerts);
 
-        return NormalizedAlerts;
+        if (NormalizedAlerts.length === 0) return [];
+        const queueJobs = await addAlertToQueue(NormalizedAlerts)
+        console.log(`Successfully pushed ${queueJobs.length} jobs to BullMQ.`)
+
+        return queueJobs;
 
     } catch (error) {
-        console.log(`Failed to fetch or process SACHET alerts: ${error.message}`)
+        throw error;
         return [];
+
     }
 };
