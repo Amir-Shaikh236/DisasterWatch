@@ -23,7 +23,7 @@ async function startServer() {
     const server = createServer(app);
     InitializeSocket(server);
 
-    startAlertCron();
+    // startAlertCron();
 
     server.listen(PORT, () => {
       console.log(`Disasterwatch Starts Running in ${process.env.NODE_ENV || 'Development'} mode on port: ${PORT}`);
