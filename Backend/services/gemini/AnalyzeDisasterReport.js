@@ -669,3 +669,90 @@ No code fences.
         );
     }
 }
+
+export async function generateSocialContent(alertData) {
+
+    if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI API KEY is Missing");
+
+    const prompt = `
+You are an AI content creator for DisasterWatch, an India-based disaster alert platform.
+
+You will receive structured disaster alert data generated from an official/verified alert-processing system.
+
+Your task is to create TWO things:
+
+1. A UNIQUE IMAGE GENERATION PROMPT
+2. A SOCIAL MEDIA CAPTION for Facebook and Instagram
+
+ALERT DATA:
+${JSON.stringify(alertData, null, 2)}
+
+========================
+IMAGE PROMPT REQUIREMENTS
+========================
+
+Create a detailed prompt that will be sent directly to an image-generation model.
+
+The generated image should visually represent the specific disaster described by the alert.
+
+Requirements:
+- Create a photorealistic, documentary/news-photography style image.
+- Make the scene relevant to the disaster type, severity, description, and location.
+- Use environmental and architectural characteristics appropriate to India when relevant.
+- Use the warning description to determine what should actually be visible in the scene.
+- Vary the composition, camera angle, weather, lighting, environment, and perspective so that images do not look repetitive.
+- Do NOT simply create a generic disaster image.
+- Do NOT invent specific roads, buildings, landmarks, rescue operations, casualties, injuries, deaths, or other events that are not supported by the alert.
+- Do not depict graphic injuries, dead bodies, or disturbing close-ups.
+- Do not create identifiable victims.
+- Do not add text, captions, labels, logos, signs, watermarks, or UI elements inside the image.
+- The image should look suitable for an official disaster-awareness social media post.
+- Prefer realistic natural lighting and believable environmental conditions.
+- The image should communicate urgency without being sensationalized.
+- Return ONLY the image-generation prompt as the value of "imagePrompt".
+
+========================
+SOCIAL MEDIA CAPTION
+========================
+
+Create a Facebook/Instagram caption based strictly on the supplied alert data.
+
+Requirements:
+- Clearly mention the disaster type.
+- Clearly mention the affected area.
+- Communicate the severity when available.
+- Summarize the warning in simple, urgent language.
+- Do not invent information that is not present in the alert.
+- Include 2-3 short practical safety recommendations that are directly relevant to the disaster type.
+- Keep the main alert message concise and easy to read.
+- Make it suitable for both Facebook and Instagram.
+- Use a professional emergency-alert tone.
+- Avoid excessive emojis.
+- Include 3-5 relevant hashtags.
+- Do not use Markdown formatting.
+- Do not claim that DisasterWatch is the official government authority.
+- Do not mention AI or image generation.
+
+Return ONLY valid JSON in exactly this structure:
+
+{
+    "imagePrompt": "detailed image generation prompt here",
+    "caption": "complete Facebook/Instagram caption here"
+}
+`.trim();
+
+    const response = await ai.models.generateContent({
+        model: "gemini-3.1-flash",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json"
+        }
+    });
+
+    const result = JSON.parse(response.text);
+
+    return {
+        imagePrompt: result.imagePrompt.trim(),
+        caption: result.caption.trim()
+    };
+}

@@ -29,16 +29,22 @@ const normalizeAlert = (rawAlert, category) => {
     const rawSeverity = (rawAlert.severity || '').toLowerCase();
     const severity = severityMap[rawSeverity] || 'medium'
 
-    let longitude = 0;
-    let latitude = 0;
+    let longitude;
+    let latitude;
 
     if (rawAlert.centroid && typeof rawAlert.centroid === 'string') {
         const parts = rawAlert.centroid.split(',');
 
-        if (parts.length === 2) {
-            longitude = parseFloat(parts[0].trim()) || 0;
-            latitude = parseFloat(parts[1].trim()) || 0
+        if (parts.length === 2 && parts.every(part => part.trim() !== '')) {
+            longitude = Number(parts[0].trim());
+            latitude = Number(parts[1].trim());
         }
+    }
+
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)
+        || longitude < -180 || longitude > 180
+        || latitude < -90 || latitude > 90) {
+        return null;
     }
 
     const title = rawAlert.area_description
@@ -47,7 +53,7 @@ const normalizeAlert = (rawAlert, category) => {
 
     return {
         title,
-        disasterType: matchType(rawAlert.disaster_type),
+        disasterType: category,
         description: rawAlert.warning_message || "No detailed warning message provided.",
         severity: severity,
         confidence: 90,
@@ -71,6 +77,7 @@ export const FilterAlerts = async (rawAlerts = []) => {
     }))
         .filter(item => item.matchedCategory !== null)
         .map(item => normalizeAlert(item.raw, item.matchedCategory))
+        .filter(alert => alert !== null)
 
     // const deduplicationResult = await Promise.all(
     //     matchedAlerts.map(async (item) => {
