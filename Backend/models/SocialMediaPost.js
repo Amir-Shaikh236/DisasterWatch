@@ -50,7 +50,7 @@ const PostSchema = new mongoose.Schema({
         required: true
     },
 
-    aiAnalysis: { type: mongoose.Schema.Types.Mixed },
+    confidence: { type: Number, required: true },
 
 }, { timestamps: true });
 

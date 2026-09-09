@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
+import axios from "axios";
 import dotenv from 'dotenv'
 dotenv.config();
 
@@ -155,4 +156,26 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
         };
 
     }
+}
+
+export async function generateAlertImage(imagePrompt) {
+
+    if (!process.env.CF_ACCOUNT_ID) throw new Error('CloudFlare Account ID is Missing')
+    if (!process.env.CF_API_TOKEN) throw new Error('CloudFlare API TOKEN is Missing')
+
+    const response = await axios.post(
+        `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`,
+        {
+            prompt: imagePrompt
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.CF_API_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            responseType: "arraybuffer",
+        }
+    );
+
+    return Buffer.from(response.data);
 }
