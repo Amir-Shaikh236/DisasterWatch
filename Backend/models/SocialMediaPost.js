@@ -3,6 +3,7 @@ import mediaSchema from "./mediaSchema.js";
 import PointSchema from "./PointSchema.js";
 
 const PostSchema = new mongoose.Schema({
+    title: { type: String, required: true },
     platform: {
         type: String,
         required: true,
@@ -37,6 +38,8 @@ const PostSchema = new mongoose.Schema({
         trim: true,
         index: true,
     },
+
+    description: { type: String, required: true },
 
     alertId: {
         type: mongoose.Schema.Types.ObjectId,

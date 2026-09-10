@@ -10,7 +10,11 @@ export const fetchAlerts = async () => {
         });
 
         const rawAlerts = response.data || [];
-        const NormalizedAlerts = await FilterAlerts(rawAlerts);
+        // const alert = await rawAlerts.slice(0, 1)
+        // console.log(alert);
+        // const NormalizedAlerts = await FilterAlerts(rawAlerts);
+        const NormalizedAlerts = (await FilterAlerts(rawAlerts)).slice(0, 1);
+        // console.log('Alert after filter : ', NormalizedAlerts);
 
         if (NormalizedAlerts.length === 0) return [];
         const queueJobs = await addAlertToQueue(NormalizedAlerts)
@@ -24,3 +28,5 @@ export const fetchAlerts = async () => {
 
     }
 };
+
+// fetchAlerts();

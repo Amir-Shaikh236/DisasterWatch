@@ -11,17 +11,30 @@ import { generateAlertImage } from '../gemini/AnalyzeImage.js';
 
 const processAlert = async (job) => {
     const alertData = job.data;
+    console.log('AlertData in Alertwoker: ', alertData)
 
     try {
+        if (!alertData || !alertData.location) {
+            throw new Error('Alert data must include a location');
+        }
+
+        console.log('Generating Caption & ImagePrompt....')
         const { imagePrompt, caption } = await generateSocialContent(alertData)
+
+        console.log('Generating Image....')
         const imageBuffer = await generateAlertImage(imagePrompt)
+
+        console.log('Uploading Image....')
         const imageResult = await UploadToCloud(imageBuffer)
+        const media = [{ url: imageResult.secure_url, publicId: imageResult.public_id }];
+
 
         const { lng, lat } = ValidateLocation(alertData.location)
 
-        const media = [{ url: imageResult.secure_url, publicId: imageResult.public_id }];
-
         const POST_DATA = {
+            title: alertData.title,
+            disasterType: alertData.disasterType,
+            description: alertData.description,
             username: 'DisasterWatch',
             content: caption,
             media: media,
@@ -29,30 +42,32 @@ const processAlert = async (job) => {
                 type: 'Point',
                 coordinates: [lng, lat]
             },
-            disasterType: alertData.disasterType,
             severity: alertData.severity,
             confidence: alertData.confidence
         }
 
+        console.log('POST Data: ', POST_DATA)
+
+        console.log('Creating Post on FB')
         const FB_RESULT = await PostToFB(imageResult.secure_url, caption);
         const FB_POST = await SocialMediaPost.create({
             ...POST_DATA,
-            title: alertData.title,
             platform: 'facebook',
             postId: FB_RESULT.id
         });
 
         const FB_ALERT = await createAlert(FB_POST)
+        console.log('FB Post Data: ', FB_POST)
 
-
+        console.log('Creating Post on IG')
         const IG_RESULT = await PostToIG(imageResult.secure_url, caption);
         const IG_POST = await SocialMediaPost.create({
             ...POST_DATA,
-            title: alertData.title,
             platform: 'instagram',
             postId: IG_RESULT.id
         });
 
+        console.log('IG Post Data: ', IG_POST)
         const IG_ALERT = await createAlert(IG_POST)
 
         await SocialMediaPost.updateOne(
@@ -65,13 +80,12 @@ const processAlert = async (job) => {
             { $set: { alertId: IG_ALERT._id } }
         );
 
-        console.log(FB_POST);
-
         console.log(`Successfully stored Facebook and Instagram alerts for ${alertData.title} in MongoDB`)
 
     } catch (error) {
         console.log(`Failed to store alert (Job ID) ${job.id}:  ${error}`)
         throw error;
+
     }
 }
 

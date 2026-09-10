@@ -21,6 +21,7 @@ const runScheduledTask = async () => {
 };
 
 export const startAlertCron = () => {
-    console.log('initializing disaster alert cron job Every 15 Minutes...');
-    cron.schedule('*/15 * * * *', runScheduledTask)
+    console.log('initializing disaster alert cron job Every 5 Minutes...');
+    cron.schedule('*/5 * * * *', runScheduledTask)
 }
+
