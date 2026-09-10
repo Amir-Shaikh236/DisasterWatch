@@ -56,7 +56,7 @@ const normalizeAlert = (rawAlert, category) => {
         disasterType: category,
         description: rawAlert.warning_message || "No detailed warning message provided.",
         severity: severity,
-        confidence: 90,
+        confidence: 8,
         location: {
             type: 'Point',
             coordinates: [longitude, latitude],
