@@ -3,7 +3,6 @@ import PointSchema from "./PointSchema.js";
 import mediaSchema from "./mediaSchema.js";
 
 const AlertSchema = new mongoose.Schema({
-
     title: { type: String, required: true },
     disasterType: {
         type: String,

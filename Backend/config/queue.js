@@ -15,7 +15,7 @@ function parseRedisUrl(url) {
 }
 
 export const defaultJobOptions = {
-    attempts: 3,
+    attempts: 1,
     backoff: {
         type: 'exponential',
         delay: 1000

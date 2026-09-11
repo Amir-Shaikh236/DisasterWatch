@@ -1,5 +1,6 @@
 import Alerts from "../models/Alerts.js";
-import { DeleteProcess } from "../services/Delete/DeleteProcess.js";
+import { DeletePost } from "../services/Delete/DeletePost.js";
+import { DeleteProcess } from "../services/Delete/DeleteReport.js";
 import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
 import AppError from "../utils/AppError.js";
 
@@ -30,7 +31,14 @@ export const deleteAlert = async (req, res, next) => {
         const alert = await Alerts.findById(id);
         if (!alert) return next(new AppError(404, "Alert Not Found"));
 
-        await DeleteProcess(alert.reportId);
+
+        if (alert.reportId) {
+            await DeleteProcess(alert.reportId);
+
+        } else {
+            await DeletePost(alert.socialMediaPostId)
+
+        }
 
         await deleteCache(ALERT_CACHE_KEY);
         return res.status(200).json({ message: "Alert Deleted Successfully" });

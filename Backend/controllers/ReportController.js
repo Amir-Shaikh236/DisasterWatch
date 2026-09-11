@@ -1,5 +1,5 @@
 import Reports from "../models/Reports.js";
-import { DeleteProcess } from "../services/Delete/DeleteProcess.js";
+import { DeleteProcess } from "../services/Delete/DeleteReport.js";
 import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";

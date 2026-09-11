@@ -8,8 +8,6 @@ const ALERT_CACHE_KEY = "alerts:all"
 
 export const createAlert = async (payload) => {
     try {
-
-        console.log('DATA Received at Alert: ', payload);
         const { lng, lat } = ValidateLocation(payload.location);
 
         const source = payload.submittedBy ? 'report' : 'social_media'
@@ -19,7 +17,7 @@ export const createAlert = async (payload) => {
             disasterType: payload.disasterType,
             description: payload.description || "No detailed warning message provided.",
             severity: payload.aiAnalysis?.severity || payload.severity || "medium",
-            confidence: payload.aiAnalysis?.confidence || payload.confidence || 80,
+            confidence: payload.aiAnalysis?.confidence || payload.confidence || 8,
             location: {
                 type: 'Point',
                 coordinates: [lng, lat],
@@ -38,9 +36,6 @@ export const createAlert = async (payload) => {
             alertData.socialMediaPostId = payload._id
 
         }
-
-
-        console.log('FInal Data of Alert: ', alertData)
 
         const alert = await Alerts.create(alertData);
         await deleteCache(ALERT_CACHE_KEY)
