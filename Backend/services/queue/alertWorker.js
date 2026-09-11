@@ -40,7 +40,8 @@ const processAlert = async (job) => {
             media: media,
             location: {
                 type: 'Point',
-                coordinates: [lng, lat]
+                coordinates: [lng, lat],
+                address: alertData.location?.address
             },
             severity: alertData.severity,
             confidence: alertData.confidence
@@ -84,6 +85,13 @@ const processAlert = async (job) => {
 
     } catch (error) {
         console.log(`Failed to store alert (Job ID) ${job.id}:  ${error}`)
+
+        if (error.message?.includes('429')) {
+            console.error('Gemini Quota Exceed for job: ', job.id);
+            await job.discard();
+            return;
+        }
+
         throw error;
 
     }
@@ -92,11 +100,11 @@ const processAlert = async (job) => {
 
 export const alertWorker = new Worker('disaster-alerts', processAlert, {
     connection: redisQueueConnection,
-    concurrency: 5,
-    limiter: {
-        max: 10,
-        duration: 60000,
-    },
+    concurrency: 1,
+    // limiter: {
+    //     max: 10,
+    //     duration: 60000,
+    // },
 });
 
 alertWorker.on('completed', (job) => {
