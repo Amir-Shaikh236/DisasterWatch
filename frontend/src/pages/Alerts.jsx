@@ -151,7 +151,7 @@ export default function Alerts() {
     }
 
     return (
-        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-9">
+        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-7">
 
             <div className="mb-8">
                 <div className="flex items-center gap-4">

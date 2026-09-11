@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator"
-import { Activity, AlertTriangle, ArrowUpRight, Clock3, FileText, Flame, MapPin, Mountain, ShieldCheck, Waves, Verified, ScanSearch, ShieldQuestion, Plus, Trash2 } from "lucide-react"
+import { Activity, AlertTriangle, ArrowUpRight, Clock3, FileText, Flame, MapPin, Mountain, ShieldCheck, Waves, Verified, ScanSearch, ShieldQuestion, Trash2 } from "lucide-react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +90,7 @@ export default function Reports() {
     }
 
     return (
-        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-9">
+        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-7">
             <div className="flex items-center justify-between mb-8">
 
                 <div className="flex items-center space-x-3">
@@ -108,7 +108,7 @@ export default function Reports() {
 
                 <div>
                     <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
-                        <Plus className="h-4 w-4" />
+                        <FileText className="h-4 w-4 text-blue-500" />
                         <span> Submit Report </span>
                     </Button>
                 </div>

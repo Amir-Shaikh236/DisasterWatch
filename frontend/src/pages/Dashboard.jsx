@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAlerts } from "@/store/useAlerts";
 import { useReports } from "@/store/useReports";
 import { shortBody } from "@/utils/Helpers";
-import { AlertTriangle, ArrowUpRight, Camera, FileText, Plus, ShieldCheck, TrendingUp } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Camera, FileText, LayoutDashboard, ShieldCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -22,14 +22,14 @@ export default function Dashboard() {
 
     const TotalStats = [
         {
-            name: "Total Reports",
+            name: "Total Alerts With Reports",
             length: reports.length,
             icon: FileText,
             iconClass: "text-blue-400"
         },
 
         {
-            name: "Active Alerts",
+            name: "Total Alerts",
             length: alerts.length,
             icon: AlertTriangle,
             iconClass: "text-destructive animate-pulse"
@@ -46,30 +46,30 @@ export default function Dashboard() {
     const criticalAlert = alerts.find((alert) => alert.severity === 'critical');
 
     return (
-        <div className="min-h-full w-full flex-1 bg-background p-6 lg:p-8">
-            <div className="overflow-auto flex items-center justify-between">
+        <div className="min-h-full w-full flex-1 bg-background p-6">
+            <div className="flex flex-col justify-between xl:flex-row">
 
-                <div className="flex-1 items-center">
-                    <h1 className="text-2xl font-bold tracking-tight"> Welcome Back </h1>
-                    <h1 className="text-md text-muted-foreground">  Here's what's happening across the disaster monitoring network. </h1>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                    <div>
-                        <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
-                            <Camera className="h-4 w-4" />
-                            <span> Image Analyzer </span>
-                        </Button>
+                <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex h-12 w-12 items-center rounded bg-primary/10 ring-1 ring-primary/20 justify-center">
+                        <LayoutDashboard className="h-8 w-8 text-emerald-400" />
                     </div>
-
                     <div>
-                        <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
-                            <Plus className="h-4 w-4" />
-                            <span> Submit Report </span>
-                        </Button>
+                        <h1 className="text-2xl font-bold tracking-tight"> Dashboard </h1>
+                        <h1 className="text-md text-muted-foreground"> Real-time overview of disaster alerts and incidents. </h1>
                     </div>
                 </div>
 
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 xl:mt-0">
+                    <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        <Camera className="h-5 w-5 text-primary" />
+                        <span> Image Analyzer </span>
+                    </Button>
+
+                    <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                        <FileText className="h-4 w-4 text-blue-500" />
+                        <span> Submit Report </span>
+                    </Button>
+                </div>
             </div>
 
             <div className="mb-8 mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -102,8 +102,8 @@ export default function Dashboard() {
                         <h1 className="text-xl font-bold"> Critical Alert Near You </h1>
                     </div>
 
-                    <div className="bg-red-500/10 rounded-lg flex items-center justify-between mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
-                        <div className="flex items-center justify-around space-x-3">
+                    <div className="bg-red-500/10 rounded-lg flex flex-col sm:flex-row sm:items-center items-start justify-between gap-4 mt-3 border border-red-500/25 p-6 cursor-pointer hover:border-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
+                        <div className="flex items-start sm:items-center space-x-3">
 
                             <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-red-500/25 bg-red-500/10">
                                 <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
@@ -116,7 +116,7 @@ export default function Dashboard() {
 
                         </div>
 
-                        <Button variant="outline" className="cursor-pointer shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
+                        <Button variant="outline" className="cursor-pointer w-full sm:w-auto shrink-0 text-red-300 hover:text-red-200 bg-red-500/5 hover:bg-red-500/10 border-red-500/30 hover:border-red-500/50">
                             <Link to="/alerts"> View Details </Link>
                             <ArrowUpRight className="h-3.5 w-3.5" />
                         </Button>
@@ -128,8 +128,8 @@ export default function Dashboard() {
                         <h1 className="text-lg font-semibold"> Critical Alert Near You  </h1>
                     </div>
 
-                    <div className="bg-emerald-500/10 rounded-lg flex items-center justify-between mt-3 border border-emerald-500/25 p-6 cursor-pointer hover:emerald-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
-                        <div className="flex items-center justify-around space-x-3">
+                    <div className="bg-emerald-500/10 rounded-lg flex flex-col sm:flex-row sm:items-center items-start justify-between gap-4 mt-3 border border-emerald-500/25 p-6 cursor-pointer hover:emerald-red-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 hover:scale-101">
+                        <div className="flex items-start sm:items-center space-x-3">
 
                             <div className="flex items-center justify-center rounded-md shrink-0 border h-11 w-11 border-emerald-500/25 bg-emerald-500/10">
                                 <ShieldCheck className="h-6 w-6 text-emerald-400 animate-pulse" />
@@ -142,7 +142,7 @@ export default function Dashboard() {
 
                         </div>
 
-                        <Button variant="outline" className="cursor-pointer shrink-0 text-emerald-300 hover:text-emerald-200 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50">
+                        <Button variant="outline" className="cursor-pointer w-full sm:w-auto shrink-0 text-emerald-300 hover:text-emerald-200 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50">
                             <Link to="/alerts"> View Details </Link>
                             <ArrowUpRight className="h-3.5 w-3.5" />
                         </Button>
