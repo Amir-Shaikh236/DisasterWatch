@@ -1,19 +1,19 @@
-import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, TriangleAlert, FileText, Settings, LogOut, User2, ShieldAlert, ChevronsUpDown } from "lucide-react";
+import { LayoutDashboard, TriangleAlert, FileText, Settings, LogOut, User2, ChevronsUpDown } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthContext } from "@/store/AuthProvider";
 import { publicClient } from "@/api/api";
 import { useContext, useState } from "react";
 import { useUser } from "@/store/useUser";
+import Logo from "@/assets/logo2.png"
 
 export default function AppSidebar() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const { clearSession } = useContext(AuthContext);
     const navigate = useNavigate()
     const location = useLocation()
-    const { open } = useSidebar()
     const user = useUser((state) => state.user);
 
     const Menu = [
@@ -49,23 +49,18 @@ export default function AppSidebar() {
 
     return (
         <aside aria-label="Primary sidebar">
-            <Sidebar className="border-r border-sidebar-border rounded" collapsible="icon">
+            <Sidebar className="border-r border-sidebar-border rounded">
 
                 <SidebarHeader className="border-b border-sidebar-border">
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <div className="group/header relative flex h-9 w-full items-center">
-                                <SidebarMenuButton className={`hover:bg-transparent transition-opacity duration-200 
-                            ${!open ? "group-hover/header:opacity-0 justify-center" : "gap-2 px-1"} `} render={
-                                        <Link to="/dashboard" className="flex items-center gap-2 px-1 rounded-md transition-colors hover:bg-sidebar-accent">
-                                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-destructive/10">
-                                                <ShieldAlert className="h-5 w-5 text-destructive" />
-                                            </div>
-                                            <span className="font-semibold text-sidebar-foreground">DisasterWatch</span>
-                                        </Link>
-                                    } />
-                                <SidebarTrigger className={`cursor-pointer h-7 w-7 transition-all duration-200 
-                                ${!open ? "absolute left-0 opacity-0 pointer-events-none group-hover/header:opacity-100 group-hover/header:pointer-events-auto" : "opacity-100"}`} />
+                            <div className="relative flex w-full items-center">
+                                <SidebarMenuButton render={
+                                    <Link to="/dashboard" className="flex items-center transition-colors hover:bg-sidebar-accent">
+                                        <img src={Logo} alt="Logo" className="h-6 w-6" />
+                                        <span className="font-semibold text-sidebar-foreground text-lg">Disaster<span className="text-emerald-400">Watch</span></span>
+                                    </Link>
+                                } />
                             </div>
                         </SidebarMenuItem>
                     </SidebarMenu>

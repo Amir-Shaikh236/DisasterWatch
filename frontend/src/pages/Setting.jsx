@@ -81,7 +81,7 @@ export default function Setting() {
     };
 
     return (
-        <div className="min-h-screen flex-1 bg-background p-6 text-foreground lg:p-9">
+        <div className="min-h-screen flex-1 bg-background p-6 text-foreground lg:p-7">
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded bg-primary/10 ring-1 ring-primary/20">
