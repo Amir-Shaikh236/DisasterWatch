@@ -47,25 +47,25 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-full w-full flex-1 bg-background p-6">
-            <div className="flex flex-col justify-between xl:flex-row">
+            <div className="flex flex-col justify-between xl:flex-row xl:items-center">
 
                 <div className="flex items-center space-x-2 mb-2">
-                    <div className="flex h-12 w-12 items-center rounded bg-primary/10 ring-1 ring-primary/20 justify-center">
-                        <LayoutDashboard className="h-8 w-8 text-emerald-400" />
+                    <div className="flex items-center justify-center h-12 w-12 shrink-0 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                        <LayoutDashboard className="h-6 w-6 text-emerald-400" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight"> Dashboard </h1>
-                        <h1 className="text-md text-muted-foreground"> Real-time overview of disaster alerts and incidents. </h1>
+                        <p className="text-md text-muted-foreground leading-snug"> Real-time overview of disaster alerts and incidents. </p>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 xl:mt-0">
-                    <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 xl:mt-0">
+                    <Button onClick={() => setIsImageAnalyzerOpen(true)} variant="outline" className="flex items-center gap-2 cursor-pointer rounded-lg border border-border bg-card px-4 w-full sm:w-auto" size="lg">
                         <Camera className="h-5 w-5 text-primary" />
                         <span> Image Analyzer </span>
                     </Button>
 
-                    <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                    <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center gap-2 cursor-pointer rounded-lg border border-border bg-card hover:bg-accent px-4 w-full sm:w-auto" size="lg">
                         <FileText className="h-4 w-4 text-blue-500" />
                         <span> Submit Report </span>
                     </Button>

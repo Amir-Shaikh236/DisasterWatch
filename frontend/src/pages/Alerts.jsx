@@ -151,21 +151,18 @@ export default function Alerts() {
     }
 
     return (
-        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-7">
+        <div className="min-h-full flex-1 bg-background p-6">
 
-            <div className="mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded bg-primary/10 ring-1 ring-primary/20">
-                        <AlertTriangle className="h-8 w-8 text-destructive" />
-                    </div>
+            <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                    <AlertTriangle className="h-6 w-6 text-destructive" />
+                </div>
 
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight lg:text-3xl"> Active Alerts </h1>
-                        <p className="text-sm text-muted-foreground lg:text-base">
-                            Monitor and review active disaster alerts
-                        </p>
-                    </div>
-
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight leading-tight"> Alerts </h1>
+                    <p className="text-sm text-muted-foreground lg:text-base">
+                        Monitor and review active disaster alerts
+                    </p>
                 </div>
             </div>
 
@@ -181,7 +178,7 @@ export default function Alerts() {
                                     <p className="mt-1 text-2xl font-bold tracking-tight text-foreground"> {item.length} </p>
                                 </div>
 
-                                <div className={`flex h-11 w-11 items-center justify-center rounded`}>
+                                <div className={`flex h-11 w-11 items-center justify-center rounded shrink-0`}>
                                     <Icon className={`h-8 w-8 ${item.iconClass}`} />
                                 </div>
                             </CardContent>
@@ -191,15 +188,13 @@ export default function Alerts() {
 
             </div>
 
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h2 className="text-lg font-semibold"> Recent Disaster Alerts </h2>
-                    <p className="text-sm text-muted-foreground">
-                        Latest reports requiring attention
-                    </p>
+                    <p className="text-sm text-muted-foreground"> Latest reports requiring attention </p>
                 </div>
 
-                <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary"> {alerts.length} Active </Badge>
+                <Badge variant="outline" className="self-start sm:self-auto border-primary/25 bg-primary/10 text-primary"> {alerts.length} Active </Badge>
             </div>
 
             <Separator className="mt-4 mb-4" />
@@ -228,24 +223,24 @@ export default function Alerts() {
 
                                 <div className="absolute inset-0 bg-linear-to-t  from-slate-950/75  via-slate-950/10 to-transparent" />
 
-                                <div className=" absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
-                                    <disasterIcon.icon className={`h-3.5 w-3.5 ${disasterIcon.iconColor}`} />
-                                    <span className="text-xs font-semibold"> {data.disasterType}</span>
+                                <div className="max-w-[55%] absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
+                                    <disasterIcon.icon className={`h-3.5 w-3.5 ${disasterIcon.iconColor} shrink-0`} />
+                                    <span className="truncate text-xs font-semibold"> {data.disasterType}</span>
                                 </div>
 
                                 <Badge variant="outline" className={`absolute right-4 top-4 rounded-full border px-2.5 py-3 backdrop-blur-md ${statusStyle.badgeClass}`}>
                                     <span className={`mr-0.5 h-2 w-2 rounded-full ${statusStyle.accent}`} /> {statusStyle.label}
                                 </Badge>
 
-                                <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-xs font-medium text-white">
-                                    <MapPin className="h-5 w-5 text-primary" />
-                                    <span>  {data.location?.address} </span>
+                                <div className="absolute bottom-4 left-4 right-4 flex items-center gap-1.5 text-xs font-medium text-white">
+                                    <MapPin className="h-5 w-5 text-primary shrink-0" />
+                                    <span>  {data.location?.address || "location Unavailable"} </span>
                                 </div>
                             </div>
 
                             <CardContent className="space-y-4 p-5">
                                 <div className="flex items-center gap-2">
-                                    <span className={`h-2 w-2 rounded-full ${severityStyle.color}`} />
+                                    <span className={`h-2 w-2 shrink-0 rounded-full ${severityStyle.color}`} />
                                     <span className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${severityStyle.text}`}>
                                         {severityStyle.label} Priority
                                     </span>
@@ -258,14 +253,14 @@ export default function Alerts() {
 
                                 <ConfidenceMeter value={(data.confidence * 100).toFixed(2)} />
 
-                                <div className="flex items-center justify-between border-t border-border/70 pt-4">
+                                <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-4">
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <ShieldCheck className="h-3.5 w-3.5" />
-                                        <span> Reports: {data.alertCount} </span>
+                                        <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                                        <span> Reports: {data.sourceCount} </span>
                                     </div>
 
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <Clock3 className="h-3.5 w-3.5" />
+                                        <Clock3 className="h-3.5 w-3.5 shrink-0" />
                                         <span> Created: {formatDate(data.createdAt)} </span>
                                     </div>
                                 </div>
