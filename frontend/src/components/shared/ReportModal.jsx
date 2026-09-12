@@ -129,113 +129,116 @@ export default function ReportModal({ isOpen, onClose }) {
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()} >
-            <DialogContent className="max-w-2xl! max-h-[90vh] overflow-y-auto bg-card border">
-                <DialogHeader>
+            <DialogContent className="max-w-2xl! max-h-[90vh] flex flex-col overflow-hidden bg-card border p-0">
+                <DialogHeader className="shrink-0 border-b border-border px-6 py-5">
                     <DialogTitle className="text-xl font-semibold text-card-foreground lg:-mb-2">Submit Disaster Report</DialogTitle>
                     <DialogDescription className="text-muted-foreground"> Your Report helps our AI models detect disasters fasters </DialogDescription>
                 </DialogHeader>
 
-                <form className="space-y-6 pt-6" onSubmit={form.handleSubmit(handleSubmit)}>
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+                    <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
 
-                    {/* Disaster Type Selector */}
-                    <div className="space-y-2">
-                        <Label htmlFor="disasterType" className="font-semibold text-sm" > Disaster Type <span className="text-destructive"> * </span></Label>
-                        <Controller name="disasterType" control={form.control} render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="disasterType" className="w-full cursor-pointer rounded-sm p-3"><SelectValue placeholder="Select Disaster Type" /></SelectTrigger>
-                                <SelectContent className="p-1">
-                                    <SelectItem value="earthquake" className="cursor-pointer"> Earthquake </SelectItem>
-                                    <SelectItem value="flood" className="cursor-pointer"> Flood </SelectItem>
-                                    <SelectItem value="wildfire" className="cursor-pointer"> Wildfire </SelectItem>
-                                    <SelectItem value="landslide" className="cursor-pointer"> LandSlide </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        )}
-                        />
-                    </div>
+                        {/* Disaster Type Selector */}
+                        <div className="space-y-2">
+                            <Label htmlFor="disasterType" className="font-semibold text-sm" > Disaster Type <span className="text-destructive"> * </span></Label>
+                            <Controller name="disasterType" control={form.control} render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger id="disasterType" className="w-full cursor-pointer rounded-sm p-3"><SelectValue placeholder="Select Disaster Type" /></SelectTrigger>
+                                    <SelectContent className="p-1">
+                                        <SelectItem value="earthquake" className="cursor-pointer"> Earthquake </SelectItem>
+                                        <SelectItem value="flood" className="cursor-pointer"> Flood </SelectItem>
+                                        <SelectItem value="wildfire" className="cursor-pointer"> Wildfire </SelectItem>
+                                        <SelectItem value="landslide" className="cursor-pointer"> LandSlide </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            />
+                        </div>
 
-                    {/* Description */}
-                    <div className="space-y-2">
-                        <FieldGroup>
-                            <Controller name="description" control={form.control} render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="description" className="text-sm font-semibold"> Description <span className="text-destructive"> * </span></FieldLabel>
-                                    <Textarea {...field} id="description" aria-invalid={fieldState.invalid} rows={4} placeholder="Describe what you witnessed..." className="focus-visible:border-primary/60 focus-visible:ring-1" />
-                                    {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
-                                </Field>
-                            )} />
-                        </FieldGroup>
-                    </div>
-
-                    {/* Location */}
-                    <div className="space-y-2">
-                        <FieldGroup>
-                            <Controller name="location" control={form.control} render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="location" className="text-sm font-semibold">Location <span className="text-destructive"> * </span></FieldLabel>
-                                    <div className="flex gap-1">
-                                        <AutoComplete value={field.value.address} onChange={(text) => field.onChange({ ...field.value, address: text })}
-                                            onLocationSelect={(location) => {
-                                                form.setValue("location", {
-                                                    type: "Point",
-                                                    coordinates: [location.coordinates.longitude, location.coordinates.latitude],
-                                                    address: location.address
-                                                }, { shouldValidate: true });
-                                                form.setValue("placeId", location.placeId)
-                                            }} />
-                                        {isLocating ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
-                                            <Button type="button" variant="outline" className="cursor-pointer rounded-md" onClick={handleGPS}> <MapPin className="h-4 w-4" /> GPS </Button>
-                                        }
+                        {/* Description */}
+                        <div className="space-y-2">
+                            <FieldGroup>
+                                <Controller name="description" control={form.control} render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="description" className="text-sm font-semibold"> Description <span className="text-destructive"> * </span></FieldLabel>
+                                        <Textarea {...field} id="description" aria-invalid={fieldState.invalid} rows={4} placeholder="Describe what you witnessed..." className="focus-visible:border-primary/60 focus-visible:ring-1" />
                                         {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
-                                    </div>
-                                </Field>
-                            )} />
-                        </FieldGroup>
-                    </div>
-
-                    {/* Image */}
-                    <div className="space-y-2">
-                        <Label className="text-sm font-semibold"> Upload Media <span className="ml-1 text-xs font-normal text-muted-foreground">({files.length}/5 Files)</span> </Label>
-                        {files.length < 5 && (
-                            <div className="border-2  rounded-lg border-dashed border-border p-6 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                <Upload className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-                                <p className="mb-2 text-muted-foreground"> Drag & Drop or Click to Upload </p>
-                                <Input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFiles} />
-                                <Button type="button" variant="outline" size="sm" className="cursor-pointer"> Choose Files </Button>
-                            </div>
-                        )}
-
-                        {files.length > 0 && (
-                            <div className="space-y-2">
-                                {files.map((item, index) => (
-                                    <Attachment key={item.preview}>
-                                        <AttachmentMedia><img src={item.preview} alt={item.file.name} className="object-cover h-full w-full" /> </AttachmentMedia>
-                                        <AttachmentContent>
-                                            <AttachmentTitle>{item.file.name}</AttachmentTitle>
-                                            <AttachmentDescription>{(item.file.size / 1024 / 1024).toFixed(2)} MB </AttachmentDescription>
-                                        </AttachmentContent>
-                                        <AttachmentActions>
-                                            <AttachmentAction aria-label={`Remove ${item.file.name}`} onClick={() => removeFiles(index)} className="cursor-pointer"> <X className="h-4 w-4" /> </AttachmentAction>
-                                        </AttachmentActions>
-                                    </Attachment>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <DialogFooter className="flex items-center justify-between">
-                        <div>
-                            <Button type="button" variant="outline" className="cursor-pointer" onClick={() => handleClose()} disabled={isSubmitting}> Cancel </Button>
+                                    </Field>
+                                )} />
+                            </FieldGroup>
                         </div>
-                        <div className="flex gap-2">
-                            <Button type="button" variant="outline" className="cursor-pointer px-4" onClick={handleReset} disabled={isSubmitting}>Reset</Button>
-                            {isSubmitting ? <Button type="button" variant="outline" className="rounded-md" disabled> <Loader2 className="h-4 w-4 animate-spin" />Submitting... </Button> :
-                                <Button type="submit" variant="secondary" className="cursor-pointer">Submit</Button>}
+
+                        {/* Location */}
+                        <div className="space-y-2">
+                            <FieldGroup>
+                                <Controller name="location" control={form.control} render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="location" className="text-sm font-semibold">Location <span className="text-destructive"> * </span></FieldLabel>
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <AutoComplete value={field.value.address} onChange={(text) => field.onChange({ ...field.value, address: text })}
+                                                    onLocationSelect={(location) => {
+                                                        form.setValue("location", {
+                                                            type: "Point",
+                                                            coordinates: [location.coordinates.longitude, location.coordinates.latitude],
+                                                            address: location.address
+                                                        }, { shouldValidate: true });
+                                                        form.setValue("placeId", location.placeId)
+                                                    }} />
+                                            </div>
+                                            {isLocating ? <Button type="button" variant="outline" className="rounded-md shrink-0 w-full sm:w-auto" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
+                                                <Button type="button" variant="outline" className="cursor-pointer rounded-md shrink-0 w-full sm:w-auto" onClick={handleGPS}> <MapPin className="h-4 w-4" /> GPS </Button>
+                                            }
+                                        </div>
+                                        {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
+                                    </Field>
+                                )} />
+                            </FieldGroup>
                         </div>
-                    </DialogFooter>
-                </form>
-            </DialogContent >
-        </Dialog >
+
+                        {/* Image */}
+                        <div className="space-y-2">
+                            <Label className="text-sm font-semibold"> Upload Media <span className="ml-1 text-xs font-normal text-muted-foreground">({files.length}/5 Files)</span> </Label>
+                            {files.length < 5 && (
+                                <div className="border-2  rounded-lg border-dashed border-border p-6 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                    <Upload className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                                    <p className="mb-2 text-muted-foreground"> Drag & Drop or Click to Upload </p>
+                                    <Input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFiles} />
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer"> Choose Files </Button>
+                                </div>
+                            )}
+
+                            {files.length > 0 && (
+                                <div className="space-y-2">
+                                    {files.map((item, index) => (
+                                        <Attachment key={item.preview}>
+                                            <AttachmentMedia><img src={item.preview} alt={item.file.name} className="object-cover h-full w-full" /> </AttachmentMedia>
+                                            <AttachmentContent>
+                                                <AttachmentTitle>{item.file.name}</AttachmentTitle>
+                                                <AttachmentDescription>{(item.file.size / 1024 / 1024).toFixed(2)} MB </AttachmentDescription>
+                                            </AttachmentContent>
+                                            <AttachmentActions>
+                                                <AttachmentAction aria-label={`Remove ${item.file.name}`} onClick={() => removeFiles(index)} className="cursor-pointer"> <X className="h-4 w-4" /> </AttachmentAction>
+                                            </AttachmentActions>
+                                        </Attachment>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <DialogFooter className="shrink-0 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 border-t border-border bg-card px-6 py-4">
+                            <Button type="button" variant="outline" className="cursor-pointer w-full sm:w-auto border-border bg-card hover:bg-accent text-muted-foreground" onClick={() => handleClose()} disabled={isSubmitting}> Cancel </Button>
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                <Button type="button" variant="outline" className="cursor-pointer px-4 w-full sm:w-auto border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300" onClick={handleReset} disabled={isSubmitting}>Reset</Button>
+                                {isSubmitting ? <Button type="button" variant="outline" className="rounded-md w-full sm:w-auto border-primary/30 bg-primary/10 text-primary" disabled> <Loader2 className="h-4 w-4 animate-spin" />Submitting... </Button> :
+                                    <Button type="submit" variant="secondary" className="cursor-pointer w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>}
+                            </div>
+                        </DialogFooter>
+
+                    </form>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }
 
