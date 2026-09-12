@@ -90,24 +90,22 @@ export default function Reports() {
     }
 
     return (
-        <div className="min-h-full flex-1 bg-background p-6 text-foreground lg:p-7">
-            <div className="flex items-center justify-between mb-8">
+        <div className="min-h-full flex-1 bg-background p-6">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center mb-5">
 
-                <div className="flex items-center space-x-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
-                        <FileText className="h-8 w-8 text-blue-400" />
+                <div className="flex items-start sm:items-center gap-3">
+                    <div className="flex items-center justify-center h-11 w-11 shrink-0 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                        <FileText className="h-7 w-7 text-blue-400" />
                     </div>
 
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight lg:text-3xl"> Your Reports </h1>
-                        <p className="text-sm text-muted-foreground lg:text-base">
-                            Track and review all the disaster reports you've submitted.
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight leading-tight"> Your Reports </h1>
+                        <p className="text-sm text-muted-foreground leading-snug lg:text-base"> View and Manage all disaster reports you've submitted. </p>
                     </div>
                 </div>
 
-                <div>
-                    <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center cursor-pointer rounded-lg bg-black px-4" size="lg">
+                <div className="flex flex-col mt-2">
+                    <Button onClick={() => setIsReportModalOpen(true)} variant="outline" className="flex items-center gap-2 cursor-pointer rounded-lg border border-border hover:bg-accent bg-card px-4 w-full sm:w-auto" size="lg">
                         <FileText className="h-4 w-4 text-blue-500" />
                         <span> Submit Report </span>
                     </Button>
@@ -192,13 +190,13 @@ export default function Reports() {
 
                                 <div className="absolute inset-0 bg-linear-to-t  from-slate-950/80  via-slate-950/10 to-transparent" />
 
-                                <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
-                                    <disasterType.icon className={`h-3.5 w-3.5 ${disasterType.iconColor}`} />
-                                    <span className="text-xs font-semibold"> {formatDisasterType(data.disasterType)}</span>
+                                <div className="max-w-[55%] absolute left-4 top-4 flex items-center gap-2 rounded-full overflow-hidden border border-white/15 bg-slate-950/60 px-3 py-1.5 text-white shadow-sm backdrop-blur-md">
+                                    <disasterType.icon className={`h-3.5 w-3.5 shrink-0 ${disasterType.iconColor}`} />
+                                    <span className="truncate text-xs font-semibold"> {formatDisasterType(data.disasterType)}</span>
                                 </div>
 
-                                <Badge variant="outline" className={`absolute right-4 top-4 rounded-full border px-2.5 py-3 backdrop-blur-md ${statusStyle.badgeClass}`}>
-                                    <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${statusStyle.accent}`} /> {statusStyle.label}
+                                <Badge variant="outline" className={`max-w-[40%] absolute right-4 top-4 rounded-full border px-2.5 py-3 backdrop-blur-md ${statusStyle.badgeClass}`}>
+                                    <span className={`mr-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${statusStyle.accent}`} /> <span className="truncate">{statusStyle.label}</span>
                                 </Badge>
 
                                 {data.location?.address && (
@@ -213,21 +211,21 @@ export default function Reports() {
                             <CardContent className="space-y-4 p-5">
                                 <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground"> {data.description} </p>
 
-                                <div className="flex items-center justify-between border-t border-border/70 pt-4">
-                                    <div>
+                                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-4">
+                                    <div className="min-w-0">
                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <Clock3 className="h-3.5 w-3.5" />
+                                            <Clock3 className="h-3.5 w-3.5 shrink-0" />
                                             <span>Submitted</span>
                                         </div>
-                                        <span> {formatDate(data.createdAt)} </span>
+                                        <span className="truncate block"> {formatDate(data.createdAt)} </span>
                                     </div>
 
-                                    <div>
+                                    <div className="min-w-0 text-right">
                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <Clock3 className="h-3.5 w-3.5" />
+                                            <Clock3 className="h-3.5 w-3.5 shrink-0" />
                                             <span>Updated</span>
                                         </div>
-                                        <span> {formatDate(data.updatedAt)} </span>
+                                        <span className="truncate block"> {formatDate(data.updatedAt)} </span>
                                     </div>
                                 </div>
                             </CardContent>
