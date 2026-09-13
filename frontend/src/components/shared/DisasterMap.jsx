@@ -45,28 +45,6 @@ export default function DisasterMap() {
         });
     };
 
-    const leafletZIndexFix = `
-  .leaflet-pane { z-index: 1 !important; }
-  .leaflet-tile-pane { z-index: 1 !important; }
-  .leaflet-overlay-pane { z-index: 2 !important; }
-  .leaflet-marker-pane { z-index: 3 !important; }
-  .leaflet-popup-pane { z-index: 4 !important; }
-  .leaflet-control-container { z-index: 10 !important; }
-`;
-
-    const customIconStyle =
-        `.custom-pulse-icon .pulse-ring {
-         width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-        animation: pulse-animation 1.5s infinite cubic-bezier(0.215, 0.610, 0.355, 1);
-    }
-
-    @keyframes pulse-animation {
-        0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-        70% { transform: scale(1.2); box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
-        100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-    }`;
-
     const filteredAlerts = AlertData.filter((alert) => {
         const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType);
         const matchesSeverity = filters.severity === "all" || filters.severity.includes(alert.severity);
@@ -87,7 +65,6 @@ export default function DisasterMap() {
                     <FilterModal filters={filters} onApply={setFilters} onReset={() => setFilters({ disasterType: [], severity: 'all' })} />
                 </CardHeader>
                 <CardContent>
-                    <style>{leafletZIndexFix + customIconStyle}</style>
                     <MapContainer center={[20.5937, 78.9629]} zoom={5} scrollWheelZoom={true} className="h-150 w-full rounded-lg" >
                         <TileLayer attribution="&copy; OpenStreetmap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         {filteredAlerts.map((data) => {

@@ -144,7 +144,7 @@ export default function ReportModal({ isOpen, onClose }) {
                             <Controller name="disasterType" control={form.control} render={({ field }) => (
                                 <Select value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger id="disasterType" className="w-full cursor-pointer rounded-sm p-3"><SelectValue placeholder="Select Disaster Type" /></SelectTrigger>
-                                    <SelectContent className="p-1">
+                                    <SelectContent className="p-1" side="bottom" align="start" sideOffset={4}>
                                         <SelectItem value="earthquake" className="cursor-pointer"> Earthquake </SelectItem>
                                         <SelectItem value="flood" className="cursor-pointer"> Flood </SelectItem>
                                         <SelectItem value="wildfire" className="cursor-pointer"> Wildfire </SelectItem>

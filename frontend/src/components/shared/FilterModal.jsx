@@ -64,7 +64,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
                             <p className="text-xs text-muted-foreground"> Select One or More Disaster Types </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 ">
                             {DISASTER_TYPES.map((type) => (
                                 <label key={type} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent">
                                     <Checkbox checked={localfilter.disasterType.includes(type)}
@@ -85,14 +85,14 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
                                 }))
                             }>
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Severity" />
+                                    <SelectValue placeholder="Severity" className="cursor-pointer" />
                                 </SelectTrigger>
 
                                 <SelectContent>
-                                    <SelectItem value="all"> ALL Severities</SelectItem>
-                                    <SelectItem value="critical"> Critical </SelectItem>
-                                    <SelectItem value="high"> High </SelectItem>
-                                    <SelectItem value="moderate"> Moderate </SelectItem>
+                                    <SelectItem value="all" className="cursor-pointer"> ALL Severities</SelectItem>
+                                    <SelectItem value="critical" className="cursor-pointer"> Critical </SelectItem>
+                                    <SelectItem value="high" className="cursor-pointer"> High </SelectItem>
+                                    <SelectItem value="moderate" className="cursor-pointer"> Moderate </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

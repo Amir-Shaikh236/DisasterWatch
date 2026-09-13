@@ -1,4 +1,4 @@
-import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroupContent, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup } from "@/components/ui/dropdown-menu"
 import { LayoutDashboard, TriangleAlert, FileText, Settings, LogOut, User2, ChevronsUpDown } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -14,6 +14,7 @@ export default function AppSidebar() {
     const { clearSession } = useContext(AuthContext);
     const navigate = useNavigate()
     const location = useLocation()
+    const { isMobile, setOpenMobile } = useSidebar();
     const user = useUser((state) => state.user);
 
     const Menu = [
@@ -47,6 +48,10 @@ export default function AppSidebar() {
         logoutPromise.finally(() => setIsLoggingOut(false));
     };
 
+    const handleClose = () => {
+        if (isMobile) setOpenMobile(false);
+    }
+
     return (
         <aside aria-label="Primary sidebar">
             <Sidebar className="border-r border-sidebar-border rounded">
@@ -56,9 +61,11 @@ export default function AppSidebar() {
                         <SidebarMenuItem>
                             <div className="relative flex w-full items-center">
                                 <SidebarMenuButton render={
-                                    <Link to="/dashboard" className="flex items-center transition-colors hover:bg-sidebar-accent">
+                                    <Link to="/dashboard" onClick={handleClose} className="flex items-center gap-1 transition-colors hover:bg-sidebar-accent">
                                         <img src={Logo} alt="Logo" className="h-6 w-6" />
-                                        <span className="font-semibold text-sidebar-foreground text-lg">Disaster<span className="text-emerald-400">Watch</span></span>
+                                        <span className="font-semibold text-sidebar-foreground text-base leading-none">
+                                            Disaster<span className="text-primary">Watch</span>
+                                        </span>
                                     </Link>
                                 } />
                             </div>
@@ -77,7 +84,7 @@ export default function AppSidebar() {
                                     return (
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton isActive={isActive} tooltip={item.title} render={
-                                                <Link to={item.url} className="mb-1 flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                                                <Link to={item.url} onClick={handleClose} className="mb-1 flex items-center w-full gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground">
                                                     <item.icon className={`h-4 w-4 ${isActive ? `text-primary` : 'none'} `} /> <span> {item.title} </span> </Link>
                                             } />
                                         </SidebarMenuItem>
@@ -120,13 +127,13 @@ export default function AppSidebar() {
 
                                     <DropdownMenuGroup>
                                         <DropdownMenuItem className="cursor-pointer mb-1" render={
-                                            <Link to="/setting">
+                                            <Link to="/setting" onClick={handleClose}>
                                                 <Settings className="mr-2 h-4 w-4" />
                                                 <span> Profile Setting </span>
                                             </Link>
                                         } />
                                         <DropdownMenuItem className="cursor-pointer" render={
-                                            <Link to="/reports">
+                                            <Link to="/reports" onClick={handleClose}>
                                                 <FileText className="h-4 w-4 mr-2" />
                                                 <span> My Reports History </span>
                                             </Link>
