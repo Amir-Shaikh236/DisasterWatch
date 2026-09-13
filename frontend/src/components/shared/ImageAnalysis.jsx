@@ -86,9 +86,9 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="min-h-0 flex-1 overflow-hidden px-4 pb-4">
+                        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
                             {!file && (
-                                <div className="min-h-70 flex-1 items-center justify-center">
+                                <div className="min-h-70 flex flex-1 flex-col items-center justify-center">
                                     <div className="w-full max-w-6xl">
                                         <div className="flex flex-col items-center justify-center h-70 rounded-lg border-2 border-dashed border-border p-8 text-center">
                                             <Upload className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
@@ -103,10 +103,10 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                             )}
 
                             {file && (
-                                <div className="flex h-full min-h-0 flex-col gap-5 lg:flex-row">
-                                    <div className={`min-h-0 transition-all duration-500 ease-in-out ${analysisResult ? "lg:w-40" : "w-full"}`}>
+                                <div className="flex min-h-0 flex-col gap-5 lg:flex-row lg:h-full">
+                                    <div className={`shrink-0 transition-all duration-500 ease-in-out ${analysisResult ? "lg:w-[40%]" : "w-full"}`}>
                                         <div className="relative flex h-full min-h-75 items-center justify-center overflow-hidden rounded-lg border bg-muted">
-                                            <img src={previewUrl} alt="Preview" className={`w-full object-contain transition-all duration-500 ease-in-out ${analysisResult ? "max-h-[65vh]" : "min-h-[70vh]"}`} />
+                                            <img src={previewUrl} alt="Preview" className={`w-full object-contain transition-all duration-500 ease-in-out ${analysisResult ? "max-h-[40vh] lg:max-h-[65vh]" : "min-h-[50vh] lg:min-h-[70vh]"}`} />
                                             {!analysisResult && (
                                                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
                                                     <Button className="cursor-pointer px-6 py-3 text-base shadow-lg transition-transform duration-200 hover:scale-105"
@@ -119,7 +119,7 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                                     </div>
 
                                     {analysisResult && (
-                                        <div className="min-h-0 flex-1 overflow-y-auto pr-1 transition-all duration-500 ease-in-out lg:w-[60%]">
+                                        <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto pr-1 transition-all duration-500 ease-in-out lg:w-[60%]">
                                             <div className="space-y-5">
                                                 <div className="sticky top-0 z-10 rounded-xl border bg-background/90 px-4 py-3 backdrop-blur-sm">
                                                     <div className="mb-2 flex items-center justify-center gap-2">
