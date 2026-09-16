@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false       # Prevent stopping a live deploy in the middle
 
 jobs:
-    deploy-frontend:
+    Deploy-Frontend:
       if: github.event.workflow_run.conclusion == 'success'
       runs-on: ubuntu-latest
       steps:
@@ -41,7 +41,7 @@ jobs:
             VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
             VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
 
-    deploy-azure:
+    Deploy-Azure:
         if: github.event.workflow_run.conclusion == 'success'
         runs-on: ubuntu-latest
         steps:
