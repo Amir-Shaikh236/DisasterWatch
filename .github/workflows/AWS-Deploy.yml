@@ -31,8 +31,7 @@ jobs:
                 key: ${{ secrets.AWS_EC2_SSH_KEY }}
                 script: |
                     cd ~/disasterwatch
-                    sudo docker compose pull backend
-                    sudo docker compose up -d
+                    sudo docker compose up -d --build backend
 
 
     # Deploy-Frontend:
