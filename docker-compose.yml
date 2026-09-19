@@ -1,9 +1,21 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./Backend
+  redis:
+    image: redis:7-alpine
+    container_name: disasterwatch-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
 
+  backend:
+    image: ghcr.io/amir-shaikh236/disasterwatch-backend:latest
+    container_name: disasterwatch-backend
     ports: 
     - "5000:5000"
 
@@ -14,12 +26,5 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-
-  redis:
-    image: redis:7-alpine
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    restart: always
 
