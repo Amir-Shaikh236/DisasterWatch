@@ -19,10 +19,7 @@ jobs:
         if: github.event.workflow_run.conclusion == 'success'
         runs-on: ubuntu-latest
         # needs: Deploy-Frontend
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-                
+        steps:                
             - name: Deploy to EC2 via SSH
               uses: appleboy/ssh-action@v1.0.3
               with:
@@ -31,7 +28,15 @@ jobs:
                 key: ${{ secrets.AWS_EC2_SSH_KEY }}
                 script: |
                     cd ~/disasterwatch
+
+                    echo "Pulling Latest Code...."
+                    git pull origin main
+
+                    echo "Building and Starting backend..."
                     sudo docker compose up -d --build backend
+
+                    echo "Deployment Status"
+                    sudo docker compose ps
 
 
     # Deploy-Frontend:
