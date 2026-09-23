@@ -9,14 +9,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please Provide your First name"],
       trim: true,
-      maxlength: [25, 'Name cannot exceed 25 characters.']
+      maxlength: [15, 'Name cannot exceed 25 characters.'],
+      validate: {
+        validator: function (value) {
+          return validator.isAlpha(value, 'en-US', { ignore: '-' });
+
+        },
+        message: "FirstName can only contain letters and Hyphens (no numbers or spaces)."
+      }
     },
 
     lastName: {
       type: String,
       required: [true, "Please Provide your Last name"],
       trim: true,
-      maxlength: [25, 'Name cannot exceed 25 characters.']
+      maxlength: [15, 'Name cannot exceed 25 characters.'],
+      validate: {
+        validator: function (value) {
+          return validator.isAlpha(value, 'en-US', { ignore: '-' })
+
+        },
+        message: "LastName can only contain letters and Hyphens (no numbers or spaces). "
+      }
     },
 
     email: {

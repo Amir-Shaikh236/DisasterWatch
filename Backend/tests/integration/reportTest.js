@@ -29,7 +29,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
     const testUser = {
         firstName: "Amir",
         lastName: "Asgar",
-        email: "skamir2410@gmail.com",
+        email: "amir@gmail.com",
         password: '123456789'
     };
 

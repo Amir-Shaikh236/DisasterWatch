@@ -1,10 +1,3 @@
-import AppError from '../utils/AppError.js'
-/**
- * Custom Operational AppError Class.
- * Extends the native JavaScript Error object to cleanly distinguish between 
- * predictable operational errors (e.g., bad inputs) and system programmatic errors.
- */
-
 export const errorHandler = (err, req, res, next) => {
 
   err.statusCode = err.statusCode || 500;
@@ -13,15 +6,22 @@ export const errorHandler = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     return res.status(err.statusCode).json({
       status: err.status,
-      error: err,
       message: err.message,
-      stack: err.stack
+      stack: err.stack,
+      error: err,
     });
   }
 
-  let error = Object.assign(Object.create(Object.getPrototypeOf(err)), err);
-  error.message = err.message;
-  if (error.isOperational) return res.status(error.statusCode).json({ status: error.status, message: error.message });
+  // isOperational Make this error safe & predictabel
+  if (err.name === 'ValidationError') {
+    err.statusCode = 400;
+    err.status = 'fail';
+    const failedField = Object.keys(err.errors)[0];
+    err.message = err.errors[failedField].message;
+    err.isOperational = true
+  }
+
+  if (err.isOperational) return res.status(err.statusCode).json({ status: err.status, message: err.message });
 
   console.error('CRITICAL UNHANDLED SYSTEM ERROR', err);
 

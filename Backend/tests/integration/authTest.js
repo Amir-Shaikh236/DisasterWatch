@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import request from 'supertest';
-
+import bcrypt from 'bcryptjs';
 import app from '../../app.js';
 import User from "../../models/User.js"
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 
-// ANTI-LEAK: mock config/db instead of mutating it (ESM exports are read-only)
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
         console.log('🛡️  Test Runner: Bypassed production cloud cluster leak.');
@@ -21,14 +20,130 @@ beforeAll(async () => {
 
 afterAll(async () => await disconnectTestDB());
 
-describe("POST /api/auth/login Security & Flow Verification..", () => {
+const testUser = {
+    firstName: 'Amir',
+    lastName: 'Asgar',
+    email: 'amir@gmail.com',
+    password: '123456789',
+}
 
-    const testUser = {
-        firstName: "Amir",
-        lastName: "Asgar",
-        email: "skamir2410@gmail.com",
-        password: '123456789'
-    };
+describe("POST /api/auth/register Security & Flow Verification....", () => {
+
+    beforeEach(() => clearTestDB())
+
+    const RegisterUser = (payload) => {
+        return request(app)
+            .post('/api/auth/register')
+            .send(payload);
+    }
+
+    it("Should Register User Successfull with accessToken and refreshToken ...", async () => {
+        const response = await RegisterUser(testUser)
+            .expect(201)
+
+        // Verify Status
+        expect(response.body.status).toBe('success');
+
+        // Verify accessToken
+        expect(response.body.accessToken).toBeDefined()
+        expect(typeof response.body.accessToken).toBe('string')
+
+        // verify User Credentials
+        expect(response.body.user).toEqual(expect.objectContaining({
+            firstName: testUser.firstName,
+            lastName: testUser.lastName,
+            email: testUser.email,
+        }))
+        expect(response.body.password).toBeUndefined()
+
+        // Verify Cookies
+        const setCookieHeader = response.headers['set-cookie'];
+        expect(setCookieHeader).toBeDefined();
+        expect(setCookieHeader[0]).toMatch(/refreshToken=/);
+        expect(setCookieHeader[0]).toMatch(/HttpOnly/i)
+        expect(setCookieHeader[0]).toMatch(/sameSite=Strict/i)
+    });
+
+    it("Should Reject and Show User already Exists....", async () => {
+        await RegisterUser(testUser)
+        const response = await RegisterUser(testUser)
+            .expect(403)
+
+        expect(response.status).toBe(403)
+        expect(response.body.status).toBe('fail')
+        expect(response.body.message).toBe('User with this email already exist')
+    });
+
+    it("Should Reject and Show FirstName must be String Error....", async () => {
+        const response = await RegisterUser({
+            firstName: 123456789,
+            lastName: testUser.lastName,
+            email: testUser.email,
+            password: testUser.password,
+        })
+            .expect(400)
+
+        expect(response.status).toBe(400)
+        expect(response.body.status).toBe('fail')
+        expect(response.body.message).toBe('FirstName can only contain letters and Hyphens (no numbers or spaces).')
+    });
+
+    it("Should Reject and Show FirstName exceeds characters....", async () => {
+        const response = await RegisterUser({
+            firstName: 'AmirShaikh-MohammedAmer',
+            lastName: testUser.lastName,
+            email: testUser.email,
+            password: testUser.password,
+        })
+            .expect(400)
+
+        expect(response.status).toBe(400)
+        expect(response.body.status).toBe('fail')
+        expect(response.body.message).toBe('Name cannot exceed 25 characters.')
+    });
+
+    it("Should Reject and Show Invalid Email Format....", async () => {
+        const response = await RegisterUser({
+            firstName: testUser.firstName,
+            lastName: testUser.lastName,
+            email: 'skgmail.com',
+            password: testUser.password,
+        })
+            .expect(400)
+
+        expect(response.status).toBe(400)
+        expect(response.body.status).toBe('fail')
+        expect(response.body.message).toBe('Please provide a valid email address')
+    });
+
+    it("Should Reject and throw an error for Password Required....", async () => {
+        const response = await RegisterUser({
+            firstName: testUser.firstName,
+            lastName: testUser.lastName,
+            email: testUser.email
+        })
+            .expect(400)
+
+        expect(response.status).toBe(400)
+        expect(response.body.status).toBe('fail')
+        expect(response.body.message).toBe('Please proivde: password')
+    });
+
+    it("Should Verify is Password Properly Hashed or Not....", async () => {
+        const response = await RegisterUser(testUser)
+            .expect(201)
+
+        const user = await User.findOne({ email: testUser.email }).select("+password")
+        expect(user.password).not.toBe(testUser.password);
+
+        const isMatch = await bcrypt.compare(testUser.password, user.password)
+        expect(isMatch).toBe(true)
+
+    });
+
+});
+
+describe("POST /api/auth/login Security & Flow Verification..", () => {
 
     beforeEach(async () => {
         await clearTestDB();
