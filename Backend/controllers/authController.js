@@ -2,15 +2,16 @@ import User from "../models/User.js"
 import { SignToken, setRefreshCookie } from "../services/authService.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/AppError.js";
-import { ValidateLocation } from "../utils/validator.js";
+import { ValidateLocation, ValidateRequiredFields } from "../utils/validator.js";
 
 const register = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
+    ValidateRequiredFields({ firstName, lastName, email, password })
+
     const userExist = await User.findOne({ email });
-    if (userExist)
-      return next(new AppError(403, "User with this email already exist"));
+    if (userExist) return next(new AppError(403, "User with this email already exist"));
 
     const user = await User.create({
       firstName,
