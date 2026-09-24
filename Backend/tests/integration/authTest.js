@@ -184,7 +184,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         return request(app).post('/api/auth/login').send(payload)
     }
 
-    it("Should issue an accessToken and a secure HttpOnly refreshToken cookie upon a valid credentials", async () => {
+    it("Should issue an accessToken and a secure HttpOnly refreshToken cookie upon valid credentials", async () => {
         const response = await LoginUser({ email: testUser.email, password: testUser.password })
             .expect(200)
 
@@ -208,8 +208,22 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(setCookieHeader[0]).toMatch(/SameSite=Strict/i);
     });
 
+    it("Should Reject login Because of Empty Fields (Email AND Password)", async () => {
+        const response = await LoginUser({}).expect(400)
+        expect(response.body.message).toMatch(/please enter email and password/i)
+    });
+
     it("should reject login attempts with invalid password and return 401 without leaking user existence", async () => {
         const response = await LoginUser({ email: testUser.email, password: "@Wrongpassword" })
+            .expect(401);
+
+        expect(response.body.status).toBe('fail');
+        expect(response.body.message).toMatch(/Incorrect email or password/i);
+        expect(response.headers["set-cookie"]).toBeUndefined();
+    });
+
+    it("should reject login attempts with invalid email and return 401 without leaking user existence", async () => {
+        const response = await LoginUser({ email: 'wrong@email.com', password: testUser.password })
             .expect(401);
 
         expect(response.body.status).toBe('fail');
@@ -239,6 +253,17 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         // Step 4: Verify the database wiped all Sessions for this user.
         const compromisedUser = await User.findOne({ email: testUser.email }).select('+refreshTokens');
         expect(compromisedUser.refreshTokens.length).toBe(0);
+    });
+
+    it("Should block login attempts after exceeding rate limit (Brute-Force Defence) ", async () => {
+
+        for (let i = 0; i <= 5; i++) {
+            await LoginUser({ email: testUser.email, password: "WrongPassword" });
+        }
+
+        const response = await LoginUser({ email: testUser.email, password: testUser.password }).expect(429)
+        expect(response.body.status).toMatch(/fail/i)
+        expect(response.body.message).toMatch(/Too many login attempts, Please try again after 15mins/i);
     });
 
 });
