@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken"
 import AppError from "../utils/AppError.js"
 import User from "../models/User.js";
+import rateLimit from "express-rate-limit"
 
 export const protect = async (req, res, next) => {
   try {
@@ -25,3 +26,16 @@ export const protect = async (req, res, next) => {
 
   }
 };
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: {
+    status: 'fail',
+    message: 'Too many login attempts, Please try again after 15mins'
+  },
+
+  standardHeaders: true,
+  legacyHeaders: false
+
+});

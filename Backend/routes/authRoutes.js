@@ -1,12 +1,12 @@
 import express from "express"
 import { register, login, logout, deleteUser, refreshToken, UpdateUser, getCurrentUser } from "../controllers/authController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { loginLimiter, protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 //POST Routes
 router.post("/register", register);
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
 router.post("/refresh", refreshToken)
 router.post("/logout", protect, logout);
 router.post("/user/delete", protect, deleteUser);
