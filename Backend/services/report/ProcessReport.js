@@ -12,9 +12,13 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
 
     const { lng, lat } = ValidateLocation(location);
-    const base64Image = convertImages(images)
 
-    const analysis = await AnalyzeDisasterReport(base64Image, disasterType, description);
+    let analysis;
+    if (images) {
+        const base64Image = convertImages(images)
+        analysis = await AnalyzeDisasterReport(base64Image, disasterType, description);
+    }
+
 
     const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence
         || analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinformationScore;
@@ -22,13 +26,15 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     if (shouldReject) return { approved: false, analysis };
 
     const uploadedImages = [];
-    for (const image of images || []) {
-        const result = await UploadToCloud(image.buffer);
+    if (images) {
+        for (const image of images || []) {
+            const result = await UploadToCloud(image.buffer);
 
-        uploadedImages.push({
-            url: result.secure_url,
-            publicId: result.public_id
-        });
+            uploadedImages.push({
+                url: result.secure_url,
+                publicId: result.public_id
+            });
+        }
     }
 
     const reportData = {

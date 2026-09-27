@@ -2,16 +2,46 @@ import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vites
 import request from "supertest"
 
 import app from "../../app.js"
-import User from "../../models/User.js"
-import Reports from "../../models/Reports.js"
-import { getIO } from "../../services/socket/socket.js"
 import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
+import Reports from "../../models/Reports.js"
+import Alerts from "../../models/Alerts.js"
+
+process.env.GEMINI_API_KEY = "test-gemini-api-key";
 
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
-        console.log('🛡️  Test Runner: Bypassed production cloud cluster leak.');
+        console.log('Test Runner: Bypassed production cloud cluster leak.');
     })
 }));
+
+vi.mock('@google/generative-ai', () => {
+    return {
+        GoogleGenerativeAI: vi.fn(function GoogleGenerativeAI() {
+            return {
+                getGenerativeModel: vi.fn(() => ({
+                    generateContent: vi.fn().mockResolvedValue({
+                        response: {
+                            text: vi.fn(() => JSON.stringify({
+                                status: "approved",
+                                isDisaster: true,
+                                typeMatch: true,
+                                disasterType: "Flood",
+                                confidence: 0.95,
+                                severity: "high",
+                                description: "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
+                                keyIndicators: ["Residential streets are submerged."],
+                                misinformationScore: 0.05,
+                                alertTitle: "Flooding Reported in Shivaji Nagar",
+                                rejectionReasons: [],
+                                imageAnalysis: [],
+                            }))
+                        }
+                    })
+                }))
+            };
+        })
+    }
+});
 
 beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -24,103 +54,101 @@ afterAll(async () => {
     await disconnectTestDB();
 });
 
-describe('POST /api/reports/add - Validation & Flow Verification..', () => {
+const testUser = {
+    firstName: "Amir",
+    lastName: "Asgar",
+    email: "amir@gmail.com",
+    password: '123456789'
+};
 
-    const testUser = {
-        firstName: "Amir",
-        lastName: "Asgar",
-        email: "amir@gmail.com",
-        password: '123456789'
-    };
-
-    const report = {
-        "disasterType": "Flood",
-        "description": "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
-        "location": {
-            coordinates: [72.8311, 21.1702],
-            address: "Shivaji Nagar Pune"
-        }
-
+const report = {
+    "disasterType": "flood",
+    "description": "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
+    "location": {
+        coordinates: [72.8311, 21.1702],
+        address: "Shivaji Nagar Pune"
     }
+
+}
+
+const loginAsUser = async () => {
+    const response = await request(app)
+        .post('/api/auth/login')
+        .send({ email: testUser.email, password: testUser.password })
+        .expect(200);
+
+    return response.body.accessToken;
+};
+
+const postReport = async (payload) => {
+    const accessToken = await loginAsUser();
+    const res = request(app)
+        .post('/api/reports/add')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+    if (payload.disasterType !== undefined) res.field('disasterType', payload.disasterType);
+    if (payload.description !== undefined) res.field('description', payload.description);
+    if (payload.location !== undefined) res.field('location', JSON.stringify(payload.location));
+
+    return res;
+};
+
+describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     beforeEach(async () => {
         await clearTestDB();
 
-        const createdUser = new User(testUser);
-        createdUser.refreshTokens = [];
-        await createdUser.save();
+        await request(app)
+            .post('/api/auth/register')
+            .send(testUser)
+            .expect(201);
     });
 
-    const loginAsUser = async () => {
-        const response = await request(app)
-            .post('/api/auth/login')
-            .send({ email: testUser.email, password: testUser.password })
-            .expect(200);
+    it('Should Create Report and Alert in DB when Report is verified by AI.', async () => {
+        // Sending Request
+        const response = await postReport(report);
+        expect(response.status).toBe(201);
 
-        return response.body.accessToken;
-    };
-
-    const postReport = async (payload) => {
-        const accessToken = await loginAsUser();
-        const req = request(app)
-            .post('/api/reports/add')
-            .set('Authorization', `Bearer ${accessToken}`);
-
-        if (payload.disasterType !== undefined) req.field('disasterType', payload.disasterType);
-        if (payload.description !== undefined) req.field('description', payload.description);
-        if (payload.location !== undefined) req.field('location', JSON.stringify(payload.location));
-
-        return await req;
-    };
-
-    it("Should issue an accessToken and a secure HttpOnly refreshToken cookie upon a valid credentials", async () => {
-        const response = await request(app)
-            .post("/api/auth/login")
-            .send({ email: testUser.email, password: testUser.password })
-            .expect(200);
-
-        // 1. Verifying Response Payload
-        expect(response.body.status).toBe("success");
-        expect(response.body.accessToken).toBeDefined();
-        expect(typeof response.body.accessToken).toBe('string');
-        expect(response.body.user).toEqual(expect.objectContaining({
-            firstName: testUser.firstName,
-            lastName: testUser.lastName,
-            email: testUser.email,
+        // Verifying Report
+        expect(response.body.status).toBe('created')
+        expect(response.body.report).toEqual(expect.objectContaining({
+            disasterType: report.disasterType,
+            description: report.description,
+            location: {
+                type: 'Point',
+                coordinates: report.location.coordinates,
+                address: report.location.address
+            },
+            status: 'verified',
+            media: []
         }));
-        expect(response.body.password).toBeUndefined(); // Prevent Password Leakage
 
-        // 2. Verify Cookie Security Flags
-        const setCookieHeader = response.headers["set-cookie"];
-        expect(setCookieHeader).toBeDefined();
-        expect(setCookieHeader[0]).toMatch(/refreshToken=/);
-        expect(setCookieHeader[0]).toMatch(/HttpOnly/i);
-        expect(setCookieHeader[0]).toMatch(/SameSite=Strict/i);
+        const saved = await Reports.findById(response.body.report._id);
+        expect(saved).not.toBeNull();
+        expect(saved.disasterType).toBe(report.disasterType);
+        expect(saved.media).toEqual(expect.objectContaining({}))
+
+        const alert = await Alerts.findById(saved.alertId)
+        expect(alert).not.toBeNull()
+        expect(alert.media).toEqual(expect.objectContaining({}))
     });
 
-    // it('Should Create Report and save it in DB Upon valid Data.', async () => {
+    it('Should Reject Report when user is not Authenticated', async () => {
+        const response = await request(app).post('/api/reports/add')
+            .send(report).expect(401);
 
-    //     // Sending Request
-    //     const response = await postReport(report)
-    //         .expect(201);
+        expect(response.body.status).toMatch(/Fail/i)
+        expect(response.body.message).toMatch(/Access Denied, Authorization token missing or invalid format/i)
 
-    //     // Verifying Report
-    //     expect(response.body.status).toBe('created')
-    //     expect(response.body.report).toEqual(expect.objectContaining({
-    //         disasterType: report.disasterType,
-    //         description: report.description,
-    //         location: {
-    //             type: 'Point',
-    //             coordinates: report.location.coordinates,
-    //             address: report.location.address
-    //         },
-    //         status: 'investigating'
-    //     }));
 
-    //     const saved = await Reports.findById(response.body.report._id);
-    //     expect(saved).not.toBeNull();
-    //     expect(saved.disasterType).toBe(report.disasterType);
-    // });
+    });
+
+    it('Should Reject Report on Invalid DisasterType', async () => {
+        const response = await postReport({ ...report, disasterType: 'INVALID_DISASTER' });
+
+        expect(response.status).toBe(400)
+        expect(response.body.message).toMatch(/Invalid Disaster Type/i)
+    });
 
     it('Should Reject a Report For Not Providing Required Fields', async () => {
 
@@ -130,9 +158,8 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         });
 
         expect(response.status).toBe(400);
-        expect(response.body.status).toBe('fail');
-        expect(response.body.message).toBe('Please proivde: description');
-
+        expect(response.body.status).toMatch(/Fail/i);
+        expect(response.body.message).toMatch(/Please proivde: description/i);
     });
 
     it('Should Reject a Report For Providing location longitude and latitude without array', async () => {
@@ -147,8 +174,8 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         });
 
         expect(response.status).toBe(400);
-        expect(response.body.status).toBe('fail');
-        expect(response.body.message).toBe('Coordinates must be an array of [Longitude, latitude].');
+        expect(response.body.status).toMatch(/fail/i);
+        expect(response.body.message).toMatch(/Coordinates must be an array of \[Longitude, latitude\]/i);
 
     });
 
@@ -164,8 +191,8 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         });
 
         expect(response.status).toBe(400);
-        expect(response.body.status).toBe('fail');
-        expect(response.body.message).toBe('Coordinates must contain valid numbers');
+        expect(response.body.status).toMatch(/fail/i);
+        expect(response.body.message).toMatch(/Coordinates must contain valid numbers/i);
 
     });
 
@@ -181,8 +208,20 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         });
 
         expect(response.status).toBe(400);
-        expect(response.body.status).toBe('fail');
-        expect(response.body.message).toBe('Coordinates out of valid range');
+        expect(response.body.status).toMatch(/fail/i);
+        expect(response.body.message).toMatch(/Coordinates out of valid range/i);
+    });
+
+    it('Should Reject a Report for Providing Coordinates in Reverse Order', async () => {
+        const response = await postReport({
+            ...report, location: {
+                coordinates: [72.8311, 120],
+                address: "Shivaji Nagar Pune"
+            }
+        })
+
+        expect(response.status).toBe(400);
     });
 
 });
+

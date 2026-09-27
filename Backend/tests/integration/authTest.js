@@ -7,7 +7,7 @@ import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
-        console.log('🛡️  Test Runner: Bypassed production cloud cluster leak.');
+        console.log('Test Runner: Bypassed production cloud cluster leak.');
     })
 }));
 

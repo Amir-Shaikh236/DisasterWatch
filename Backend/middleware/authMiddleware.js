@@ -29,7 +29,7 @@ export const protect = async (req, res, next) => {
 
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 10,
   message: {
     status: 'fail',
     message: 'Too many login attempts, Please try again after 15mins'
