@@ -81,7 +81,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         });
     });
 
-    test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email);
@@ -111,7 +111,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
 
     });
 
-    test('Scenario A: User Submits incorrect credentials and encounters real API rate-limit rejection.', async ({ page }) => {
+    test('Scenario B: User Submits incorrect credentials and encounters real API rate-limit rejection.', async ({ page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
         await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
