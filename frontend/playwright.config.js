@@ -27,7 +27,7 @@ export default defineConfig({
     forbidOnly: isCI,
 
     workers: isCI ? 1 : undefined,
-    retries: isCI ? 2 : 0,
+    retries: isCI ? 1 : 0,
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
     use: {

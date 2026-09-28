@@ -65,11 +65,12 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         // page.on('requestfailed', req =>
         //     console.log('[request failed]', req.url(), req.failure()?.errorText)
         // );
-        // page.on('response', res => {
-        //     if (res.status() >= 400) {
-        //         console.log('[bad response]', res.status(), res.url());
-        //     }
-        // });
+
+        page.on('response', async res => {
+            if (res.status() >= 400) {
+                console.log('[bad response]', res.status(), res.url());
+            }
+        });
 
         await page.context().clearCookies();
         await page.goto('/');
