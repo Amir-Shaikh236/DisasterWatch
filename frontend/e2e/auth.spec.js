@@ -66,11 +66,11 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         //     console.log('[request failed]', req.url(), req.failure()?.errorText)
         // );
 
-        page.on('response', async res => {
-            if (res.status() >= 400) {
-                console.log('[bad response]', res.status(), res.url());
-            }
-        });
+        // page.on('response', async res => {
+        //     if (res.status() >= 400) {
+        //         console.log('[bad response]', res.status(), res.url());
+        //     }
+        // });
 
         await page.context().clearCookies();
         await page.goto('/');
@@ -79,25 +79,6 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
             localStorage.clear();
             sessionStorage.clear();
         });
-    });
-
-    test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
-
-        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
-        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
-        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-
-        const login = page.waitForResponse(response => response.url().includes('/api/auth/login'));
-        await submitBtn.click();
-
-        const response = await login;
-        expect(response.status()).toBe(401)
-
-        await expect(page.getByText(/Incorrect email or password/i)).toBeVisible({ timeout: 15000 });
-
-        // Ensure the interface releases the button state so a user can try typing again
-        await expect(submitBtn).toBeEnabled();
     });
 
     test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
@@ -128,6 +109,39 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await page.reload();
         await expect(page).toHaveURL(/\/dashboard$/);
 
+    });
+
+    test('Scenario A: User Submits incorrect credentials and encounters real API rate-limit rejection.', async ({ page }) => {
+
+        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+
+
+        let status = 0;
+
+        for (let i = 0; i <= 5; i++) {
+            const login = page.waitForResponse(response => response.url().includes('/api/auth/login'));
+
+            await expect(submitBtn).toBeEnabled();
+            await submitBtn.click();
+
+            const response = await login;
+
+            console.log(`Login Attempts ${i}: HTTP ${response.status()}`);
+
+            if (response.status() === 429) {
+                status = response.status()
+                break;
+            };
+        }
+
+        expect(status).toBe(429)
+        await expect(page.getByText(/Too many login attempts, Please try again after 15mins/i)).toBeVisible();
+
+        // Ensure the interface releases the button state so a user can try typing again
+        await expect(submitBtn).toBeEnabled();
     });
 
 });
