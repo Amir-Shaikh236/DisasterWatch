@@ -34,9 +34,6 @@ export default defineConfig({
         baseURL: targetBaseUrl,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
-        extraHTTPHeaders: {
-            'x-e2e-test-key': process.env.E2E_BYPASS_SECRET || ''
-        }
     },
 
 
@@ -45,7 +42,6 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] }
         },
-
         {
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] }

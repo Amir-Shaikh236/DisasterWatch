@@ -43,11 +43,20 @@ vi.mock('@google/generative-ai', () => {
     }
 });
 
+let accessToken;
 beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     process.env.JWT_ACCESS_SECRET = 'test_access_secret_999';
     process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_999';
     await connectTestDB();
+    await clearTestDB();
+
+    const response = await request(app)
+        .post('/api/auth/register')
+        .send(testUser)
+        .expect(201);
+
+    accessToken = response.body.accessToken;
 });
 
 afterAll(async () => {
@@ -71,17 +80,7 @@ const report = {
 
 }
 
-const loginAsUser = async () => {
-    const response = await request(app)
-        .post('/api/auth/login')
-        .send({ email: testUser.email, password: testUser.password })
-        .expect(200);
-
-    return response.body.accessToken;
-};
-
 const postReport = async (payload) => {
-    const accessToken = await loginAsUser();
     const res = request(app)
         .post('/api/reports/add')
         .set('Authorization', `Bearer ${accessToken}`);
@@ -94,15 +93,6 @@ const postReport = async (payload) => {
 };
 
 describe('POST /api/reports/add - Validation & Flow Verification..', () => {
-
-    beforeEach(async () => {
-        await clearTestDB();
-
-        await request(app)
-            .post('/api/auth/register')
-            .send(testUser)
-            .expect(201);
-    });
 
     it('Should Create Report and Alert in DB when Report is verified by AI.', async () => {
         // Sending Request

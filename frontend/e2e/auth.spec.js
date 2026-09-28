@@ -81,25 +81,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         });
     });
 
-    test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
-
-        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
-        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
-
-        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-        await submitBtn.click()
-
-        const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
-        expect(response.status()).toBe(401)
-
-        await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
-
-        // Ensure the interface releases the button state so a user can try typing again
-        await expect(submitBtn).toBeEnabled();
-    });
-
-    test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email);
@@ -126,6 +108,26 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await page.reload();
         await expect(page).toHaveURL(/\/dashboard$/);
 
+    });
+
+    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
+
+        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
+
+        await submitBtn.click()
+
+        const response = await responsePromise;
+        expect(response.status()).toBe(401)
+
+        await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
+
+        // Ensure the interface releases the button state so a user can try typing again
+        await expect(submitBtn).toBeEnabled();
     });
 
 });
