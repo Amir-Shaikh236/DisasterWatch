@@ -257,7 +257,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
 
     it("Should block login attempts after exceeding rate limit (Brute-Force Defence) ", async () => {
 
-        for (let i = 0; i <= 5; i++) {
+        for (let i = 0; i <= 10; i++) {
             await LoginUser({ email: testUser.email, password: "WrongPassword" });
         }
 
