@@ -91,7 +91,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await submitBtn.click()
 
         const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
-        expect(response.status()).toBe(400)
+        expect(response.status()).toBe(401)
 
         await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
 
