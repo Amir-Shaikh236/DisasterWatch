@@ -86,11 +86,13 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
         await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
         await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        await submitBtn.click()
 
         const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
-
         expect(response.status()).toBe(400)
+
         await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
 
         // Ensure the interface releases the button state so a user can try typing again
