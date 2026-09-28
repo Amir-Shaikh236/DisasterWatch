@@ -87,7 +87,12 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
         await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+
+        const login = page.waitForResponse(response => response.url().includes('/api/auth/login'));
         await submitBtn.click();
+
+        const response = await login;
+        expect(response.status()).toBe(401)
 
         await expect(page.getByText(/Incorrect email or password/i)).toBeVisible({ timeout: 15000 });
 
