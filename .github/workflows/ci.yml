@@ -19,7 +19,7 @@ jobs:
         timeout-minutes: 10
         name: Backend Test
         runs-on: ubuntu-latest
-        
+
         needs: 
           - E2E
 
@@ -133,6 +133,7 @@ jobs:
                 CI: true
                 NODE_ENV: test
                 GEMINI_API_KEY: dummy_test_key_do_not_call_real_api
+                E2E_BYPASS_SECRET: ${{secrets.E2E_BYPASS_SECRET}}
                 TEST_MONGO_URI: ${{ secrets.TEST_MONGO_URI }}
                 JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
                 JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}

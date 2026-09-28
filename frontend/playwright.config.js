@@ -34,22 +34,26 @@ export default defineConfig({
         baseURL: targetBaseUrl,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
+        extraHTTPHeaders: {
+            'x-e2e-test-key': process.env.E2E_BYPASS_SECRET || ''
+        }
     },
 
 
     projects: [
         {
             name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
+            use: { ...devices['Desktop Chrome'] }
         },
-        // {
-        //     name: 'firefox',
-        //     use: { ...devices['Desktop Firefox'] },
-        // },
-        // {
-        //     name: 'webkit',
-        //     use: { ...devices['Desktop Safari'] },
-        // },
+
+        {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] }
+        },
+        {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] }
+        },
     ],
 
     webServer: process.env.FRONTEND_URL ? undefined : [

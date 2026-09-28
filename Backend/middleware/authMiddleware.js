@@ -30,6 +30,10 @@ export const protect = async (req, res, next) => {
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
+  skip: (req) => {
+    const bypassHeader = req.headers['x-e2e-test-key'];
+    return bypassHeader && bypassHeader === process.env.E2E_BYPASS_SECRET
+  },
   message: {
     status: 'fail',
     message: 'Too many login attempts, Please try again after 15mins'
