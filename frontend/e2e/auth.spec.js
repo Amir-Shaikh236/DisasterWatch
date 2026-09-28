@@ -83,18 +83,12 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
     test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        const emailInput = page.getByLabel(/email/i);
-        const passwordInput = page.getByLabel(/password/i);
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-
-        // Type credentials and submit through the real browser loop
-        await emailInput.fill('wrong.user@disasterWatch.io');
-        await passwordInput.fill('InvalidPassowrd123!');
         await submitBtn.click();
 
-        // Playwright auto-waits for the server response roundtrip and asserts the UI shift
-        const errorMessage = page.getByText(/Incorrect email or password/i);
-        await expect(errorMessage).toBeVisible();
+        await expect(page.getByText(/Incorrect email or password/i)).toBeVisible({ timeout: 15000 });
 
         // Ensure the interface releases the button state so a user can try typing again
         await expect(submitBtn).toBeEnabled();
