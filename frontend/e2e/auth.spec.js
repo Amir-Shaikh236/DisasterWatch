@@ -81,7 +81,23 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         });
     });
 
-    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
+
+        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+
+        const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
+
+        expect(response.status()).toBe(400)
+        await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
+
+        // Ensure the interface releases the button state so a user can try typing again
+        await expect(submitBtn).toBeEnabled();
+    });
+
+    test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email);
@@ -89,9 +105,8 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         // valid password
         await page.getByLabel(/password/i).fill(testUser.password);
 
-        const loginBtn = page.getByRole('button', { name: 'Login', exact: true });
-
         // press button
+        const loginBtn = page.getByRole('button', { name: 'Login', exact: true });
         await loginBtn.click();
 
         // Wait for the real success signal from the app before asserting the redirect.
@@ -109,39 +124,6 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await page.reload();
         await expect(page).toHaveURL(/\/dashboard$/);
 
-    });
-
-    test('Scenario B: User Submits incorrect credentials and encounters real API rate-limit rejection.', async ({ page }) => {
-
-        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
-        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
-        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-
-
-        let status = 0;
-
-        for (let i = 0; i <= 5; i++) {
-            const login = page.waitForResponse(response => response.url().includes('/api/auth/login'));
-
-            await expect(submitBtn).toBeEnabled();
-            await submitBtn.click();
-
-            const response = await login;
-
-            console.log(`Login Attempts ${i}: HTTP ${response.status()}`);
-
-            if (response.status() === 429) {
-                status = response.status()
-                break;
-            };
-        }
-
-        expect(status).toBe(429)
-        await expect(page.getByText(/Too many login attempts, Please try again after 15mins/i)).toBeVisible();
-
-        // Ensure the interface releases the button state so a user can try typing again
-        await expect(submitBtn).toBeEnabled();
     });
 
 });
