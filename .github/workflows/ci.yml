@@ -121,6 +121,10 @@ jobs:
               working-directory: frontend
               run: npm ci
 
+            - name: Install Backend Dependencies
+              working-directory: Backend
+              run: npm ci
+
             - name: Cache Playwright Browsers
               uses: actions/cache@v4
               id: playwright-cache
