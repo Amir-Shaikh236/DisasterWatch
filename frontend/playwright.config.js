@@ -16,7 +16,6 @@ const frontendDir = path.resolve(__dirname);
 const targetBaseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 export default defineConfig({
-
     testDir: './e2e',
     timeout: 30 * 1000,
 
@@ -36,7 +35,6 @@ export default defineConfig({
         screenshot: 'only-on-failure',
     },
 
-
     projects: [
         {
             name: 'chromium',
@@ -52,7 +50,7 @@ export default defineConfig({
         },
     ],
 
-    webServer: process.env.FRONTEND_URL ? undefined : [
+    webServer: [
         {
             command: 'npm run dev',
             cwd: frontendDir,
