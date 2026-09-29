@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test"
 
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
-test.describe('End-To-End EnterPrise Authentication Gateway', () => {
+test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
 
     let testUser;
 
@@ -28,6 +28,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
     };
 
     test.beforeAll(async ({ request }) => {
+
         testUser = {
             email: `e2e.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
             password: 'SecurePassword123!',
@@ -62,13 +63,14 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         // page.on('console', msg => console.log(`[browser console:${msg.type()}]`, msg.text()));
         // page.on('pageerror', err => console.log('[browser pageerror]', err.message));
         // page.on('requestfailed', req =>
-        // console.log('[request failed]', req.url(), req.failure()?.errorText)
+        //     console.log('[request failed]', req.url(), req.failure()?.errorText)
         // );
-        page.on('response', res => {
-            if (res.status() >= 400) {
-                console.log('[bad response]', res.status(), res.url());
-            }
-        });
+
+        // page.on('response', async res => {
+        //     if (res.status() >= 400) {
+        //         console.log('[bad response]', res.status(), res.url());
+        //     }
+        // });
 
         await page.context().clearCookies();
         await page.goto('/');
@@ -79,27 +81,7 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         });
     });
 
-    test('Scenario A: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
-
-        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        const emailInput = page.getByLabel(/email/i);
-        const passwordInput = page.getByLabel(/password/i);
-        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-
-        // Type credentials and submit through the real browser loop
-        await emailInput.fill('wrong.user@disasterWatch.io');
-        await passwordInput.fill('InvalidPassowrd123!');
-        await submitBtn.click();
-
-        // Playwright auto-waits for the server response roundtrip and asserts the UI shift
-        const errorMessage = page.getByText(/Incorrect email or password/i);
-        await expect(errorMessage).toBeVisible();
-
-        // Ensure the interface releases the button state so a user can try typing again
-        await expect(submitBtn).toBeEnabled();
-    });
-
-    test('Scenario B: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email);
@@ -108,10 +90,14 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         await page.getByLabel(/password/i).fill(testUser.password);
 
         // press button
-        await page.getByRole('button', { name: 'Login', exact: true }).click();
+        const loginBtn = page.getByRole('button', { name: 'Login', exact: true });
+        await loginBtn.click();
+
+        // Wait for the real success signal from the app before asserting the redirect.
+        await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
 
         // Assert the app automatically re-routes the user to the protected dashboard page
-        await expect(page).toHaveURL(/\/dashboard$/);
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
 
         await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
         await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
@@ -123,4 +109,25 @@ test.describe('End-To-End EnterPrise Authentication Gateway', () => {
         await expect(page).toHaveURL(/\/dashboard$/);
 
     });
+
+    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
+
+        // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
+
+        await submitBtn.click()
+
+        const response = await responsePromise;
+        expect(response.status()).toBe(401)
+
+        await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
+
+        // Ensure the interface releases the button state so a user can try typing again
+        await expect(submitBtn).toBeEnabled();
+    });
+
 });

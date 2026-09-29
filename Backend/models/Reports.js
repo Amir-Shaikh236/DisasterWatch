@@ -5,6 +5,10 @@ import mediaSchema from "./mediaSchema.js";
 const ReportSchema = new mongoose.Schema({
     disasterType: {
         type: String,
+        enum: {
+            values: ['flood', 'earthquake', 'wildfire', 'landslide'],
+            message: 'Invalid Disaster Type'
+        },
         required: true,
         trim: true,
         index: true,

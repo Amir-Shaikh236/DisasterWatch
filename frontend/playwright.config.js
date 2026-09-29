@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const isCI = !!process.env.CI;
+
 const backendDir = path.resolve(__dirname, '../Backend');
 const frontendDir = path.resolve(__dirname);
 
@@ -27,7 +28,7 @@ export default defineConfig({
     forbidOnly: isCI,
 
     workers: isCI ? 1 : undefined,
-    retries: isCI ? 2 : 0,
+    retries: 0,
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
     use: {
@@ -36,19 +37,18 @@ export default defineConfig({
         screenshot: 'only-on-failure',
     },
 
-
     projects: [
         {
             name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
+            use: { ...devices['Desktop Chrome'] }
         },
         {
             name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
+            use: { ...devices['Desktop Firefox'] }
         },
         {
             name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
+            use: { ...devices['Desktop Safari'] }
         },
     ],
 
@@ -72,6 +72,8 @@ export default defineConfig({
                 NODE_ENV: 'test',
                 PORT: '5000',
                 FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+                REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
+                VITE_API_URL: 'http://localhost:5000'
             },
         },
     ],

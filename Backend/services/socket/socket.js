@@ -2,6 +2,10 @@ import { Server } from "socket.io";
 import { socketAuth } from "../../middleware/socketMiddleware.js";
 
 let io = null;
+const noopIO = {
+    to: () => noopIO,
+    emit: () => noopIO,
+};
 
 export const InitializeSocket = (server) => {
     io = new Server(server, {

@@ -7,7 +7,10 @@ const PostSchema = new mongoose.Schema({
     platform: {
         type: String,
         required: true,
-        enum: ['twitter', 'facebook', 'instagram']
+        enum: {
+            values: ['facebook', 'instagram'],
+            message: 'Platform must be either facebook or instagram'
+        },
     },
 
     postId: {
