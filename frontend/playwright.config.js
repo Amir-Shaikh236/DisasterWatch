@@ -10,12 +10,14 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const isCI = !!process.env.CI;
+
 const backendDir = path.resolve(__dirname, '../Backend');
 const frontendDir = path.resolve(__dirname);
 
 const targetBaseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 export default defineConfig({
+
     testDir: './e2e',
     timeout: 30 * 1000,
 
@@ -26,7 +28,7 @@ export default defineConfig({
     forbidOnly: isCI,
 
     workers: isCI ? 1 : undefined,
-    retries: isCI ? 0 : 0,
+    retries: 0,
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
     use: {
@@ -50,7 +52,7 @@ export default defineConfig({
         },
     ],
 
-    webServer: [
+    webServer: process.env.FRONTEND_URL ? undefined : [
         {
             command: 'npm run dev',
             cwd: frontendDir,
@@ -70,6 +72,8 @@ export default defineConfig({
                 NODE_ENV: 'test',
                 PORT: '5000',
                 FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+                REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
+                VITE_API_URL: 'http://localhost:5000'
             },
         },
     ],
