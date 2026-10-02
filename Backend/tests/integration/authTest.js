@@ -3,6 +3,7 @@ import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import app from '../../app.js';
 import User from "../../models/User.js"
+import { SignToken } from '../../services/authService.js';
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 
 vi.mock('../../config/db.js', () => ({
@@ -266,5 +267,45 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(response.body.message).toMatch(/Too many login attempts, Please try again after 15mins/i);
     });
 
+});
+
+describe("POST /api/auth/user/update Data Consistency and Availability Check", () => {
+
+    let accessToken;
+    beforeEach(async () => {
+        await clearTestDB();
+
+        const user = new User(testUser);
+        user.refreshTokens = [];
+        await user.save();
+
+        accessToken = SignToken(user._id, user.role).accessToken;
+    });
+
+    const UpdateUser = (payload) => {
+        const response = request(app).post('/api/auth/user/update').send(payload).set('Authorization', `Bearer ${accessToken}`);
+        return response;
+    }
+
+    it("Should Update Data Successfully with accessToken ", async () => {
+        const userData = {
+            token: accessToken,
+            notification: true,
+            location: {
+                type: 'Point',
+                coordinates: [73.8567, 18.5204],
+                address: 'Pune',
+            },
+        }
+
+        const response = await UpdateUser(userData)
+            .expect(200);
+
+        const user = await User.findOne({ email: testUser.email });
+        expect(user.fcmTokens.includes(accessToken)).toBeTruthy();
+        expect(user.notification).toBe(true)
+        expect(user.location).toEqual(expect.objectContaining(userData.location))
+
+    })
 });
 
