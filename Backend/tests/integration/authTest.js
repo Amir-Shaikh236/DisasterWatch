@@ -287,25 +287,66 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         return response;
     }
 
-    it("Should Update Data Successfully with accessToken ", async () => {
-        const userData = {
-            token: accessToken,
-            notification: true,
-            location: {
-                type: 'Point',
-                coordinates: [73.8567, 18.5204],
-                address: 'Pune',
-            },
-        }
+    const userData = {
+        notification: true,
+        location: {
+            type: 'Point',
+            coordinates: [73.8567, 18.5204],
+            address: 'Pune',
+        },
+    }
 
-        const response = await UpdateUser(userData)
+    it("Should Update User Data Successfully with accessToken ", async () => {
+        const response = await UpdateUser({ ...userData, token: accessToken })
             .expect(200);
+
+        expect(response.body.message).toMatch(/User settings updated successfully/i)
 
         const user = await User.findOne({ email: testUser.email });
         expect(user.fcmTokens.includes(accessToken)).toBeTruthy();
         expect(user.notification).toBe(true)
         expect(user.location).toEqual(expect.objectContaining(userData.location))
 
-    })
+    });
+
+    it('Should Update the User with empty Data when Notification is set to false', async () => {
+        const response = await UpdateUser({ ...userData, notification: false })
+            .expect(200)
+
+        expect(response.body.message).toMatch(/User settings updated successfully/i)
+        expect(response.body.notification).toBeFalsy();
+
+        const user = await User.findOne({ email: testUser.email });
+        expect(user.notification).toBeFalsy();
+        expect(user.location).toBeNull()
+        expect(user.fcmTokens).toStrictEqual([])
+    });
+
+    it('Should not Update User Data for not providing token (fcmToken)', async () => {
+        const response = await UpdateUser({ ...userData, token: '' }).expect(400);
+
+        expect(response.body.message).toMatch(/FCM token is required for notification to be enabled/i);
+    });
+
+    it('Should not Update User Data for providing non formatted location', async () => {
+        const response = await UpdateUser({
+            ...userData, token: accessToken, location: {
+                type: 'Point',
+                coordinates: ['ABC', 'XYZ'],
+                address: 'Pune'
+            }
+        }).expect(400);
+
+        expect(response.body.message).toMatch(/Coordinates must contain valid numbers/i)
+    });
+
+    it('Should not Update User Data While Passing Invalid Data', async () => {
+        const response = await UpdateUser({ ...userData, token: accessToken, location: '' })
+            .expect(400);
+
+        expect(response.body.message).toMatch(/Location is Required for notification to be enabled/i);
+
+    });
+
 });
 

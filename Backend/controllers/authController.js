@@ -204,13 +204,13 @@ const UpdateUser = async (req, res, next) => {
       });
     }
 
-    if (!token) return next(new AppError(400, 'FCM token is required when notifications are enabled'));
+    if (!token) return next(new AppError(400, 'FCM token is required for notification to be enabled'));
 
     if (!user.fcmTokens.includes(token)) {
       user.fcmTokens.push(token);
     }
 
-    if (!location) return next(new AppError(400, 'Location is required when notifications are enabled'));
+    if (!location) return next(new AppError(400, 'Location is required for notification to be enabled'));
 
     const { lng, lat } = ValidateLocation(location);
 
