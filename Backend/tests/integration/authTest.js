@@ -428,9 +428,38 @@ describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', (
         expect(response.body.message).toMatch(/Authentication token missing/i);
     });
 
+    it('Shoud return 403 error for providing expired token which user already used and logged Out', async () => {
+        const loginRes = await LoginUser({ email: testUser.email, password: testUser.password });
+
+        const token = loginRes.headers['set-cookie'][0];
+        expect(token).toMatch(/refreshToken=/i);
+
+        await request(app).post('/api/auth/logout')
+            .set('Cookie', token)
+            .set('Authorization', `Bearer ${loginRes.body.accessToken}`)
+            .expect(200);
+
+        const expiredRes = await request(app)
+            .post('/api/auth/refresh')
+            .set('Cookie', token)
+            .expect(403)
+
+        expect(expiredRes.body.message).toMatch(/Compromised token usage detected.*/i)
+    });
+
+    it('Should return 403 error for providing wrong refresh Token', async () => {
+        const wrongRefreshToken = 'refreshToken=not-a-valid-refresh-token';
+        const expiredRes = await request(app)
+            .post('/api/auth/refresh')
+            .set('Cookie', wrongRefreshToken)
+            .expect(403)
+
+        expect(expiredRes.body.message).toMatch(/Session Expired or Invalid Toke/i)
+    });
+
 });
 
-// Keep this test at the END **** otherwise it may break all your cases
+// Keep this test always at the END **** otherwise it may break all your cases
 describe('POST /api/auth/login Block Login attempts after exceeding', () => {
 
     beforeEach(async () => {
