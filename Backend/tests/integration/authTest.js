@@ -232,29 +232,6 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(response.headers["set-cookie"]).toBeUndefined();
     });
 
-    it("should detect Compromised token reuse and wipe all user refresh sessions", async () => {
-
-        // Step 1: Login to generate a valid refresh token
-        const loginRes = await LoginUser({ email: testUser.email, password: testUser.password })
-
-        const validCookie = loginRes.headers["set-cookie"][0];
-
-        // Step 2: Use token once to rotate it
-        await request(app).post("/api/auth/refresh")
-            .set("Cookie", validCookie).expect(200);
-
-        //Step 3: Attempt to reuse the OLD token (simulating an attacker stealing it)
-        const attackRes = await request(app)
-            .post("/api/auth/refresh")
-            .set("Cookie", validCookie)
-            .expect(403);
-
-        expect(attackRes.body.message).toMatch(/Compromised token usage detected/i);
-
-        // Step 4: Verify the database wiped all Sessions for this user.
-        const compromisedUser = await User.findOne({ email: testUser.email }).select('+refreshTokens');
-        expect(compromisedUser.refreshTokens.length).toBe(0);
-    });
 });
 
 describe("POST /api/auth/user/update Data Consistency and Availability Check", () => {
@@ -406,6 +383,54 @@ describe('POST /api/auth/logout Security and Workflow', () => {
 
 });
 
+describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', () => {
+    beforeEach(async () => {
+        await clearTestDB();
+
+        // to prevent controller structural undefined array crashes during testing
+        const createdUser = new User(testUser);
+        createdUser.refreshTokens = [];
+        await createdUser.save();
+    });
+
+    const LoginUser = (payload) => {
+        return request(app).post('/api/auth/login').send(payload)
+    }
+
+    it("should detect Compromised token reuse and wipe all user refresh sessions", async () => {
+
+        // Step 1: Login to generate a valid refresh token
+        const loginRes = await LoginUser({ email: testUser.email, password: testUser.password })
+
+        const validCookie = loginRes.headers["set-cookie"][0];
+
+        // Step 2: Use token once to rotate it
+        await request(app).post("/api/auth/refresh")
+            .set("Cookie", validCookie).expect(200);
+
+        //Step 3: Attempt to reuse the OLD token (simulating an attacker stealing it)
+        const attackRes = await request(app)
+            .post("/api/auth/refresh")
+            .set("Cookie", validCookie)
+            .expect(403);
+
+        expect(attackRes.body.message).toMatch(/Compromised token usage detected/i);
+
+        // Step 4: Verify the database wiped all Sessions for this user.
+        const compromisedUser = await User.findOne({ email: testUser.email }).select('+refreshTokens');
+        expect(compromisedUser.refreshTokens.length).toBe(0);
+    });
+
+    it('Should return 401 error for not providing token', async () => {
+        await LoginUser({ email: testUser.email, password: testUser.password }).expect(200);
+
+        const response = await request(app).post('/api/auth/refresh').expect(401);
+        expect(response.body.message).toMatch(/Authentication token missing/i);
+    });
+
+});
+
+// Keep this test at the END **** otherwise it may break all your cases
 describe('POST /api/auth/login Block Login attempts after exceeding', () => {
 
     beforeEach(async () => {
