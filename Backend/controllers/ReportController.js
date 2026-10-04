@@ -58,13 +58,17 @@ export const deleteReport = async (req, res, next) => {
         const { id } = req.params;
         if (!id) return next(new AppError(400, "Report id is required"));
 
-        await DeleteProcess(id)
+        const user = req.user;
+        if (!user) return next(new AppError(401, 'Unauthorized User'));
+
+        await DeleteProcess(id, user);
 
         await deleteCache(REPORT_CACHE_KEY);
         return res.status(200).json({ message: "Report Deleted Successfully" });
 
     } catch (error) {
         next(error);
+
     }
 };
 
