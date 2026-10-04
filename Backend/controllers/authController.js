@@ -151,11 +151,12 @@ const refreshToken = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    if (refreshToken)
-      await User.updateOne(
-        { refreshTokens: refreshToken },
-        { $pull: { refreshTokens: refreshToken } },
-      );
+    if (!refreshToken) return next(new AppError(401, 'Refresh Token missing or invalid'))
+
+    await User.updateOne(
+      { refreshTokens: refreshToken },
+      { $pull: { refreshTokens: refreshToken } },
+    );
 
     res.clearCookie("refreshToken", {
       httpOnly: true,

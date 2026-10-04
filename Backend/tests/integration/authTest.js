@@ -30,7 +30,7 @@ const testUser = {
 
 describe("POST /api/auth/register Security & Flow Verification....", () => {
 
-    beforeEach(() => clearTestDB())
+    beforeEach(() => clearTestDB());
 
     const RegisterUser = (payload) => {
         return request(app)
@@ -255,18 +255,6 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         const compromisedUser = await User.findOne({ email: testUser.email }).select('+refreshTokens');
         expect(compromisedUser.refreshTokens.length).toBe(0);
     });
-
-    it("Should block login attempts after exceeding rate limit (Brute-Force Defence) ", async () => {
-
-        for (let i = 0; i <= 10; i++) {
-            await LoginUser({ email: testUser.email, password: "WrongPassword" });
-        }
-
-        const response = await LoginUser({ email: testUser.email, password: testUser.password }).expect(429)
-        expect(response.body.status).toMatch(/fail/i)
-        expect(response.body.message).toMatch(/Too many login attempts, Please try again after 15mins/i);
-    });
-
 });
 
 describe("POST /api/auth/user/update Data Consistency and Availability Check", () => {
@@ -296,7 +284,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         },
     }
 
-    it("Should Update User Data Successfully with accessToken ", async () => {
+    it("Should Update User Data Successfully with a valid token ", async () => {
         const response = await UpdateUser({ ...userData, token: accessToken })
             .expect(200);
 
@@ -328,7 +316,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         expect(response.body.message).toMatch(/FCM token is required for notification to be enabled/i);
     });
 
-    it('Should not Update User Data for providing non formatted location', async () => {
+    it('Should not Update User Data for providing an  unformatted or invalid location', async () => {
         const response = await UpdateUser({
             ...userData, token: accessToken, location: {
                 type: 'Point',
@@ -348,5 +336,100 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
 
     });
 
+});
+
+describe('POST /api/auth/logout Security and Workflow', () => {
+    beforeEach(async () => {
+        await clearTestDB();
+
+        const user = new User(testUser)
+        user.refreshTokens = [];
+        await user.save()
+
+    });
+
+    it('Should Logout properly By clearing refreshToken from Cookies', async () => {
+        const response = await request(app).post('/api/auth/login').send({ email: testUser.email, password: testUser.password });
+        expect(response.status).toBe(200);
+        expect(response.body.status).toMatch(/success/i)
+
+        const setCookieHeader = response.headers['set-cookie'][0];
+        expect(setCookieHeader).toBeDefined();
+        expect(setCookieHeader).toMatch(/refreshToken=/i);
+
+        const user = await User.findOne({ email: testUser.email }).select('+refreshTokens')
+        expect(user.refreshTokens).not.toBeNull()
+
+
+        // LogOut
+        const cleanCookie = setCookieHeader.split(';')[0];
+        const res = await request(app)
+            .post('/api/auth/logout')
+            .set('Cookie', cleanCookie)
+            .set('Authorization', `Bearer ${response.body.accessToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.message).toMatch(/logout successfully/i);
+
+        const CookieHeader = res.headers['set-cookie'][0].split(';')[0];
+        expect(CookieHeader.refreshTokens).toBeUndefined();
+
+        const updatedUser = await User.findOne({ email: testUser.email }).select('+refreshTokens')
+        expect(updatedUser.refreshTokens.length).toBe(0)
+    });
+
+    it('Should Show 401 Error because the user is unauthorized or have an expired token', async () => {
+        const response = await request(app)
+            .post('/api/auth/login')
+            .send({ email: testUser.email, password: testUser.password });
+
+        const res = await request(app)
+            .post('/api/auth/logout')
+            .set('Cookie', response.headers['set-cookie'][0].split(';')[0])
+            .expect(401)
+
+        expect(res.body.message).toMatch(/Access Denied, Authorization token missing or invalid format/i);
+    });
+
+    it('Should show 401 Error for not providing refreshToken of user causing unauthorized', async () => {
+        const response = await request(app)
+            .post('/api/auth/login')
+            .send({ email: testUser.email, password: testUser.password });
+
+        const res = await request(app)
+            .post('/api/auth/logout')
+            .set('Authorization', `Bearer ${response.body.accessToken}`)
+            .expect(401)
+
+        expect(res.body.message).toMatch(/Refresh token missing or invalid/i);
+    });
+
+});
+
+describe('POST /api/auth/login Block Login attempts after exceeding', () => {
+
+    beforeEach(async () => {
+        await clearTestDB();
+
+        // to prevent controller structural undefined array crashes during testing
+        const createdUser = new User(testUser);
+        createdUser.refreshTokens = [];
+        await createdUser.save();
+    });
+
+    const LoginUser = (payload) => {
+        return request(app).post('/api/auth/login').send(payload)
+    }
+
+    it("Should block login attempts after exceeding rate limit (Brute-Force Defence) ", async () => {
+
+        for (let i = 0; i <= 10; i++) {
+            await LoginUser({ email: testUser.email, password: "WrongPassword" });
+        }
+
+        const response = await LoginUser({ email: testUser.email, password: testUser.password }).expect(429)
+        expect(response.body.status).toMatch(/fail/i)
+        expect(response.body.message).toMatch(/Too many login attempts, Please try again after 15mins/i);
+    });
 });
 
