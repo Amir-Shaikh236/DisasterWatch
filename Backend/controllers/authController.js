@@ -87,7 +87,7 @@ const getCurrentUser = async (req, res, next) => {
     next(error)
 
   }
-}
+};
 
 const refreshToken = async (req, res, next) => {
   try {
@@ -104,6 +104,7 @@ const refreshToken = async (req, res, next) => {
     let decoded;
     try {
       decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
     } catch (error) {
       await User.updateOne(
         { refreshTokens: refreshToken },
