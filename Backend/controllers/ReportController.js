@@ -28,7 +28,7 @@ export const getReports = async (req, res, next) => {
         next(error)
 
     }
-}
+};
 
 export const addReport = async (req, res, next) => {
     try {

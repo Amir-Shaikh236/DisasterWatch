@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vitest"
 import request from "supertest"
-
+import jwt from 'jsonwebtoken'
 import app from "../../app.js"
 import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 import Reports from "../../models/Reports.js"
@@ -81,7 +81,7 @@ const report = {
 
 }
 
-const postReport = async (payload) => {
+const postReport = (payload) => {
     const res = request(app)
         .post('/api/reports/add')
         .set('Authorization', `Bearer ${accessToken}`);
@@ -93,9 +93,70 @@ const postReport = async (payload) => {
     return res;
 };
 
-const deleteReport = async (id) => {
+const deleteReport = (id) => {
     return request(app).delete(`/api/reports/delete/${id}`).set('Authorization', `Bearer ${accessToken}`)
 }
+
+const getReports = () => {
+    return request(app).get(`/api/reports/get`).set('Authorization', `Bearer ${accessToken}`);
+}
+
+const fakeUser = (payload) => {
+    return request(app).post('/api/auth/register').send(payload)
+}
+
+const adminRegister = async (payload) => {
+    const res = await request(app).post('/api/auth/register').send(payload);
+    const user = await User.findOne({ email: res.body.user?.email });
+    user.role = 'admin';
+    await user.save();
+
+    return res;
+}
+
+describe('GET /api/reports/get Flow Verification', () => {
+
+    it('Should Provide report to the owner of the report and an admin of the system', async () => {
+        await postReport(report);
+
+        const response = await getReports();
+        expect(response.status).toBe(200);
+
+        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+        const userId = decoded.id;
+
+        const savedReport = response.body[0];
+        expect(savedReport).toBeDefined();
+
+        expect(String(savedReport.submittedBy)).toBe(String(userId));
+
+    });
+
+    it('Should Provide each and every reports to the Admin', async () => {
+        const adminRes = await adminRegister({ ...testUser, email: 'admin2@gmail.com' });
+        expect(adminRes.status).toBe(201);
+
+        const getAdminReports = await request(app)
+            .get('/api/reports/get')
+            .set('Authorization', `Bearer ${adminRes.body.accessToken}`)
+            .expect(200);
+
+        expect(getAdminReports).not.toBeNull();
+        expect(getAdminReports.body.length).toBe(1)
+    });
+
+    it('Should Return 404 for other users if the length of reports is 0', async () => {
+        await postReport(report)
+        const response = await fakeUser({ ...testUser, email: 'fake@gmail.com' });
+        expect(response.status).toBe(201);
+
+        const getReports = await request(app).get('/api/reports/get').set('Authorization', `Bearer ${response.body.accessToken}`);
+        expect(getReports.status).toBe(404);
+        expect(getReports.body.message).toMatch(/Not Reports have been submitted!/i);
+
+    });
+
+});
 
 describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
@@ -247,12 +308,7 @@ describe('POST /api/reports/delete/Id Flow Verification', () => {
         const reportRes = await postReport(report)
         expect(reportRes.status).toBe(201);
 
-        const newUser = await request(app).post('/api/auth/register').send({
-            firstName: "Amir",
-            lastName: "Shaikh",
-            email: "amir2410@gmail.com",
-            password: '123456789'
-        }).expect(201);
+        const newUser = await fakeUser({ ...testUser, email: 'skamir@gmail.com' });
 
         const deleteRes = await request(app)
             .delete(`/api/reports/delete/${reportRes.body.report._id}`)
@@ -265,25 +321,15 @@ describe('POST /api/reports/delete/Id Flow Verification', () => {
         const reportRes = await postReport(report)
         expect(reportRes.status).toBe(201);
 
-        const newUser = await request(app).post('/api/auth/register').send({
-            firstName: "Amir",
-            lastName: "Shaikh",
-            email: "amir24@gmail.com",
-            password: '123456789'
-        }).expect(201);
+        const admin = await adminRegister({ ...testUser, email: 'admin@gmail.com' });
+        expect(admin.status).toBe(201);
 
-        const user = await User.findOne({ email: newUser.body.user?.email });
-        expect(user).not.toBeNull();
-
-        user.role = 'admin';
-        await user.save();
-
-        const updatedUser = await User.findOne({ email: newUser.body.user?.email });
+        const updatedUser = await User.findOne({ email: admin.body.user?.email });
         expect(updatedUser.role).toBe('admin');
 
         const deleteRes = await request(app)
             .delete(`/api/reports/delete/${reportRes.body.report._id}`)
-            .set('Authorization', `Bearer ${newUser.body.accessToken}`)
+            .set('Authorization', `Bearer ${admin.body.accessToken}`)
             .expect(200);
 
         expect(deleteRes.body.message).toMatch(/Report Deleted Successfully/i);
