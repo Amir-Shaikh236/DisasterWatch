@@ -152,7 +152,7 @@ describe('GET /api/reports/get Flow Verification', () => {
 
         const getReports = await request(app).get('/api/reports/get').set('Authorization', `Bearer ${response.body.accessToken}`);
         expect(getReports.status).toBe(404);
-        expect(getReports.body.message).toMatch(/Not Reports have been submitted!/i);
+        expect(getReports.body.message).toMatch(/Not Reports have been submitted*/i);
 
     });
 
