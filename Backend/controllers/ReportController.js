@@ -1,28 +1,42 @@
+import redisClient from "../config/redis.js";
 import Reports from "../models/Reports.js";
 import { DeleteProcess } from "../services/Delete/DeleteReport.js";
 import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
+import { getWithTwoTierCache } from "../utils/CacheService.js";
 import { ValidateRequiredFields } from "../utils/validator.js";
 
 const REPORT_CACHE_KEY = "reports:all"
 
 export const getReports = async (req, res, next) => {
     try {
-        const CacheReports = await getCache(REPORT_CACHE_KEY);
-        if (CacheReports) return res.status(200).json(CacheReports);
+        const isAdmin = req.user.role === 'admin';
+        const cacheKey = isAdmin ? 'reports:admin' : `reports:user:${req.user._id}`;
 
-        const filterReports = {}
-        if (req.user.role !== "admin") {
-            filterReports.submittedBy = req.user._id
+        try {
+            const CacheReports = await getCache(cacheKey);
+            if (CacheReports) return res.status(200).json(CacheReports);
+
+        } catch (error) {
+            console.warn(`cache read failed for the Key: ${cacheKey}`, error.message);
+
         }
 
-        const reports = await Reports.find(filterReports).sort({ createdAt: -1 });
-        if (!reports) return next(new AppError(404, "Reports Not Found"));
-        if (reports.length == 0) return res.status(404).json({ message: 'Not Reports have been submitted!' });
+        const fetchFromDb = async () => {
+            const filterReports = isAdmin ? {} : { submittedBy: req.user._id };
+            return await Reports.find(filterReports).sort({ createdAt: -1 });
+        }
 
-        await setCache(REPORT_CACHE_KEY, reports, 300);
-        res.status(200).json(reports);
+        const { data: reports } = await getWithTwoTierCache(cacheKey, fetchFromDb, redisClient);
+
+        if (reports.length == 0) return res.status(404).json({ message: 'Not reports have been submitted yet!' });
+
+        await setCache(cacheKey, reports, 300).catch((error) => {
+            console.warn(`Cache write failed for the key ${cacheKey}`, error.message)
+        });
+
+        return res.status(200).json(reports);
 
     } catch (error) {
         next(error)
