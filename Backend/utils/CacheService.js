@@ -1,4 +1,5 @@
 import { LRUCache } from 'lru-cache'
+import { getCache, setCache } from '../services/redis/cacheServices.js';
 
 const l1Cache = new LRUCache({
     max: 500,
@@ -13,9 +14,9 @@ export async function getWithTwoTierCache(key, dbFallbackFn, redisClient) {
 
     if (redisClient && redisClient.isOpen) {
         try {
-            const l2Data = await redisClient.get(key);
+            const l2Data = await getCache(key);
             if (l2Data) {
-                const parsed = JSON.parse(l2Data);
+                const parsed = typeof l2Data === 'string' ? JSON.parse(l2Data) : l2Data;
                 l1Cache.set(key, parsed);
                 return { data: parsed, source: 'L2-Redis' }
             }
@@ -34,13 +35,12 @@ export async function getWithTwoTierCache(key, dbFallbackFn, redisClient) {
     const fetchPromise = (async () => {
         try {
             const dbData = await dbFallbackFn();
-            // const isEmpty = dbData === null || dbData
-            if (dbData !== null || dbData !== undefined) l1Cache.set(key, dbData);
+            const isValidate = dbData !== null && dbData !== undefined;
 
-            if (redisClient && redisClient.isOpen && dbData !== null && dbData !== undefined) {
-                await redisClient.set(key, JSON.stringify(dbData), { EX: 300 }).catch((err) => {
-                    console.warn(`L2 Redis write error for the key ${key}: ${err.message}`)
-                });
+            if (isValidate) l1Cache.set(key, dbData);
+
+            if (redisClient && redisClient.isOpen && isValidate) {
+                await setCache(key, dbData);
             }
 
             return dbData;
@@ -56,4 +56,8 @@ export async function getWithTwoTierCache(key, dbFallbackFn, redisClient) {
 
     const dbData = await fetchPromise;
     return { data: dbData, source: 'Database' }
+}
+
+export function invalidateKey(key) {
+    l1Cache.delete(key)
 }
