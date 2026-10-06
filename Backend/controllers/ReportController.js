@@ -7,35 +7,21 @@ import AppError from "../utils/AppError.js";
 import { getWithTwoTierCache } from "../utils/CacheService.js";
 import { ValidateRequiredFields } from "../utils/validator.js";
 
-const REPORT_CACHE_KEY = "reports:all"
-
 export const getReports = async (req, res, next) => {
     try {
         const isAdmin = req.user.role === 'admin';
         const cacheKey = isAdmin ? 'reports:admin' : `reports:user:${req.user._id}`;
-
-        try {
-            const CacheReports = await getCache(cacheKey);
-            if (CacheReports) return res.status(200).json(CacheReports);
-
-        } catch (error) {
-            console.warn(`cache read failed for the Key: ${cacheKey}`, error.message);
-
-        }
 
         const fetchFromDb = async () => {
             const filterReports = isAdmin ? {} : { submittedBy: req.user._id };
             return await Reports.find(filterReports).sort({ createdAt: -1 });
         }
 
-        const { data: reports } = await getWithTwoTierCache(cacheKey, fetchFromDb, redisClient);
+        const { data: reports, source } = await getWithTwoTierCache(cacheKey, fetchFromDb, redisClient);
 
         if (reports.length == 0) return res.status(404).json({ message: 'Not reports have been submitted yet!' });
 
-        await setCache(cacheKey, reports, 300).catch((error) => {
-            console.warn(`Cache write failed for the key ${cacheKey}`, error.message)
-        });
-
+        res.setHeader('X-Cache-Source', source);
         return res.status(200).json(reports);
 
     } catch (error) {
@@ -69,6 +55,10 @@ export const addReport = async (req, res, next) => {
 
 export const deleteReport = async (req, res, next) => {
     try {
+
+        const isAdmin = req.user.role === 'admin';
+        const cacheKey = isAdmin ? 'reports:admin' : `reports:user:${req.user._id}`;
+
         const { id } = req.params;
         if (!id) return next(new AppError(400, "Report id is required"));
 
@@ -77,7 +67,7 @@ export const deleteReport = async (req, res, next) => {
 
         await DeleteProcess(id, user);
 
-        await deleteCache(REPORT_CACHE_KEY);
+        await deleteCache(cacheKey);
         return res.status(200).json({ message: "Report Deleted Successfully" });
 
     } catch (error) {

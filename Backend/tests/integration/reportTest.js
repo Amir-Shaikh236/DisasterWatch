@@ -6,8 +6,10 @@ import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 import Reports from "../../models/Reports.js"
 import Alerts from "../../models/Alerts.js"
 import User from "../../models/User.js"
+import { invalidateKey } from "../../utils/CacheService.js"
 
 process.env.GEMINI_API_KEY = "test-gemini-api-key";
+process.env.NODE_ENV = 'test';
 
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
@@ -61,6 +63,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await clearTestDB();
     await disconnectTestDB();
 });
 

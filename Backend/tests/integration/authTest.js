@@ -6,6 +6,8 @@ import User from "../../models/User.js"
 import { SignToken } from '../../services/authService.js';
 import { connectTestDB, disconnectTestDB, clearTestDB } from '../setup/db.js';
 
+process.env.NODE_ENV = 'test'
+
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
         console.log('Test Runner: Bypassed production cloud cluster leak.');
@@ -19,7 +21,10 @@ beforeAll(async () => {
     await connectTestDB();
 });
 
-afterAll(async () => await disconnectTestDB());
+afterAll(async () => {
+    await clearTestDB();
+    await disconnectTestDB()
+});
 
 const testUser = {
     firstName: 'Amir',
