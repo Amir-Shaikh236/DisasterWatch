@@ -12,7 +12,8 @@ export const getAlerts = async (req, res, next) => {
         if (cacheAlerts) return res.status(200).json(cacheAlerts);
 
         const alerts = await Alerts.find({}).sort({ createdAt: -1 });
-        if (alerts.length <= 0) return res.json({ message: "No Alerts has been Found" });
+        if (!alerts) return next(new AppError(404, 'Alert Not Found'));
+        if (alerts.length == 0) return next(new AppError(404, "No Alerts Yet!"));
 
         await setCache(ALERT_CACHE_KEY, alerts, 300);
         return res.status(200).json(alerts);
@@ -31,9 +32,11 @@ export const deleteAlert = async (req, res, next) => {
         const alert = await Alerts.findById(id);
         if (!alert) return next(new AppError(404, "Alert Not Found"));
 
+        const user = req.user;
+        if (!user) return next(new AppError(401, 'Unauthorized User'));
 
         if (alert.reportId) {
-            await DeleteProcess(alert.reportId);
+            await DeleteProcess(alert.reportId, user);
 
         } else {
             await DeletePost(alert.socialMediaPostId)

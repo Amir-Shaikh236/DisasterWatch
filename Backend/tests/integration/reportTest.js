@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vitest"
+import { beforeAll, afterAll, describe, it, expect, vi } from "vitest"
 import request from "supertest"
 import jwt from 'jsonwebtoken'
 import app from "../../app.js"
@@ -6,10 +6,8 @@ import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 import Reports from "../../models/Reports.js"
 import Alerts from "../../models/Alerts.js"
 import User from "../../models/User.js"
-import { invalidateKey } from "../../utils/CacheService.js"
 
 process.env.GEMINI_API_KEY = "test-gemini-api-key";
-process.env.NODE_ENV = 'test';
 
 vi.mock('../../config/db.js', () => ({
     connectDB: vi.fn(async () => {
@@ -148,7 +146,7 @@ describe('GET /api/reports/get Flow Verification', () => {
         expect(getAdminReports.body.length).toBe(1)
     });
 
-    it('Should Return 404 for other users if the length of reports is 0', async () => {
+    it('Should Return 404 for other users if the length of user Submitted reports is 0', async () => {
         await postReport(report)
         const response = await fakeUser({ ...testUser, email: 'fake@gmail.com' });
         expect(response.status).toBe(201);
