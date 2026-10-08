@@ -1,10 +1,10 @@
 import { beforeAll, afterAll, beforeEach, vi, describe, it, expect } from "vitest";
 import request from 'supertest';
 import app from "../../app";
-import jwt from 'jsonwebtoken'
 import { connectTestDB, clearTestDB, disconnectTestDB } from "../setup/db.js"
 import Alerts from "../../models/Alerts.js";
 import Reports from "../../models/Reports.js";
+import User from "../../models/User.js";
 
 process.env.GEMINI_API_KEY = "test-gemini-api-key";
 
@@ -71,6 +71,10 @@ const testUser = {
     password: '123456789'
 };
 
+const fakeUser = (payload) => {
+    return request(app).post('/api/auth/register').send(payload)
+}
+
 const report = {
     "disasterType": "flood",
     "description": "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.",
@@ -99,6 +103,15 @@ const getAlerts = () => {
 
 const deleteAlert = (id, token) => {
     return request(app).delete(`/api/alerts/delete/${id}`).set('Authorization', `Bearer ${token}`);
+}
+
+const adminRegister = async (payload) => {
+    const res = await request(app).post('/api/auth/register').send(payload);
+    const user = await User.findOne({ email: res.body.user?.email });
+    user.role = 'admin';
+    await user.save();
+
+    return res;
 }
 
 describe('GET /api/alerts/get Flow and Verification of Data', () => {
@@ -167,10 +180,33 @@ describe('POST /api/alerts/delete/:id flow and verification for security', () =>
 
     });
 
-
     it("Shouldn't Delete Alert Because of unAuthorized User", async () => {
+        const reportRes = await postReport(report).expect(201);
+        const alertId = reportRes.body.alert._id;
+        const newUser = await fakeUser({ ...testUser, email: 'fake@gmail.com' }).expect(201);
 
-    })
+        const deleteRes = await deleteAlert(alertId, newUser.body.accessToken);
+        expect(deleteRes.status).toBe(401);
+        expect(deleteRes.body.message).toMatch(/Access Denied, You must be owner of the report or admin to perform this action/i)
+    });
 
-})
+    it('Should return 404 error for Providing Non-existed alertId', async () => {
+        const deleteRes = await deleteAlert('6ac26f166eddaf49c2de046d', accessToken);
+        expect(deleteRes.status).toBe(404);
+        expect(deleteRes.body.message).toMatch(/Alert Not Found/i);
+    });
+
+    it('Should Delete Alert with Admin Credentials', async () => {
+        const reportRes = await postReport(report).expect(201);
+        const alertId = reportRes.body.alert._id;
+
+        const admin = await adminRegister({ ...testUser, email: 'admin@gmail.com' });
+        expect(admin.status).toBe(201);
+
+        const deleteRes = await deleteAlert(alertId, admin.body.accessToken);
+        expect(deleteRes.status).toBe(200);
+        expect(deleteRes.body.message).toMatch(/Alert Deleted Successfully/i);
+    });
+
+});
 
