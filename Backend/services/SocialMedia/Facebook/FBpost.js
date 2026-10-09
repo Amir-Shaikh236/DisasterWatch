@@ -1,11 +1,14 @@
 import axios from "axios";
+import { getToken } from "../../meta/getToken";
 
 const PAGE_ID = process.env.FACEBOOK_PAGE_ID
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN
 const GRAPH_API_VERSION = "v26.0";
 
 export const PostToFB = async (imageUrl, caption) => {
     try {
+
+        const PAGE_ACCESS_TOKEN = await getToken();
+
         const response = await axios.post(`https://graph.facebook.com/${GRAPH_API_VERSION}/${PAGE_ID}/photos`,
             {
                 url: imageUrl,
