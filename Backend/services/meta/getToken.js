@@ -1,5 +1,5 @@
-import MetaToken from "../../models/MetaToken";
-import AppError from "../../utils/AppError";
+import MetaToken from "../../models/MetaToken.js";
+import AppError from "../../utils/AppError.js";
 
 let cachedToken = null;
 let cacheExpiry = 0
