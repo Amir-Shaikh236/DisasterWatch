@@ -100,11 +100,11 @@ const processAlert = async (job) => {
 
 export const alertWorker = new Worker('disaster-alerts', processAlert, {
     connection: redisQueueConnection,
-    concurrency: 1,
-    // limiter: {
-    //     max: 10,
-    //     duration: 60000,
-    // },
+    concurrency: 5,
+    limiter: {
+        max: 10,
+        duration: 60000,
+    },
 });
 
 alertWorker.on('completed', (job) => {
