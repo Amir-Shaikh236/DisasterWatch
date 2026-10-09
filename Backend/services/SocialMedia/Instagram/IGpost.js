@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken } from "../../meta/getToken";
+import { getToken } from "../../meta/getToken.js";
 
 const PAGE_ID = process.env.INSTAGRAM_PAGE_ID
 const GRAPH_API_VERSION = "v26.0";
