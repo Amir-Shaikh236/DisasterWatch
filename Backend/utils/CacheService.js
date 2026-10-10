@@ -58,6 +58,6 @@ export async function getWithTwoTierCache(key, dbFallbackFn, redisClient) {
     return { data: dbData, source: 'Database' }
 }
 
-export function invalidateKey(key) {
+export async function invalidateKey(key) {
     l1Cache.delete(key)
 }

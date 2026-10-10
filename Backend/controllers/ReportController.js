@@ -1,10 +1,10 @@
 import redisClient from "../config/redis.js";
 import Reports from "../models/Reports.js";
 import { DeleteProcess } from "../services/Delete/DeleteReport.js";
-import { deleteCache, getCache, setCache } from "../services/redis/cacheServices.js";
+import { deleteCache } from "../services/redis/cacheServices.js";
 import { ProcessReport } from "../services/report/ProcessReport.js";
 import AppError from "../utils/AppError.js";
-import { getWithTwoTierCache } from "../utils/CacheService.js";
+import { getWithTwoTierCache, invalidateKey } from "../utils/CacheService.js";
 import { ValidateRequiredFields } from "../utils/validator.js";
 
 export const getReports = async (req, res, next) => {
@@ -25,7 +25,7 @@ export const getReports = async (req, res, next) => {
         return res.status(200).json(reports);
 
     } catch (error) {
-        next(error)
+        next(error);
 
     }
 };
@@ -34,14 +34,14 @@ export const addReport = async (req, res, next) => {
     try {
         const { disasterType, description } = req.body;
         const location = JSON.parse(req.body.location);
-        const userId = req.user._id
+        const user = req.user;
 
         ValidateRequiredFields({ disasterType, description, location });
 
         const images = req.files;
         const currentDate = new Date().toISOString().split("T")[0];
 
-        const result = await ProcessReport({ images, disasterType, description, location, currentDate, userId });
+        const result = await ProcessReport({ images, disasterType, description, location, currentDate, user });
         if (!result.approved) return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
 
         return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report, alert: result.alert });
@@ -68,6 +68,7 @@ export const deleteReport = async (req, res, next) => {
         await DeleteProcess(id, user);
 
         await deleteCache(cacheKey);
+        await invalidateKey(cacheKey)
         return res.status(200).json({ message: "Report Deleted Successfully" });
 
     } catch (error) {

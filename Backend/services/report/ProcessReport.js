@@ -1,4 +1,5 @@
 import Reports from "../../models/Reports.js";
+import { invalidateKey } from "../../utils/CacheService.js";
 import { convertImages, ValidateLocation } from "../../utils/validator.js";
 import { createAlert } from "../alert/CreateAlert.js";
 import { UploadToCloud } from "../cloudinary/cloudinaryUpload.js";
@@ -6,10 +7,11 @@ import { AnalyzeDisasterReport } from "../gemini/AnalyzeDisasterReport.js";
 import { deleteCache } from "../redis/cacheServices.js";
 import { getIO } from "../socket/socket.js";
 
-const REPORT_CACHE_KEY = "reports:all"
-
-export const ProcessReport = async ({ images, disasterType, description, location, currentDate, userId }) => {
+export const ProcessReport = async ({ images, disasterType, description, location, currentDate, user }) => {
     const REJECT_THRESHOLDS = { minConfidence: 0.70, maxMisinformationScore: 0.60 }
+
+    const isAdmin = user.role === 'admin';
+    const cacheKey = isAdmin ? 'reports:admin' : `reports:user:${user._id}`;
 
     const { lng, lat } = ValidateLocation(location);
 
@@ -47,12 +49,13 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
         },
         media: uploadedImages,
         status: "verified",
-        submittedBy: userId,
+        submittedBy: user._id,
         aiAnalysis: analysis,
     };
 
     const report = await Reports.create(reportData);
-    await deleteCache(REPORT_CACHE_KEY);
+    await deleteCache(cacheKey);
+    await invalidateKey(cacheKey);
 
     const io = getIO();
     io.to(`user:${report.submittedBy}`).emit('report:created', report);
