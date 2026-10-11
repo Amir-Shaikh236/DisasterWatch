@@ -17,7 +17,7 @@ export async function AI_AnalyzeImageForDisaster(
     mimeType,
     assumedLocation = "Pune, Maharashtra, India",
     currentDate = new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
-    useGrounding = true
+    useGrounding = false
 ) {
     if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI API KEY is Missing');
@@ -84,7 +84,7 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
 `;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
 
         const requestConfig = {
             contents: [{
@@ -134,6 +134,8 @@ You are the same verification engine used by DisasterWatch's ReportAnalyzer, run
     } catch (error) {
         console.error("Failed to analyze image for disaster:", error);
         return {
+            analysisFailed: true,
+            refundable: typeof error.status === "number",
             isRealPhoto: false,
             isDisaster: false,
             disasterType: null,
