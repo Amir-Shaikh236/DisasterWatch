@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { privateClient } from "@/api/api"
+import { toast } from "sonner"
 
 export default function ImageAnalysisModal({ isOpen, onClose }) {
     const [file, setFile] = useState(null)
@@ -48,6 +49,7 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
 
         } catch (error) {
             console.error(error.response?.data || error.message || "Image Analysis Failed");
+            toast.error(`${error.response?.data?.message}`);
 
         } finally {
             setIsAnalyzing(false)

@@ -237,3 +237,4 @@ const UpdateUser = async (req, res, next) => {
 };
 
 export { register, login, refreshToken, logout, deleteUser, UpdateUser, getCurrentUser }
+

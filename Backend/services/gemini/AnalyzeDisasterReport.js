@@ -2,7 +2,7 @@ import { GoogleGenerativeAI as gemini } from "@google/generative-ai";
 
 const genAI = new gemini(process.env.GEMINI_API_KEY);
 
-// async function AnalyzeDisasterReport(images, claimedType, text, location, currentDate, useGrounding = true) {
+// async function AnalyzeDisasterReport(images, claimedType, text, location, currentDate, useGrounding = false) {
 //     if (!process.env.GEMINI_API_KEY) {
 //         throw new Error('GEMINI API KEY is Missing');
 //     }
@@ -108,7 +108,7 @@ const genAI = new gemini(process.env.GEMINI_API_KEY);
 // `;
 
 //     try {
-//         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+//         const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
 
 //         const promptParts = [{ text: PROMPT }];
 
@@ -556,7 +556,7 @@ No code fences.
 
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
+            model: "gemini-3.5-flash-lite",
         });
 
         const imageParts = images.map((image) => ({
@@ -668,7 +668,7 @@ No code fences.
             `Disaster report analysis failed: ${error.message}`
         );
     }
-}
+};
 
 export async function generateSocialContent(alertData) {
 
@@ -772,7 +772,7 @@ Return ONLY valid JSON with exactly these two properties:
 `.trim();
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.5-flash-lite",
         generationConfig: {
             responseMimeType: "application/json"
         }
@@ -806,4 +806,4 @@ Return ONLY valid JSON with exactly these two properties:
         caption: result.caption.trim()
 
     };
-}
+};
