@@ -14,13 +14,20 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     const cacheKey = isAdmin ? 'reports:admin' : `reports:user:${user._id}`;
 
     const { lng, lat } = ValidateLocation(location);
+    const base64Image = images?.length ? convertImages(images) : null;
 
     let analysis;
-    if (images) {
-        const base64Image = convertImages(images)
+    try {
         analysis = await AnalyzeDisasterReport(base64Image, disasterType, description);
+
+    } catch (error) {
+        return { approved: false, analysisFailed: true, refundable: typeof error.status === "number" };
+
     }
 
+    if (analysis.analysisFailed) {
+        return { approved: false, analysisFailed: true, refundable: analysis.refundable };
+    }
 
     const shouldReject = !analysis.isDisaster || !analysis.typeMatch || analysis.confidence < REJECT_THRESHOLDS.minConfidence
         || analysis.misinformationScore >= REJECT_THRESHOLDS.maxMisinformationScore;
@@ -62,9 +69,11 @@ export const ProcessReport = async ({ images, disasterType, description, locatio
     io.to('admin').emit('report:created', report);
 
     const alert = await createAlert(report)
+    if (!alert) throw new Error("Report was saved, but the alert could not be created");
 
     report.alertId = alert._id
-    report.save();
+    await report.save();
 
     return { approved: true, report, alert, analysis }
 }
+

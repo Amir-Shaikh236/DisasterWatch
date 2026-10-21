@@ -42,6 +42,11 @@ export const addReport = async (req, res, next) => {
         const currentDate = new Date().toISOString().split("T")[0];
 
         const result = await ProcessReport({ images, disasterType, description, location, currentDate, user });
+        if (result.analysisFailed) {
+            if (result.refundable) await req.refundGeminiQuota?.();
+            return next(new AppError(503, "AI verification is temporarily unavailable. Please try again in a minute."));
+        }
+
         if (!result.approved) return res.status(422).json({ status: "rejected", message: "Report Couldn't verified", analysis: result.analysis });
 
         return res.status(201).json({ status: "created", message: "Report Submitted Successfully", report: result.report, alert: result.alert });

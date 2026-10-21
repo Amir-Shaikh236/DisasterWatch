@@ -559,7 +559,7 @@ No code fences.
             model: "gemini-3.5-flash-lite",
         });
 
-        const imageParts = images.map((image) => ({
+        const imageParts = (images ?? []).map((image) => ({
             inlineData: {
                 data: image.base64,
                 mimeType: image.mimeType,
