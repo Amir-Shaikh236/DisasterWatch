@@ -1,19 +1,23 @@
 
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { BrowserRouter } from "react-router-dom"
+import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { AuthContext } from "@/store/AuthProvider"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import Login from "@/pages/Login"
+import SignUp from "@/pages/SignUp"
 import { Toaster } from "sonner"
 
 const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     return render(
         <AuthContext.Provider value={{ updateToken: mockUpdateToken, accessToken: null }}>
-            <BrowserRouter>
-                <Login />
+            <MemoryRouter initialEntries={["/"]}>
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/register" element={<SignUp />} />
+                </Routes>
                 <Toaster />
-            </BrowserRouter>
+            </MemoryRouter>
         </AuthContext.Provider>
     );
 };
@@ -61,6 +65,12 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         // Execute form submit trigger
         await user.click(submitButton);
 
+        // Assert button is disabled while request is active
+        expect(submitButton).toBeDisabled();
+
+        // Attempt a second click to ensure double-submission is blocked
+        await user.click(submitButton);
+
         // Wait for the throttled request to complete and ensure the auth callback is invoked
         await waitFor(() => {
             expect(mockUpdateToken).toHaveBeenCalledTimes(1);
@@ -82,5 +92,41 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(await screen.findByText(/Incorrect Email or Password/i)).toBeInTheDocument();
         expect(mockUpdateToken).not.toHaveBeenCalled();
 
-    })
+    });
+
+    it("should show the 400 error for Not Providing and using invalid format of email", async () => {
+        const mockUpdateToken = vi.fn();
+        const user = userEvent.setup();
+
+        renderLoginComponent(mockUpdateToken);
+        await user.click(screen.getByRole("button", { name: /login/i }));
+        await user.type(screen.getByLabelText(/password/i), "SecurePassword123!");
+        expect(await screen.findByText(/Invalid Email Address/i)).toBeInTheDocument();
+        expect(mockUpdateToken).not.toHaveBeenCalled();
+    });
+
+    it("should show the 400 error for Not Providing or missing length of Password", async () => {
+        const mockUpdateToken = vi.fn();
+        const user = userEvent.setup();
+
+        renderLoginComponent(mockUpdateToken);
+        await user.type(screen.getByLabelText(/email/i), "shaikh@disasterwatch.io");
+        await user.type(screen.getByLabelText(/password/i), "Secur");
+        await user.click(screen.getByRole("button", { name: /login/i }));
+
+        expect(await screen.findByText(/Password must be at least 8 characters/i)).toBeInTheDocument();
+        expect(mockUpdateToken).not.toHaveBeenCalled();
+    });
+
+    it("Should Move to Registration Page After Clicking on Register", async () => {
+        const user = userEvent.setup();
+        renderLoginComponent();
+
+        expect(screen.getByRole("heading", { name: /log in/i })).toBeInTheDocument();
+        await user.click(screen.getByRole('link', { name: /register/i }))
+
+        expect(screen.getByRole("heading", { name: /Create Your Account/i })).toBeInTheDocument();
+
+    });
+
 });
