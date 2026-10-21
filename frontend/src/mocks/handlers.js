@@ -16,7 +16,7 @@ export const handlers = [
         }
 
         return HttpResponse.json(
-            { status: "fail", message: "invalid Credentials" },
+            { status: "fail", message: "Incorrect Email or Password" },
             { status: 401 }
         );
     }),
