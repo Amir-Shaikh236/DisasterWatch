@@ -153,7 +153,7 @@ export default function SignUp() {
             <div className="lg:w-1/2 flex items-center justify-center px-4 py-12 sm:px-6">
                 <Card className="w-full max-w-lg bg-slate-900/60 border-slate-800 backdrop-blur space-y-6 shadow-lg rounded">
                     <CardHeader className="flex items-center justify-center flex-col mt-4">
-                        <CardTitle className="text-2xl font-semibold text-slate-50">Create your account</CardTitle>
+                        <CardTitle as="h2" className="text-2xl font-semibold text-slate-50">Create your account</CardTitle>
                         <CardDescription className="text-slate-400">Start receiving alerts for your area</CardDescription>
                     </CardHeader>
                     <CardContent className="px-5 sm:px-6">
