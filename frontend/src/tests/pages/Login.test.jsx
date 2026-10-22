@@ -118,6 +118,30 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(mockUpdateToken).not.toHaveBeenCalled();
     });
 
+    it('Should block login attempts after exceeding rate limit (Brute-Force Defence)', async () => {
+        const user = userEvent.setup();
+        renderLoginComponent();
+
+        await user.type(screen.getByLabelText(/email/i), 'AmirShaikh@gmail.com')
+        await user.type(screen.getByLabelText(/password/i), 'AmirShaikh@gmail.com')
+        const submitBtn = screen.getByRole('button', { name: /Login/i })
+
+        for (let i = 0; i < 10; i++) {
+            await waitFor(() => {
+                expect(submitBtn).toBeEnabled();
+            })
+
+            await user.click(submitBtn)
+        }
+
+        await waitFor(() => {
+            expect(submitBtn).toBeEnabled();
+        })
+        await user.click(submitBtn)
+
+        expect(await screen.findByText(/Too many login attempts, Please try again after 15mins/i)).toBeInTheDocument();
+    }, 30000);
+
     it("Should Move to Registration Page After Clicking on Register", async () => {
         const user = userEvent.setup();
         renderLoginComponent();

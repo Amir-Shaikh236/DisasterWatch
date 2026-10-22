@@ -1,4 +1,5 @@
 import { server } from "@/mocks/server";
+import { resetLoginAttempts } from "@/mocks/handlers";
 import { beforeAll, afterAll, afterEach, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
@@ -9,6 +10,7 @@ beforeAll(() => {
 
 afterEach(() => {
     server.resetHandlers();
+    resetLoginAttempts();
     vi.clearAllMocks();
     localStorage.clear();
     cleanup();
