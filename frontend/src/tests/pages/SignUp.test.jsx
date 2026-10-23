@@ -106,4 +106,45 @@ describe("Register Presentation Layout and Action verification Suite", () => {
 
     });
 
+    it("Should Move to Login Page After Clicking on Register", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        expect(screen.getByRole("heading", { name: /Create Your Account/i })).toBeInTheDocument();
+        await user.click(screen.getByRole('link', { name: /Login/i }))
+
+        expect(screen.getByRole("heading", { name: /Log in/i })).toBeInTheDocument();
+
+    });
+
+    it("Should Reject and Show atleast 8 characters for password", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123@gmail.com")
+        await user.type(elements.passwordInput, "1234567")
+        await user.type(elements.CpasswordInput, "1234567")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Password must be atleast 8 characters long/i));
+    });
+
+    it("Should Reject and Show Invalid Email Format....", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123gmail.com")
+        await user.type(elements.passwordInput, "123456789")
+        await user.type(elements.CpasswordInput, "123456789")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Please enter a Valid Email/i));
+    });
+
 })
