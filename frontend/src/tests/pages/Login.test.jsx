@@ -1,4 +1,3 @@
-
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
@@ -27,9 +26,9 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.restoreAllMocks();
-    })
+    });
 
-    it("should display the primary typography labels and interactive fields clearly on mount", () => {
+    it("Should display the primary typography labels and interactive fields clearly on mount", () => {
         renderLoginComponent();
 
         // 1. Assert semantic heading text exists in the document flow
@@ -41,19 +40,12 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     });
 
-    it("should process valid user credentials smoothly and trigger the state context method", async () => {
+    it("Should process valid user credentials smoothly and trigger the state context method", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
         const fakeJwt = "mock.access.token.jwt"
 
-        vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
-            ok: true,
-            status: 200,
-            json: async () => ({ token: fakeJwt })
-        });
-
         renderLoginComponent(mockUpdateToken);
-
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole("button", { name: /login/i });
@@ -79,7 +71,7 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(mockUpdateToken).toHaveBeenCalledWith(fakeJwt);
     });
 
-    it("should show the 401 error for incorrect email or password", async () => {
+    it("Should show the 401 error for incorrect email or password", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 
@@ -94,7 +86,7 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
 
     });
 
-    it("should show the 400 error for Not Providing and using invalid format of email", async () => {
+    it("Should show the 400 error for Not Providing and using invalid format of email", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 
@@ -105,7 +97,7 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(mockUpdateToken).not.toHaveBeenCalled();
     });
 
-    it("should show the 400 error for Not Providing or missing length of Password", async () => {
+    it("Should show the 400 error for Not Providing or missing length of Password", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 

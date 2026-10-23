@@ -1,13 +1,45 @@
 import { http, HttpResponse } from 'msw'
 
 const loginAttempts = new Map();
+const registeredEmails = new Set();
 const LOGIN_ATTEMPT_LIMIT = 10;
 
 export const resetLoginAttempts = () => {
     loginAttempts.clear();
+    registeredEmails.clear();
 };
 
 export const handlers = [
+
+    http.post(`*/api/auth/register`, async ({ request }) => {
+        const { firstName, lastName, email, password } = await request.json();
+
+        if (!firstName || !lastName || !email || !password) {
+            return HttpResponse.json(
+                { status: "fail", message: "Please provide all required fields" },
+                { status: 400 }
+            );
+        }
+
+
+        if (registeredEmails.has(email)) {
+            return HttpResponse.json(
+                { status: "fail", message: "User with this email already exists" },
+                { status: 403 }
+            );
+        }
+
+        registeredEmails.add(email);
+
+        return HttpResponse.json({
+            status: "success",
+            message: `${firstName} ${lastName} Account created Successfully`,
+            user: { id: "usr_456", email, firstName, lastName },
+            accessToken: "mock.access.token.jwt"
+        }, {
+            status: 201,
+        });
+    }),
 
     http.post(`*/api/auth/login`, async ({ request }) => {
         const { email, password } = await request.json();
