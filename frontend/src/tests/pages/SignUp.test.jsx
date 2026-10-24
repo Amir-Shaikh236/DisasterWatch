@@ -71,6 +71,85 @@ describe("Register Presentation Layout and Action verification Suite", () => {
 
     });
 
+    it("Should Reject and Show First Name is Required for leaving empty or just 1 character", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "a")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123@gmail.com")
+        await user.type(elements.passwordInput, "1234567")
+        await user.type(elements.CpasswordInput, "1234567")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/First Name is Required/i)).toBeInTheDocument();
+        expect(elements.submitButton).toBeEnabled();
+    });
+
+    it("Should Reject and Show Name cannot exceed 15 characters", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir shaikh 1234567")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123@gmail.com")
+        await user.type(elements.passwordInput, "1234567")
+        await user.type(elements.CpasswordInput, "1234567")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Name cannot exceed 15 characters/i)).toBeInTheDocument();
+        expect(elements.submitButton).toBeEnabled();
+    });
+
+    it("Should Reject and Show atleast 8 characters for password", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123@gmail.com")
+        await user.type(elements.passwordInput, "1234567")
+        await user.type(elements.CpasswordInput, "1234567")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Password must be atleast 8 characters long/i)).toBeInTheDocument();
+    });
+
+    it("Should Reject and Show Confirm password must match Password", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123@gmail.com")
+        await user.type(elements.passwordInput, "123456789")
+        await user.type(elements.CpasswordInput, "12345678")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Confirm password must match Password/i)).toBeInTheDocument();
+        expect(elements.submitButton).toBeEnabled();
+    });
+
+    it("Should Reject and Show Invalid Email Format....", async () => {
+        const user = userEvent.setup();
+
+        const elements = renderComponent();
+
+        await user.type(elements.firstName, "Amir")
+        await user.type(elements.lastName, "shaikh")
+        await user.type(elements.emailInput, "shaikh123gmail.com")
+        await user.type(elements.passwordInput, "123456789")
+        await user.type(elements.CpasswordInput, "123456789")
+
+        await user.click(elements.submitButton)
+        expect(await screen.findByText(/Please enter a Valid Email/i)).toBeInTheDocument()
+        expect(elements.submitButton).toBeEnabled();
+    });
+
     it("Should Return User with this email already exists", async () => {
         const mockUpdateToken = vi.fn();
         const fakeJwt = "mock.access.token.jwt"
@@ -117,34 +196,5 @@ describe("Register Presentation Layout and Action verification Suite", () => {
 
     });
 
-    it("Should Reject and Show atleast 8 characters for password", async () => {
-        const user = userEvent.setup();
+});
 
-        const elements = renderComponent();
-
-        await user.type(elements.firstName, "Amir")
-        await user.type(elements.lastName, "shaikh")
-        await user.type(elements.emailInput, "shaikh123@gmail.com")
-        await user.type(elements.passwordInput, "1234567")
-        await user.type(elements.CpasswordInput, "1234567")
-
-        await user.click(elements.submitButton)
-        expect(await screen.findByText(/Password must be atleast 8 characters long/i));
-    });
-
-    it("Should Reject and Show Invalid Email Format....", async () => {
-        const user = userEvent.setup();
-
-        const elements = renderComponent();
-
-        await user.type(elements.firstName, "Amir")
-        await user.type(elements.lastName, "shaikh")
-        await user.type(elements.emailInput, "shaikh123gmail.com")
-        await user.type(elements.passwordInput, "123456789")
-        await user.type(elements.CpasswordInput, "123456789")
-
-        await user.click(elements.submitButton)
-        expect(await screen.findByText(/Please enter a Valid Email/i));
-    });
-
-})

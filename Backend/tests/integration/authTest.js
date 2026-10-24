@@ -139,7 +139,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
 
         expect(response.status).toBe(400)
         expect(response.body.status).toMatch(/fail/i)
-        expect(response.body.message).toMatch(/Name cannot exceed 25 characters/i)
+        expect(response.body.message).toMatch(/Name cannot exceed 15 characters/i)
     });
 
     // verify leaving Password field empty
@@ -155,6 +155,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
         expect(response.body.message).toMatch(/Please proivde: password/i)
     });
 
+    // Verify Password Length
     it("Should Reject Password shorter than minimum length Requirement", async () => {
         const response = await RegisterUser({ ...testUser, password: '1234' }).expect(400)
         expect(response.body.message).toMatch(/Password must be atleast 8 characters/i)
