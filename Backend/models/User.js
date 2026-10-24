@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please Provide your First name"],
       trim: true,
-      maxlength: [15, 'Name cannot exceed 25 characters.'],
+      maxlength: [15, 'Name cannot exceed 15 characters.'],
       validate: {
         validator: function (value) {
           return validator.isAlpha(value, 'en-US', { ignore: '-' });
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please Provide your Last name"],
       trim: true,
-      maxlength: [15, 'Name cannot exceed 25 characters.'],
+      maxlength: [15, 'Name cannot exceed 15 characters.'],
       validate: {
         validator: function (value) {
           return validator.isAlpha(value, 'en-US', { ignore: '-' })

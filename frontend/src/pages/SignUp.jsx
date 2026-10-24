@@ -16,8 +16,8 @@ import { useUser } from "@/store/useUser"
 
 
 const formSchema = z.object({
-    firstName: z.string().trim().min(1, { message: "First Name is required" }),
-    lastName: z.string().trim().min(1, { message: "Last Name is required" }),
+    firstName: z.string().trim().min(2, { message: "First Name is required" }).max(15, { message: 'First Name cannot exceed 15 characters.' }),
+    lastName: z.string().trim().min(2, { message: "Last Name is required" }).max(15, { message: 'Last Name cannot exceed 15 characters.' }),
     email: z.string().email({ message: 'Please enter a Valid Email' }),
     password: z.string().min(8, { message: 'Password must be atleast 8 characters long' }),
     confirmPassword: z.string()
