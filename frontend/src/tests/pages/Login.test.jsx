@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import Login from "@/pages/Login"
 import SignUp from "@/pages/SignUp"
 import { Toaster } from "sonner"
+import Dashboard from "@/pages/Dashboard"
 
 const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     return render(
@@ -13,6 +14,7 @@ const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
             <MemoryRouter initialEntries={["/"]}>
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/register" element={<SignUp />} />
                 </Routes>
                 <Toaster />
@@ -40,7 +42,7 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
         expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     });
 
-    it("Should process valid user credentials smoothly and trigger the state context method", async () => {
+    it("Should process valid user credentials smoothly and trigger the state context method and re-direct to Dashboard", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
         const fakeJwt = "mock.access.token.jwt"
@@ -56,6 +58,7 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
 
         // Execute form submit trigger
         await user.click(submitButton);
+        expect(await screen.findByText(/Logging You in/i)).toBeInTheDocument()
 
         // Assert button is disabled while request is active
         expect(submitButton).toBeDisabled();
@@ -68,7 +71,10 @@ describe("Login Presentation Layout & Action Verification Suite", () => {
             expect(mockUpdateToken).toHaveBeenCalledTimes(1);
         }, { timeout: 5000 });
 
+        expect(await screen.findByText(/Logged in Successfully/i)).toBeInTheDocument()
         expect(mockUpdateToken).toHaveBeenCalledWith(fakeJwt);
+
+        expect(await screen.findByRole('heading', { name: /Dashboard/i })).toBeInTheDocument()
     });
 
     it("Should show the 401 error for incorrect email or password", async () => {

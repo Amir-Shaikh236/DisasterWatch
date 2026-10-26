@@ -1,3 +1,4 @@
+import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import SignUp from "@/pages/SignUp";
 import { AuthContext } from "@/store/AuthProvider";
@@ -13,6 +14,7 @@ const renderComponent = (mockUpdateToken = vi.fn()) => {
             <MemoryRouter initialEntries={["/register"]}>
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/register" element={<SignUp />} />
                 </Routes>
                 <Toaster />
@@ -68,6 +70,8 @@ describe("Register Presentation Layout and Action verification Suite", () => {
         await waitFor(() => {
             expect(mockUpdateToken).toHaveBeenCalledWith(fakeJwt);
         }, { timeout: 5000 });
+
+        expect(await screen.findByText(/Amir Shaikh Account Created Successfully!/i)).toBeInTheDocument()
 
     });
 
