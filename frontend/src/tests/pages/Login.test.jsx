@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import Login from "@/pages/Login"
 import SignUp from "@/pages/SignUp"
 import { Toaster } from "sonner"
+import Dashboard from "@/pages/Dashboard"
 
 const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     return render(
@@ -13,6 +14,7 @@ const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
             <MemoryRouter initialEntries={["/"]}>
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/register" element={<SignUp />} />
                 </Routes>
                 <Toaster />
