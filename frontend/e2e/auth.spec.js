@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test"
 
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
-test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
+test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
 
     let testUser;
 
@@ -117,16 +117,26 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
 
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-        const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
-
         await submitBtn.click()
 
-        const response = await responsePromise;
+        const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
         expect(response.status()).toBe(401)
 
         await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
 
         // Ensure the interface releases the button state so a user can try typing again
+        await expect(submitBtn).toBeEnabled();
+    });
+
+    test('Scenario C: User Submits Invalid Email Format', async ({ page }) => {
+
+        await page.getByLabel(/email/i).fill('wrong.userdisasterWatch.io');
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        await submitBtn.click()
+
+        await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
         await expect(submitBtn).toBeEnabled();
     });
 
