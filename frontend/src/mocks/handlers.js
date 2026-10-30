@@ -86,4 +86,45 @@ export const handlers = [
             { status: 200 }
         );
     }),
+
+
+    http.post(`*/api/ai/analyze-image`, async ({ request }) => {
+        const formData = await request.formData();
+        const image = formData.get("image");
+
+        if (!image || typeof image === "string" || typeof image.type !== "string") {
+            return HttpResponse.json(
+                { status: "fail", message: "Image in base64 is Required" },
+                { status: 400 }
+            );
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        return HttpResponse.json({
+            status: "success",
+            analysis: {
+                isRealPhoto: true,
+                isDisaster: true,
+                disasterType: "Flood",
+                confidence: 0.92,
+                confidenceReasoning: "The image contains clear visual evidence of flooding.",
+                severity: "high",
+                location: null,
+                areaType: "urban",
+                estimatedDate: null,
+                description: "Standing water is visible across an urban area.",
+                keyIndicators: ["Flooded roadway", "Standing water"],
+                potentialImpact: "Flooding may restrict travel and damage nearby property.",
+                recommendedActions: [
+                    "Avoid flooded roads",
+                    "Follow guidance from local emergency services"
+                ],
+                misinformationScore: 0.02,
+                flags: []
+            }
+        }, {
+            status: 200
+        });
+    })
 ];
