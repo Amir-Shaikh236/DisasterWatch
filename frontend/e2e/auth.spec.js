@@ -1,9 +1,9 @@
 /* eslint-disable */
-import { test, expect } from "@playwright/test"
+import { expect, test } from "./Fixtures/formFixtures";
 
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
-test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
+test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
 
     let testUser;
 
@@ -81,17 +81,16 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
         });
     });
 
-    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ form, page }) => {
 
         // enter valid email
-        await page.getByLabel(/email/i).fill(testUser.email);
+        await form.fillField(/email/i, testUser.email)
 
         // valid password
-        await page.getByLabel(/password/i).fill(testUser.password);
+        await form.fillField(/password/i, testUser.password)
 
         // press button
-        const loginBtn = page.getByRole('button', { name: 'Login', exact: true });
-        await loginBtn.click();
+        await form.submitButton(/login/i)
 
         // Wait for the real success signal from the app before asserting the redirect.
         await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
@@ -110,24 +109,42 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway', () => {
 
     });
 
-    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
+    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ form, page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io');
-        await page.getByLabel(/password/i).fill('InvalidPassowrd123!');
+        await form.fillField(/email/i, 'wrong.user@disasterWatch.io')
+        await form.fillField(/password/i, 'InvalidPassowrd123!')
 
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
-        const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
-
         await submitBtn.click()
 
-        const response = await responsePromise;
+        const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
         expect(response.status()).toBe(401)
 
         await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
 
         // Ensure the interface releases the button state so a user can try typing again
         await expect(submitBtn).toBeEnabled();
+    });
+
+    test('Scenario C: User Submits Invalid Email Format', async ({ form, page }) => {
+
+        await form.fillField(/email/i, 'wrong.userdisasterWatch.io')
+        await form.fillField(/password/i, 'InvalidPassowrd123!')
+
+        const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        await submitBtn.click()
+
+        await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
+        await expect(submitBtn).toBeEnabled();
+    });
+
+    test('Scenario D: User Submits Empty Email Field', async ({ form, page }) => {
+        await form.fillField(/email/i, '')
+        await form.fillField(/password/i, 'SecurePassword123!')
+        await form.submitButton(/login/i)
+
+        await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
     });
 
 });
