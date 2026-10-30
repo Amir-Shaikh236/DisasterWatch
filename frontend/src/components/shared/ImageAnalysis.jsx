@@ -95,7 +95,7 @@ export default function ImageAnalysisModal({ isOpen, onClose }) {
                                         <div className="flex flex-col items-center justify-center h-70 rounded-lg border-2 border-dashed border-border p-8 text-center">
                                             <Upload className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
                                             <p className="mb-2 text-muted-foreground">Select an Image to Analyze</p>
-                                            <Input type="file" accept="image/*" className="hidden" id="image" onChange={handleFileChange} />
+                                            <Input type="file" accept="image/*" aria-label="Image to analyze" className="hidden" id="image" onChange={handleFileChange} />
                                             <Button type="button" size="lg" variant="outline" className="cursor-pointer" onClick={() => document.getElementById("image")?.click()}>
                                                 Choose Image
                                             </Button>
