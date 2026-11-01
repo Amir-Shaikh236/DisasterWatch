@@ -94,7 +94,7 @@ export default function AutoComplete({ value, onChange, onLocationSelect }) {
 
     return (
         <div className="w-full relative">
-            <Input value={value} onChange={handleChange} placeholder="Enter Location or Use GPS" autoComplete="off" className="w-full rounded-md pr-10 focus-visible:border-primary/60 focus-visible:ring-1" />
+            <Input id="location" aria-label="Location" value={value} onChange={handleChange} placeholder="Enter Location or Use GPS" autoComplete="off" className="w-full rounded-md pr-10 focus-visible:border-primary/60 focus-visible:ring-1" />
             {suggestions.length > 0 && (
                 <div>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -126,4 +126,3 @@ export default function AutoComplete({ value, onChange, onLocationSelect }) {
         </div>
     )
 }
-

@@ -126,5 +126,41 @@ export const handlers = [
         }, {
             status: 200
         });
+    }),
+
+    http.post(`*/api/reports/add`, async ({ request }) => {
+        const formData = await request.formData();
+
+        if (!formData.get("disasterType") || !formData.get("description") || !formData.get("location")) {
+            return HttpResponse.json(
+                { status: "fail", message: "Report fields are required" },
+                { status: 400 }
+            );
+        }
+
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        return HttpResponse.json({
+            "status": "approved",
+            "isDisaster": true,
+            "typeMatch": true,
+            "disasterType": `${formData.get("disasterType")}`,
+            "confidence": 8.6,
+            "location": `${formData.get("location")}`,
+            "severity": "medium",
+            "description": `${formData.get("description")}`,
+            "alertTitle": `${formData.get("disasterType")} + ${formData.get("description")}`,
+            "imageAnalysis": [
+                {
+                    "imageIndex": 0,
+                    "isRealPhoto": true,
+                    "matchesClaimedType": true,
+                    "estimatedDate": Date.now(),
+                }
+            ]
+        }, {
+            status: 201,
+        })
     })
 ];
