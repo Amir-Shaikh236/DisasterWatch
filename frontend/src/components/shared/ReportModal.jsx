@@ -131,7 +131,7 @@ export default function ReportModal({ isOpen, onClose }) {
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()} >
             <DialogContent className="max-w-2xl! max-h-[90vh] flex flex-col overflow-hidden bg-card border p-0">
                 <DialogHeader className="shrink-0 border-b border-border px-6 py-5">
-                    <DialogTitle className="text-xl font-semibold text-card-foreground lg:-mb-2">Submit Disaster Report</DialogTitle>
+                    <DialogTitle as="h2" className="text-xl font-semibold text-card-foreground lg:-mb-2">Submit Disaster Report</DialogTitle>
                     <DialogDescription className="text-muted-foreground"> Your Report helps our AI models detect disasters fasters </DialogDescription>
                 </DialogHeader>
 
@@ -203,7 +203,7 @@ export default function ReportModal({ isOpen, onClose }) {
                                 <div className="border-2  rounded-lg border-dashed border-border p-6 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                     <Upload className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                                     <p className="mb-2 text-muted-foreground"> Drag & Drop or Click to Upload </p>
-                                    <Input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFiles} />
+                                    <Input ref={fileInputRef} type="file" multiple accept="image/*" aria-label="Report images" className="hidden" onChange={handleFiles} />
                                     <Button type="button" variant="outline" size="sm" className="cursor-pointer"> Choose Files </Button>
                                 </div>
                             )}
@@ -241,4 +241,3 @@ export default function ReportModal({ isOpen, onClose }) {
         </Dialog>
     )
 }
-
