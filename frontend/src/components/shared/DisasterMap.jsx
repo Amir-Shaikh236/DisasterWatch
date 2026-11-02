@@ -59,7 +59,7 @@ export default function DisasterMap() {
             <Card className="mt-6 border bg-card shadow-md">
                 <CardHeader className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="font-semibold tracking-tight"> Disaster Map </CardTitle>
+                        <CardTitle as="h2" className="font-semibold tracking-tight"> Disaster Map </CardTitle>
                         <CardDescription className="text-sm tracking-wider text-muted-foreground -mt-1"> Live Disaster Alerts </CardDescription>
                     </div>
                     <FilterModal filters={filters} onApply={setFilters} onReset={() => setFilters({ disasterType: [], severity: 'all' })} />

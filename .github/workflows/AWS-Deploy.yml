@@ -1,42 +1,42 @@
-name: AWS Continuous Deployment
+# name: AWS Continuous Deployment
 
 on:
   workflow_run:
-      workflows: ["CI Pipeline"]
-      types: [completed]
-      branches: [main]
+    #   workflows: ["CI Pipeline"]
+    #   types: [completed]
+    #   branches: [main]
 
 permissions:
-    id-token: write    # Required for OIDC Authentication
+#     id-token: write    # Required for OIDC Authentication
     contents: read     # Grant read-only access to repo code
 
 concurrency:
-    group: cd-production            # Targets production deployment runs & Locks production deployments into a single queue.
-    cancel-in-progress: false       # Prevent stopping a live deploy in the middle
+#     group: cd-production            # Targets production deployment runs & Locks production deployments into a single queue.
+#     cancel-in-progress: false       # Prevent stopping a live deploy in the middle
     
 jobs:
     Deploy-Backend-EC2:
         if: github.event.workflow_run.conclusion == 'success'
         runs-on: ubuntu-latest
-        # needs: Deploy-Frontend
-        steps:                
-            - name: Deploy to EC2 via SSH
-              uses: appleboy/ssh-action@v1.0.3
-              with:
-                host: ${{ secrets.AWS_EC2_HOST }}
-                username: ubuntu
-                key: ${{ secrets.AWS_EC2_SSH_KEY }}
-                script: |
-                    cd ~/disasterwatch
+#         # needs: Deploy-Frontend
+#         steps:                
+#             - name: Deploy to EC2 via SSH
+#               uses: appleboy/ssh-action@v1.0.3
+#               with:
+#                 host: ${{ secrets.AWS_EC2_HOST }}
+#                 username: ubuntu
+#                 key: ${{ secrets.AWS_EC2_SSH_KEY }}
+#                 script: |
+#                     cd ~/disasterwatch
 
-                    echo "Pulling Latest Code...."
-                    git pull origin main
+#                     echo "Pulling Latest Code...."
+#                     git pull origin main
 
-                    echo "Building and Starting backend..."
-                    sudo docker compose up -d --build backend
+#                     echo "Building and Starting backend..."
+#                     sudo docker compose up -d --build backend
 
-                    echo "Deployment Status"
-                    sudo docker compose ps
+#                     echo "Deployment Status"
+#                     sudo docker compose ps
 
 
     # Deploy-Frontend:
@@ -80,6 +80,4 @@ jobs:
 
     #         - name: Upload Static Files to S3
     #           run: aws s3 sync frontend/dist s3://disasterwatch-frontend-static --delete
-
-
 

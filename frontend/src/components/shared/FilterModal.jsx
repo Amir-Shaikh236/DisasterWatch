@@ -43,7 +43,11 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
     return (
         <Dialog open={open} onOpenChange={(value) => { setOpen(value); if (value) { setLocalFilters(filters); } }} >
             <DialogTrigger render={
-                <Button variant="outline" className="gap-2 cursor-pointer">
+                <Button
+                    variant="outline"
+                    className="gap-2 cursor-pointer"
+                    aria-label={`Filter${ActiveFilters > 0 ? ` ${ActiveFilters}` : ""}`}
+                >
                     <Filter className="h-4 w-4" /> Filter
                     {ActiveFilters > 0 && (
                         <Badge variant="secondary" className="ml-1 rounded-full px-2 text-xs py-0.5"> {ActiveFilters} </Badge>
@@ -53,7 +57,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
             />
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle className="text-xl -mb-3">Filter Alerts</DialogTitle>
+                    <DialogTitle as="h2" className="text-xl -mb-3">Filter Alerts</DialogTitle>
                     <DialogDescription> Filter Disaster Alerts Based On Types and Severity</DialogDescription>
                 </DialogHeader>
 
@@ -78,13 +82,13 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
 
                     <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold" > Severity </label>
+                            <label htmlFor="severity" className="text-sm font-semibold" > Severity </label>
                             <Select value={localfilter.severity} onValueChange={(value) =>
                                 setLocalFilters((previous) => ({
                                     ...previous, severity: value
                                 }))
                             }>
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger id="severity" className="w-full">
                                     <SelectValue placeholder="Severity" className="cursor-pointer" />
                                 </SelectTrigger>
 
@@ -99,7 +103,7 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="button" variant="secondary" onClick={handleReset} className=" cursor-pointer"> <RotateCcw className="h-4 w-4" /> Reset </Button>
+                    <Button type="button" variant="secondary" onClick={handleReset} className="cursor-pointer"> <RotateCcw className="h-4 w-4" /> Reset </Button>
                     <Button type="button" className="cursor-pointer" onClick={handleApply}> Apply Filters </Button>
                 </DialogFooter>
             </DialogContent>

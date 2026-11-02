@@ -1,6 +1,6 @@
 import Dashboard from "@/pages/Dashboard"
 import { useUser } from "@/store/useUser"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
 import { Toaster } from "sonner"
@@ -45,6 +45,7 @@ describe("Setting Presentation Layout and Actions verification Suite", () => {
         expect(screen.getByRole('button', { name: /submit report/i })).toBeInTheDocument()
 
         expect(screen.getByRole('link', { name: /view Details/i })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: /Disaster Map/i })).toBeInTheDocument();
 
     });
 
@@ -83,7 +84,7 @@ describe("Setting Presentation Layout and Actions verification Suite", () => {
 
     });
 
-    it("Should Process an User Submitted Report and create alert ", async () => {
+    it("Should Process an User Submitted Report and create alert", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -98,7 +99,7 @@ describe("Setting Presentation Layout and Actions verification Suite", () => {
 
         const disasterType = screen.getByRole('combobox', { name: /disaster Type/i });
         await user.click(disasterType)
-        await user.click(screen.getByRole('option', { name: /Flood/i }));
+        await user.click(await screen.findByRole('option', { name: /Flood/i }));
 
         const description = screen.getByLabelText(/Description/i)
         expect(description).toBeInTheDocument();
@@ -131,6 +132,78 @@ describe("Setting Presentation Layout and Actions verification Suite", () => {
         await user.click(submitBtn)
         expect(submitBtn).toBeDisabled();
         expect(await screen.findByRole('button', { name: /submitting.../i })).toBeInTheDocument();
+
+
+    });
+
+    it("Should Process the Filter Functionality as expected Smoothly", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+
+        expect(await screen.findByRole('heading', { name: /disaster map/i })).toBeInTheDocument();
+        expect(filterBtn).toBeInTheDocument();
+
+        await user.click(filterBtn)
+
+        expect(await screen.findByRole('heading', { name: /filter alerts/i })).toBeInTheDocument()
+        expect(await screen.findByRole('heading', { name: /disaster type/i })).toBeInTheDocument()
+
+        const earthquake = screen.getByRole('checkbox', { name: /earthquake/i })
+        const flood = screen.getByRole('checkbox', { name: /flood/i })
+        const landslide = screen.getByRole('checkbox', { name: /landslide/i })
+        const wildfire = screen.getByRole('checkbox', { name: /wildfire/i })
+
+        expect(earthquake).toBeInTheDocument()
+        expect(flood).toBeInTheDocument()
+        expect(landslide).toBeInTheDocument()
+        expect(wildfire).toBeInTheDocument()
+
+        expect(earthquake).not.toBeChecked()
+        await user.click(earthquake)
+        expect(earthquake).toBeChecked()
+
+        expect(flood).not.toBeChecked()
+        await user.click(flood)
+        expect(flood).toBeChecked()
+
+        expect(landslide).not.toBeChecked()
+        await user.click(landslide)
+        expect(landslide).toBeChecked()
+
+        expect(wildfire).not.toBeChecked()
+        await user.click(wildfire)
+        expect(wildfire).toBeChecked()
+
+        expect(await screen.findByLabelText(/severity/i)).toBeInTheDocument()
+
+        const severityBtn = screen.getByRole('combobox', { name: /severity/i })
+        expect(severityBtn).toBeInTheDocument()
+
+        await user.click(severityBtn)
+        await user.click(screen.getByRole('option', { name: /critical/i }))
+        expect(severityBtn).toHaveTextContent(/critical/i)
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /Filter 5/i })).toBeInTheDocument()
+
+        await user.click(filterBtn)
+        const resetBtn = screen.getByRole('button', { name: /reset/i })
+        expect(resetBtn).toBeInTheDocument()
+
+        await user.click(resetBtn)
+
+        waitFor(() => {
+            expect(earthquake).not.toBeChecked()
+            expect(flood).not.toBeChecked()
+            expect(wildfire).not.toBeChecked()
+            expect(landslide).not.toBeChecked()
+            expect(severityBtn).toHaveTextContent(/all/i)
+        });
 
 
     });
