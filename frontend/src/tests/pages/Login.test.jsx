@@ -23,7 +23,7 @@ const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     );
 };
 
-describe("Login Presentation Layout & Action Verification Suite", () => {
+describe("Login Presentation Layout of Login Page & Action Verification Suite", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();

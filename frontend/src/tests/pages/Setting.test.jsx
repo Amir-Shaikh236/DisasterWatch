@@ -25,7 +25,7 @@ const renderComponent = () => render(
     </MemoryRouter>
 );
 
-describe("Setting Presentation Layout and Actions verification Suite", () => {
+describe("Setting Presentation Layout of Setting and Actions verification Suite", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         useUser.setState({
