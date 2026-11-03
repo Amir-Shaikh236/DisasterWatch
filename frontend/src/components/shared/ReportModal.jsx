@@ -25,13 +25,13 @@ export default function ReportModal({ isOpen, onClose }) {
     const navigate = useNavigate()
 
     const reportSchema = z.object({
-        disasterType: z.enum(["earthquake", "flood", "landslide", "wildfire"]),
+        disasterType: z.enum(["earthquake", "flood", "landslide", "wildfire"], "Please Select a Disaster Type"),
         description: z.string().min(10, "Description must be atleast 10 characters"),
         location: z.object({
             type: z.literal('Point'),
             coordinates: z.array(z.number()).length(2),
             address: z.string().min(1, "please Select a Location")
-        }),
+        }, "Please Provide the Location of Event"),
 
         images: z.array(z.instanceof(File)).max(5)
             .refine((files) => files.every((file) => file.type.startsWith("image/")), "Only Images are allowed")
@@ -140,19 +140,24 @@ export default function ReportModal({ isOpen, onClose }) {
 
                         {/* Disaster Type Selector */}
                         <div className="space-y-2">
-                            <Label htmlFor="disasterType" className="font-semibold text-sm" > Disaster Type <span className="text-destructive"> * </span></Label>
-                            <Controller name="disasterType" control={form.control} render={({ field }) => (
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id="disasterType" className="w-full cursor-pointer rounded-sm p-3"><SelectValue placeholder="Select Disaster Type" /></SelectTrigger>
-                                    <SelectContent className="p-1" side="bottom" align="start" sideOffset={4}>
-                                        <SelectItem value="earthquake" className="cursor-pointer"> Earthquake </SelectItem>
-                                        <SelectItem value="flood" className="cursor-pointer"> Flood </SelectItem>
-                                        <SelectItem value="wildfire" className="cursor-pointer"> Wildfire </SelectItem>
-                                        <SelectItem value="landslide" className="cursor-pointer"> LandSlide </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )}
-                            />
+                            <FieldGroup>
+                                <Controller name="disasterType" control={form.control} render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="disasterType" className="font-semibold text-sm">Disaster Type <span className="text-destructive"> * </span></FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger id="disasterType" aria-invalid={fieldState.invalid} className="w-full cursor-pointer rounded-sm p-3"><SelectValue placeholder="Select Disaster Type" /></SelectTrigger>
+                                            <SelectContent className="p-1" side="bottom" align="start" sideOffset={4}>
+                                                <SelectItem value="earthquake" className="cursor-pointer"> Earthquake </SelectItem>
+                                                <SelectItem value="flood" className="cursor-pointer"> Flood </SelectItem>
+                                                <SelectItem value="wildfire" className="cursor-pointer"> Wildfire </SelectItem>
+                                                <SelectItem value="landslide" className="cursor-pointer"> LandSlide </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
+                                    </Field>
+                                )}
+                                />
+                            </FieldGroup>
                         </div>
 
                         {/* Description */}
@@ -171,28 +176,31 @@ export default function ReportModal({ isOpen, onClose }) {
                         {/* Location */}
                         <div className="space-y-2">
                             <FieldGroup>
-                                <Controller name="location" control={form.control} render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel htmlFor="location" className="text-sm font-semibold">Location <span className="text-destructive"> * </span></FieldLabel>
-                                        <div className="flex flex-col sm:flex-row gap-2">
-                                            <div className="min-w-0 flex-1">
-                                                <AutoComplete value={field.value.address} onChange={(text) => field.onChange({ ...field.value, address: text })}
-                                                    onLocationSelect={(location) => {
-                                                        form.setValue("location", {
-                                                            type: "Point",
-                                                            coordinates: [location.coordinates.longitude, location.coordinates.latitude],
-                                                            address: location.address
-                                                        }, { shouldValidate: true });
-                                                        form.setValue("placeId", location.placeId)
-                                                    }} />
+                                <Controller name="location" control={form.control} render={({ field }) => {
+                                    const locationError = form.formState.errors.location?.address || form.formState.errors.location;
+                                    return (
+                                        <Field data-invalid={Boolean(locationError)}>
+                                            <FieldLabel htmlFor="location" className="text-sm font-semibold">Location <span className="text-destructive"> * </span></FieldLabel>
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <AutoComplete value={field.value.address} onChange={(text) => field.onChange({ ...field.value, address: text })}
+                                                        onLocationSelect={(location) => {
+                                                            form.setValue("location", {
+                                                                type: "Point",
+                                                                coordinates: [location.coordinates.longitude, location.coordinates.latitude],
+                                                                address: location.address
+                                                            }, { shouldValidate: true });
+                                                            form.setValue("placeId", location.placeId)
+                                                        }} />
+                                                </div>
+                                                {isLocating ? <Button type="button" variant="outline" className="rounded-md shrink-0 w-full sm:w-auto" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
+                                                    <Button type="button" variant="outline" className="cursor-pointer rounded-md shrink-0 w-full sm:w-auto" onClick={handleGPS}> <MapPin className="h-4 w-4" /> GPS </Button>
+                                                }
                                             </div>
-                                            {isLocating ? <Button type="button" variant="outline" className="rounded-md shrink-0 w-full sm:w-auto" disabled> <Loader2 className="h-4 w-4 animate-spin" /> </Button> :
-                                                <Button type="button" variant="outline" className="cursor-pointer rounded-md shrink-0 w-full sm:w-auto" onClick={handleGPS}> <MapPin className="h-4 w-4" /> GPS </Button>
-                                            }
-                                        </div>
-                                        {fieldState.invalid && (<FieldError errors={[fieldState.error]} />)}
-                                    </Field>
-                                )} />
+                                            {locationError && (<FieldError errors={[locationError]} />)}
+                                        </Field>
+                                    )
+                                }} />
                             </FieldGroup>
                         </div>
 
