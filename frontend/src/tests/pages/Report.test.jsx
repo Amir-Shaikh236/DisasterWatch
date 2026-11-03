@@ -79,4 +79,15 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(await screen.findByText(/Report Submitted Successfully! Our AI will verify your report and update the status soon./i)).toBeInTheDocument()
 
     });
+
+    it("Should Display an error while Leaving Everything empty and hit the submit button", async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+        expect(screen.getByText(/Description must be atleast 10 characters/i)).toBeInTheDocument()
+
+    });
+
 });
