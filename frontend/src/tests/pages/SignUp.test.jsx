@@ -33,7 +33,7 @@ const renderComponent = (mockUpdateToken = vi.fn()) => {
     }
 };
 
-describe("Register Presentation Layout and Action verification Suite", () => {
+describe("Register Presentation Layout of SignUp Page and Action verification Suite", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
     });

@@ -2,10 +2,11 @@ import Dashboard from "@/pages/Dashboard"
 import { useUser } from "@/store/useUser"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { MemoryRouter } from "react-router-dom"
+import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { Toaster } from "sonner"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { GPSLocation } from "@/utils/Helpers";
+import Alerts from "@/pages/Alerts"
 
 vi.mock("@/utils/Helpers", async (importOriginal) => {
     const actual = await importOriginal();
@@ -17,13 +18,16 @@ vi.mock("@/utils/Helpers", async (importOriginal) => {
 
 
 const renderComponent = () => render(
-    <MemoryRouter>
-        <Dashboard />
+    <MemoryRouter initialEntries={["/reports"]}>
+        <Routes>
+            <Route path="/reports" element={<Dashboard />} />
+            <Route path="/alerts" element={<Alerts />} />
+        </Routes>
         <Toaster />
     </MemoryRouter>
 )
 
-describe("Setting Presentation Layout and Actions verification Suite", () => {
+describe("Setting Presentation Layout of Dashboard and Actions verification Suite", () => {
     beforeEach(() => {
         vi.clearAllMocks()
         useUser.setState({
@@ -132,6 +136,8 @@ describe("Setting Presentation Layout and Actions verification Suite", () => {
         await user.click(submitBtn)
         expect(submitBtn).toBeDisabled();
         expect(await screen.findByRole('button', { name: /submitting.../i })).toBeInTheDocument();
+
+        expect(await screen.findByText(/Report Submitted Successfully! Our AI will verify your report and update the status soon./i)).toBeInTheDocument()
 
 
     });
