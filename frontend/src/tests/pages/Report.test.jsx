@@ -80,18 +80,6 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Display an error while Leaving Everything empty and hit the submit button", async () => {
-        const user = userEvent.setup()
-        renderComponent()
-
-        await user.click(screen.getByRole('button', { name: /submit report/i }))
-        await user.click(screen.getByRole('button', { name: /submit/i }))
-        expect(screen.getByText(/Select a Disaster Type/i)).toBeInTheDocument()
-        expect(screen.getByText(/Description must be atleast 10 characters/i)).toBeInTheDocument()
-        expect(screen.getByText(/please Select a Location/i)).toBeInTheDocument()
-
-    });
-
     it("Should Reset Everything After hitting Reset Button", async () => {
         const user = userEvent.setup();
         renderComponent();
@@ -148,5 +136,46 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(screen.getByText(/please Select a Location/i)).toBeInTheDocument()
 
     });
+
+    it("Should Display an error while Leaving Everything empty and hit the submit button", async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+        expect(screen.getByText(/Select a Disaster Type/i)).toBeInTheDocument()
+        expect(screen.getByText(/Description must be atleast 10 characters/i)).toBeInTheDocument()
+        expect(screen.getByText(/please Select a Location/i)).toBeInTheDocument()
+
+    });
+
+    it("Should Display an error for not selecting Disaster Type and hit the submit button", async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+
+        const description = screen.getByLabelText(/Description/i)
+        expect(description).toBeInTheDocument();
+        await user.type(description, "Water levels have risen above 3 feet, submerging residential streets. Multiple families have been evacuated by local rescue teams.")
+
+        const location = screen.getByLabelText(/location/i)
+        expect(location).toBeInTheDocument();
+
+        vi.mocked(GPSLocation).mockResolvedValue({
+            latitude: 19.076,
+            longitude: 72.8777,
+            address: "Mumbai, India",
+        });
+
+        await user.click(screen.getByRole("button", { name: /GPS/i }));
+
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+
+        expect(screen.getByText(/Select a Disaster Type/i)).toBeInTheDocument()
+
+    });
+
+
 
 });
