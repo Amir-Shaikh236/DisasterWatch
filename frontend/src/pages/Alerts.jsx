@@ -10,14 +10,17 @@ import { deleteAlert } from "@/api/alertApi";
 import { toast } from "sonner";
 import { useState } from "react";
 import DeleteConfirmDialog from "@/components/shared/ConfirmDialog";
+import FilterModal from "@/components/shared/FilterModal";
 
 export default function Alerts() {
-    const alerts = useAlerts((state) => state.alerts)
-    const user = useUser((state) => state.user)
-    const admin = user?.role === "admin" ? true : false;
+    const [filters, setFilters] = useState({ disasterType: [], severity: 'all' });
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [selectedAlertId, setSelectedAlertId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const alerts = useAlerts((state) => state.alerts)
+    const user = useUser((state) => state.user)
+    const admin = user?.role === "admin" ? true : false;
 
     const STATUS_STYLE = {
         Active: {
@@ -80,31 +83,37 @@ export default function Alerts() {
         }
     };
 
+    const filteredAlerts = alerts.filter((alert) => {
+        const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType)
+        const matchesSeverity = filters.severity === 'all' || filters.severity.includes(alert.severity);
+        return matchesDisasterTypes && matchesSeverity
+    })
+
     const AlertState = [
         {
             name: "Total Alerts",
-            length: alerts.length,
+            length: filteredAlerts.length,
             icon: AlertTriangle,
             iconClass: "text-primary"
         },
 
         {
             name: "Critical Alerts",
-            length: alerts.filter((alert) => alert.severity === 'critical').length,
+            length: filteredAlerts.filter((alert) => alert.severity === 'critical').length,
             icon: AlertTriangle,
             iconClass: "text-destructive animate-pulse"
         },
 
         {
             name: "High Priority",
-            length: alerts.filter((alert) => alert.severity === 'high').length,
+            length: filteredAlerts.filter((alert) => alert.severity === 'high').length,
             icon: TrendingUp,
             iconClass: "text-amber-300"
         },
 
         {
             name: "Average Confidence",
-            length: `${(alerts.reduce((total, alert) => total + alert.confidence, 0) / alerts.length).toFixed(1)}%`,
+            length: `${(filteredAlerts.reduce((total, alert) => total + alert.confidence, 0) / alerts.length).toFixed(1)}%`,
             icon: Eye,
             iconClass: "text-emerald-300"
         },
@@ -130,7 +139,6 @@ export default function Alerts() {
         );
     }
 
-
     const handleDelete = async () => {
         try {
 
@@ -152,17 +160,24 @@ export default function Alerts() {
 
     return (
         <div className="min-h-full flex-1 bg-background p-6">
+            <div className="flex flex-col justify-between xl:flex-row xl:items-center">
 
-            <div className="flex items-center gap-2 mb-5">
-                <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-primary/10 ring-1 ring-primary/20">
-                    <AlertTriangle className="h-6 w-6 text-destructive" />
+                <div className="flex items-center gap-2 mb-5">
+                    <div className="flex items-center justify-center h-11 w-11 rounded-md bg-primary/10 ring-1 ring-primary/20">
+                        <AlertTriangle className="h-7 w-7 text-destructive" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight leading-tight"> Alerts </h1>
+                        <p className="text-sm text-muted-foreground lg:text-base">
+                            Monitor and review active disaster alerts
+                        </p>
+                    </div>
                 </div>
 
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight leading-tight"> Alerts </h1>
-                    <p className="text-sm text-muted-foreground lg:text-base">
-                        Monitor and review active disaster alerts
-                    </p>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 xl:mt-0">
+                    <div className="flex items-center gap-2 cursor-pointer rounded-lg border border-border bg-card w-full sm:w-auto">
+                        <FilterModal filters={filters} onApply={setFilters} onReset={() => setFilters({ disasterType: [], severity: 'all' })} />
+                    </div>
                 </div>
             </div>
 
@@ -200,7 +215,7 @@ export default function Alerts() {
             <Separator className="mt-4 mb-4" />
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {alerts.map((data) => {
+                {filteredAlerts.map((data) => {
                     const statusStyle = STATUS_STYLE[data.status] ?? STATUS_STYLE.Active;
 
                     const severityStyle = SEVERITY_STYLE[data.severity] ?? SEVERITY_STYLE.medium;
@@ -287,7 +302,6 @@ export default function Alerts() {
                     );
                 })}
             </div>
-
             <DeleteConfirmDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} loading={isDeleting} itemName="ALERT" />
         </div >
     );
