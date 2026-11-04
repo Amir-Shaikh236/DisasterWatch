@@ -132,7 +132,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
         await user.click(submitBtn)
         expect(screen.getByText(/Select a Disaster Type/i)).toBeInTheDocument()
-        expect(screen.getByText(/Description must be atleast 10 characters/i)).toBeInTheDocument()
+        expect(screen.getByText(/Description must be atleast 24 characters/i)).toBeInTheDocument()
         expect(screen.getByText(/please Select a Location/i)).toBeInTheDocument()
 
     });
@@ -144,7 +144,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         await user.click(screen.getByRole('button', { name: /submit report/i }))
         await user.click(screen.getByRole('button', { name: /submit/i }))
         expect(screen.getByText(/Select a Disaster Type/i)).toBeInTheDocument()
-        expect(screen.getByText(/Description must be atleast 10 characters/i)).toBeInTheDocument()
+        expect(screen.getByText(/Description must be atleast 24 characters/i)).toBeInTheDocument()
         expect(screen.getByText(/please Select a Location/i)).toBeInTheDocument()
 
     });
@@ -176,6 +176,34 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
+    it("Should Display an error for providing too short (less than 24 characters) or empty description and hit the submit button", async () => {
+        const user = userEvent.setup()
+        renderComponent()
 
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+
+        const disasterType = screen.getByRole('combobox', { name: /disaster Type/i });
+        await user.click(disasterType)
+        await user.click(await screen.findByRole('option', { name: /Flood/i }));
+
+        const description = screen.getByLabelText(/Description/i)
+        expect(description).toBeInTheDocument();
+        await user.type(description, "this is Flood Report")
+
+        const location = screen.getByLabelText(/location/i)
+        expect(location).toBeInTheDocument();
+
+        vi.mocked(GPSLocation).mockResolvedValue({
+            latitude: 19.076,
+            longitude: 72.8777,
+            address: "Mumbai, India",
+        });
+
+        await user.click(screen.getByRole("button", { name: /GPS/i }));
+
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+        expect(screen.getByText(/Description must be atleast 24 characters/i)).toBeInTheDocument()
+
+    });
 
 });
