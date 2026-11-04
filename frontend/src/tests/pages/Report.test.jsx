@@ -226,4 +226,21 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
+    it("Should Close the form on clicking on Cancel", async () => {
+        const user = userEvent.setup();
+        renderComponent()
+
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+
+        const reportELement = screen.getByRole('heading', { name: /submit disaster report/i })
+
+        expect(reportELement).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: /cancel/i }))
+
+        expect(reportELement).not.toBeInTheDocument();
+
+
+    });
+
 });
