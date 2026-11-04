@@ -26,12 +26,12 @@ export default function ReportModal({ isOpen, onClose }) {
 
     const reportSchema = z.object({
         disasterType: z.enum(["earthquake", "flood", "landslide", "wildfire"], "Please Select a Disaster Type"),
-        description: z.string().min(10, "Description must be atleast 10 characters"),
+        description: z.string().min(24, "Description must be atleast 24 characters"),
         location: z.object({
             type: z.literal('Point'),
             coordinates: z.array(z.number()).length(2),
-            address: z.string().min(1, "please Select a Location")
-        }, "Please Provide the Location of Event"),
+            address: z.string().min(1, "Please Select a Location")
+        }),
 
         images: z.array(z.instanceof(File)).max(5)
             .refine((files) => files.every((file) => file.type.startsWith("image/")), "Only Images are allowed")
