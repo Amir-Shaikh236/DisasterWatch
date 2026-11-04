@@ -14,6 +14,64 @@ const renderComponent = () => render(
 );
 
 describe("Setting Presentation Layout of Dashboard and Actions verification Suite", () => {
+    beforeEach(() => {
+        useAlerts.setState({
+            alerts: [
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    title: "Flood warning",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "Active",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-earthquake",
+                    disasterType: "earthquake",
+                    title: "Earthquake warning",
+                    description: "Earthquake activity reported in the area",
+                    severity: "critical",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-landslide",
+                    disasterType: "landslide",
+                    title: "Landslide warning",
+                    description: "landslide activity reported in the area",
+                    severity: "critical",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-wildfire",
+                    disasterType: "wildfire",
+                    title: "Wildfire warning",
+                    description: "Wildfire activity reported in the area",
+                    severity: "critical",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+            ],
+        });
+    });
 
     it("Should Display an Alert Page and perform filter actions on alerts", async () => {
         const user = userEvent.setup()
@@ -87,4 +145,31 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it('Should display Flood alerts only, after applied filter', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument()
+        await user.click(filterBtn);
+
+        const floodBox = screen.getByRole('checkbox', { name: /flood/i })
+        expect(floodBox).toBeInTheDocument()
+
+        expect(floodBox).not.toBeChecked()
+        await user.click(floodBox)
+        expect(floodBox).toBeChecked();
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findByText("flood", { exact: true })).toBeInTheDocument()
+        expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
+
+    });
 });
