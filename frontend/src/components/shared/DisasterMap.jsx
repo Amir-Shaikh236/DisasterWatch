@@ -5,7 +5,6 @@ import { useState } from "react";
 import FilterModal from "@/components/shared/FilterModal";
 import { useAlerts } from "@/store/useAlerts";
 
-
 export default function DisasterMap() {
     const [filters, setFilters] = useState({ disasterType: [], severity: 'all' });
 
@@ -49,7 +48,6 @@ export default function DisasterMap() {
         const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType);
         const matchesSeverity = filters.severity === "all" || filters.severity.includes(alert.severity);
         return matchesDisasterTypes && matchesSeverity;
-
     });
 
     const DISASTER_LEGEND = Object.values(DISASTER_CONFIG);
