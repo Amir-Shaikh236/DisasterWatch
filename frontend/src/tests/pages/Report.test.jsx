@@ -206,4 +206,24 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
+    it("Should display an error for NOT selecting or providing location", async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        await user.click(screen.getByRole('button', { name: /submit report/i }))
+
+        const disasterType = screen.getByRole('combobox', { name: /disaster type/i })
+        await user.click(disasterType)
+        await user.click(await screen.findByRole('option', { name: /flood/i }))
+        expect(disasterType).toHaveTextContent(/flood/i)
+
+        const description = screen.getByLabelText(/description/i)
+        await user.type(description, "This is flood covering all the road causing traffic")
+        expect(description).toHaveTextContent(/This is flood covering all the road causing traffic/i)
+
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+        expect(screen.findByText(/Please Select a Location/i))
+
+    });
+
 });
