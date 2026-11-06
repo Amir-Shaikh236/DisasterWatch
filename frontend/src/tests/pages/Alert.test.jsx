@@ -229,4 +229,32 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it('Should display Earthquake alerts only, after applied filter', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument()
+        await user.click(filterBtn);
+
+        const earthquakeBox = screen.getByRole('checkbox', { name: /earthquake/i })
+        expect(earthquakeBox).toBeInTheDocument()
+
+        expect(earthquakeBox).not.toBeChecked()
+        await user.click(earthquakeBox)
+        expect(earthquakeBox).toBeChecked();
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findByText("earthquake", { exact: true })).toBeInTheDocument()
+        expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
+
+    });
+
 });
