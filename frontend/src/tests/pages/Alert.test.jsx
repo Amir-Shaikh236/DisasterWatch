@@ -201,4 +201,32 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it('Should display landslide alerts only, after applied filter', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument()
+        await user.click(filterBtn);
+
+        const landslideBox = screen.getByRole('checkbox', { name: /landslide/i })
+        expect(landslideBox).toBeInTheDocument()
+
+        expect(landslideBox).not.toBeChecked()
+        await user.click(landslideBox)
+        expect(landslideBox).toBeChecked();
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findByText("landslide", { exact: true })).toBeInTheDocument()
+        expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
+
+    });
+
 });
