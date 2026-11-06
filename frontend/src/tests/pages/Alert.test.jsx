@@ -13,7 +13,7 @@ const renderComponent = () => render(
     </MemoryRouter>
 );
 
-describe("Setting Presentation Layout of Dashboard and Actions verification Suite", () => {
+describe("Setting Presentation Layout of Alert and Actions verification Suite", () => {
     beforeEach(() => {
         useAlerts.setState({
             alerts: [
@@ -62,6 +62,110 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
                     title: "Wildfire warning",
                     description: "Wildfire activity reported in the area",
                     severity: "critical",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-flood-1",
+                    disasterType: "flood",
+                    title: "Flood warning",
+                    description: "Flooding reported in the area",
+                    severity: "high",
+                    confidence: 0.9,
+                    status: "Active",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-earthquake-1",
+                    disasterType: "earthquake",
+                    title: "Earthquake warning",
+                    description: "Earthquake activity reported in the area",
+                    severity: "high",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-landslide-1",
+                    disasterType: "landslide",
+                    title: "Landslide warning",
+                    description: "landslide activity reported in the area",
+                    severity: "high",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-wildfire-1",
+                    disasterType: "wildfire",
+                    title: "Wildfire warning",
+                    description: "Wildfire activity reported in the area",
+                    severity: "high",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-flood-2",
+                    disasterType: "flood",
+                    title: "Flood warning",
+                    description: "Flooding reported in the area",
+                    severity: "medium",
+                    confidence: 0.9,
+                    status: "Active",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-earthquake-2",
+                    disasterType: "earthquake",
+                    title: "Earthquake warning",
+                    description: "Earthquake activity reported in the area",
+                    severity: "medium",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-landslide-2",
+                    disasterType: "landslide",
+                    title: "Landslide warning",
+                    description: "landslide activity reported in the area",
+                    severity: "medium",
+                    confidence: 0.8,
+                    status: "Active",
+                    sourceCount: 1,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Pune, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-wildfire-2",
+                    disasterType: "wildfire",
+                    title: "Wildfire warning",
+                    description: "Wildfire activity reported in the area",
+                    severity: "medium",
                     confidence: 0.8,
                     status: "Active",
                     sourceCount: 1,
@@ -119,7 +223,13 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         const severityBtn = screen.getByRole('combobox', { name: /severity/i })
         expect(severityBtn).toBeInTheDocument()
 
+        expect(screen.queryByRole('option', { name: /all/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^critical$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^high$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^medium$/i })).not.toBeInTheDocument()
+
         await user.click(severityBtn)
+
         await user.click(screen.getByRole('option', { name: /critical/i }))
         expect(severityBtn).toHaveTextContent(/critical/i)
 
@@ -135,7 +245,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         await user.click(resetBtn)
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(screen.getByRole('checkbox', { name: /earthquake/i })).not.toBeChecked()
             expect(screen.getByRole('checkbox', { name: /flood/i })).not.toBeChecked()
             expect(screen.getByRole('checkbox', { name: /landslide/i })).not.toBeChecked()
@@ -166,7 +276,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
 
-        expect(await screen.findByText("flood", { exact: true })).toBeInTheDocument()
+        expect(await screen.findAllByText("flood", { exact: true })).toHaveLength(3)
         expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
@@ -194,7 +304,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
 
-        expect(await screen.findByText("wildfire", { exact: true })).toBeInTheDocument()
+        expect(await screen.findAllByText("wildfire", { exact: true })).toHaveLength(3)
         expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
@@ -222,7 +332,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
 
-        expect(await screen.findByText("landslide", { exact: true })).toBeInTheDocument()
+        expect(await screen.findAllByText("landslide", { exact: true })).toHaveLength(3)
         expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
@@ -250,11 +360,47 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
 
-        expect(await screen.findByText("earthquake", { exact: true })).toBeInTheDocument()
+        expect(await screen.findAllByText("earthquake", { exact: true })).toHaveLength(3)
         expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
         expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
 
+    });
+
+    it("Should display all the critical alerts after selecting critical severity from filter", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument();
+        await user.click(filterBtn)
+
+        const severityBtn = screen.getByRole('combobox', { name: /severity/i })
+        expect(severityBtn).toBeInTheDocument();
+        expect(severityBtn).toHaveTextContent(/all/i)
+
+        expect(screen.queryByRole('option', { name: /all/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^critical$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^high$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^medium$/i })).not.toBeInTheDocument()
+
+        await user.click(severityBtn)
+
+        const criticalBtn = await screen.findByRole('option', { name: /^critical$/i })
+        expect(criticalBtn).toBeInTheDocument()
+
+        await user.click(criticalBtn)
+        expect(severityBtn).toHaveTextContent(/critical/i)
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findAllByText(/critical Priority/i)).toHaveLength(4)
+        expect(await screen.findAllByText(/high Priority/i)).toHaveLength(1)
+        expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
     });
 
 });

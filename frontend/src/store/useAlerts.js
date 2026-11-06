@@ -36,4 +36,5 @@ export const useAlerts = create((set) => ({
     clearAlerts: () => {
         set({ alerts: [], error: null });
     },
+
 }));

@@ -31,14 +31,12 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
         setOpen(false);
     }
 
-
     const handleReset = () => {
         setLocalFilters(DEFAULT_FITLERS);
         onReset?.();
     };
 
     const ActiveFilters = localfilter.disasterType.length + (localfilter.severity !== "all" ? 1 : 0)
-
 
     return (
         <Dialog open={open} onOpenChange={(value) => { setOpen(value); if (value) { setLocalFilters(filters); } }} >
@@ -93,10 +91,10 @@ export default function FilterModal({ filters = DEFAULT_FITLERS, onApply, onRese
                                 </SelectTrigger>
 
                                 <SelectContent>
-                                    <SelectItem value="all" className="cursor-pointer"> ALL Severities</SelectItem>
+                                    <SelectItem value="all" className="cursor-pointer"> All</SelectItem>
                                     <SelectItem value="critical" className="cursor-pointer"> Critical </SelectItem>
                                     <SelectItem value="high" className="cursor-pointer"> High </SelectItem>
-                                    <SelectItem value="moderate" className="cursor-pointer"> Moderate </SelectItem>
+                                    <SelectItem value="medium" className="cursor-pointer"> Medium </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
