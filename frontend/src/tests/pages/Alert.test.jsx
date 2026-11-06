@@ -136,11 +136,11 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         await user.click(resetBtn)
 
         waitFor(() => {
-            expect(earthquake).not.toBeChecked()
-            expect(flood).not.toBeChecked()
-            expect(wildfire).not.toBeChecked()
-            expect(landslide).not.toBeChecked()
-            expect(severityBtn).toHaveTextContent(/all/i)
+            expect(screen.getByRole('checkbox', { name: /earthquake/i })).not.toBeChecked()
+            expect(screen.getByRole('checkbox', { name: /flood/i })).not.toBeChecked()
+            expect(screen.getByRole('checkbox', { name: /landslide/i })).not.toBeChecked()
+            expect(screen.getByRole('checkbox', { name: /wildfire/i })).not.toBeChecked()
+            expect(screen.getByRole('combobox', { name: /severity/i })).toHaveTextContent(/all/i)
         });
 
     });
@@ -172,4 +172,33 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.queryByText("wildfire", { exact: true })).not.toBeInTheDocument()
 
     });
+
+    it('Should display wildFire alerts only, after applied filter', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument()
+        await user.click(filterBtn);
+
+        const wildfireBox = screen.getByRole('checkbox', { name: /wildfire/i })
+        expect(wildfireBox).toBeInTheDocument()
+
+        expect(wildfireBox).not.toBeChecked()
+        await user.click(wildfireBox)
+        expect(wildfireBox).toBeChecked();
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findByText("wildfire", { exact: true })).toBeInTheDocument()
+        expect(screen.queryByText("earthquake", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("landslide", { exact: true })).not.toBeInTheDocument()
+        expect(screen.queryByText("flood", { exact: true })).not.toBeInTheDocument()
+
+    });
+
 });
