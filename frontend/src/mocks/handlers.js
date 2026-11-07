@@ -139,7 +139,7 @@ export const handlers = [
         }
 
 
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
         return HttpResponse.json({
             "status": "approved",
