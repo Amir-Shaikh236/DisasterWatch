@@ -520,12 +520,59 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(criticalAlertsCard).toHaveTextContent(/critical Alerts\s*1/i)
 
         const HgihPriotiyCard = screen.getByText(/High Priority/i).parentElement
-        expect(HgihPriotiyCard).toHaveTextContent(/High Priority\s*0/i)
+        expect(HgihPriotiyCard).toHaveTextContent(/High Priority Alerts\s*0/i)
 
         expect(await screen.findAllByText(/critical Priority/i)).toHaveLength(1)
         expect(await screen.findAllByText(/high Priority/i)).toHaveLength(1)
 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
+    });
+
+    it("Should display all the Wildfire alerts with severity High after applying filter", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument();
+        await user.click(filterBtn)
+
+        const wildfireBox = screen.getByRole('checkbox', { name: /wildfire/i })
+        expect(wildfireBox).toBeInTheDocument();
+        expect(wildfireBox).not.toBeChecked()
+
+        await user.click(wildfireBox)
+        expect(wildfireBox).toBeChecked()
+
+        const severityBtn = screen.getByRole('combobox', { name: /severity/i })
+        expect(severityBtn).toBeInTheDocument();
+
+        await user.click(severityBtn)
+
+        const highBtn = await screen.findByRole('option', { name: /^high$/i })
+        expect(highBtn).toBeInTheDocument()
+
+        await user.click(highBtn)
+        expect(severityBtn).toHaveTextContent(/high/i)
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 2/i })).toBeInTheDocument()
+
+        const totalAlertsCard = screen.getByText(/Total Alerts/i).parentElement
+        expect(totalAlertsCard).toHaveTextContent(/Total Alerts\s*1/i)
+
+        const criticalAlertsCard = screen.getByText(/critical Alerts/i).parentElement
+        expect(criticalAlertsCard).toHaveTextContent(/critical Alerts\s*0/i)
+
+        const HgihPriotiyCard = screen.getByText(/High Priority Alerts/i).parentElement
+        expect(HgihPriotiyCard).toHaveTextContent(/High Priority Alerts\s*1/i)
+
+        expect(await screen.findAllByText(/high Priority/i)).toHaveLength(2)
+
+        expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
     });
 
 });

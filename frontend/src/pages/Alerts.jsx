@@ -105,7 +105,7 @@ export default function Alerts() {
         },
 
         {
-            name: "High Priority",
+            name: "High Priority Alerts",
             length: filteredAlerts.filter((alert) => alert.severity === 'high').length,
             icon: TrendingUp,
             iconClass: "text-amber-300"
