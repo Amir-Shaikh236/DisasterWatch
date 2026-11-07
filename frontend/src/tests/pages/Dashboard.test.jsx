@@ -16,7 +16,6 @@ vi.mock("@/utils/Helpers", async (importOriginal) => {
     };
 });
 
-
 const renderComponent = () => render(
     <MemoryRouter initialEntries={["/reports"]}>
         <Routes>
