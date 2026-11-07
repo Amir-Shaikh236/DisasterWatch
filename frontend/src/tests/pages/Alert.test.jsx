@@ -403,4 +403,76 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
     });
 
+    it("Should display all the high alerts after selecting high severity from filter", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument();
+        await user.click(filterBtn)
+
+        const severityBtn = screen.getByRole('combobox', { name: /severity/i })
+        expect(severityBtn).toBeInTheDocument();
+        expect(severityBtn).toHaveTextContent(/all/i)
+
+        expect(screen.queryByRole('option', { name: /all/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^critical$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^high$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^medium$/i })).not.toBeInTheDocument()
+
+        await user.click(severityBtn)
+
+        const highBtn = await screen.findByRole('option', { name: /^high$/i })
+        expect(highBtn).toBeInTheDocument()
+
+        await user.click(highBtn)
+        expect(severityBtn).toHaveTextContent(/high/i)
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findAllByText(/high Priority/i)).toHaveLength(5)
+        expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
+    });
+
+    it("Should display all the Medium alerts after selecting Medium severity from filter", async () => {
+        const user = userEvent.setup();
+        renderComponent();
+
+        const filterBtn = screen.getByRole('button', { name: /filter/i })
+        expect(filterBtn).toBeInTheDocument();
+        await user.click(filterBtn)
+
+        const severityBtn = screen.getByRole('combobox', { name: /severity/i })
+        expect(severityBtn).toBeInTheDocument();
+        expect(severityBtn).toHaveTextContent(/all/i)
+
+        expect(screen.queryByRole('option', { name: /all/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^critical$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^high$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /^medium$/i })).not.toBeInTheDocument()
+
+        await user.click(severityBtn)
+
+        const mediumBtn = await screen.findByRole('option', { name: /^medium$/i })
+        expect(mediumBtn).toBeInTheDocument()
+
+        await user.click(mediumBtn)
+        expect(severityBtn).toHaveTextContent(/medium/i)
+
+        const applyBtn = screen.getByRole('button', { name: /apply filters/i })
+        expect(applyBtn).toBeInTheDocument()
+        await user.click(applyBtn)
+
+        expect(await screen.findByRole('button', { name: /filter 1/i })).toBeInTheDocument()
+
+        expect(await screen.findAllByText(/medium Priority/i)).toHaveLength(4)
+        expect(await screen.findAllByText(/high Priority/i)).toHaveLength(1)
+        expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
+    });
+
 });
