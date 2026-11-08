@@ -85,4 +85,22 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
     });
 
+    it('Should redirect the user to the Report Page', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        const reportPage = screen.getByRole('link', { name: /My Reports/i })
+        expect(reportPage).toBeInTheDocument()
+
+        await user.click(reportPage)
+
+        expect(await screen.findByRole('heading', { name: /^Your Reports$/i })).toBeInTheDocument();
+        expect(reportPage).toHaveAttribute('href', '/reports')
+
+        expect(reportPage).toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Dashboard/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Alerts/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
+    });
+
 });
