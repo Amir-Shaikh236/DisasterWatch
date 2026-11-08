@@ -37,6 +37,36 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it('Should bring user to the Dashbaord (Defauld route) after clicking on logo', async () => {
+        const user = userEvent.setup()
+        renderComponent();
+
+        const reportBtn = screen.getByRole('link', { name: /My Reports/i })
+        expect(reportBtn).toBeInTheDocument()
+        await user.click(reportBtn)
+
+        expect(await screen.findByRole('heading', { name: /Your Reports/i }))
+        expect(reportBtn).toHaveAttribute('data-active')
+
+        expect(screen.getByRole('link', { name: /Dashboard/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Alert/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
+
+        const LogoBtn = screen.getByRole('link', { name: /disasterWatch/i })
+        expect(LogoBtn).toBeInTheDocument();
+        await user.click(LogoBtn)
+
+
+        expect(await screen.findByRole('heading', { name: /Dashboard/i })).toBeInTheDocument()
+        expect(LogoBtn).toHaveAttribute('href', '/dashboard')
+
+        expect(reportBtn).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Dashboard/i })).toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Alert/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
+
+    });
+
     it('Should redirect the user to the Alert Page', async () => {
         const user = userEvent.setup()
         renderComponent()
@@ -55,4 +85,4 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
     });
 
-})
+});
