@@ -11,4 +11,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const messaging = getMessaging(app);
+
+const supportsMessaging = typeof window !== 'undefined'
+    && 'Notification' in window
+    && 'serviceWorker' in navigator
+    && 'PushManager' in window
+    && 'indexedDB' in window;
+
+export const messaging = supportsMessaging ? getMessaging(app) : null;

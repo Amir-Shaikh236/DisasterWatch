@@ -6,6 +6,7 @@ import { shortBody } from "@/utils/Helpers";
 
 export const requestNotificationPermission = async () => {
     try {
+        if (!messaging) throw new Error("This browser doesn't support push notifications.");
         if (!("Notification" in window)) throw new Error("This browser doesn't support notifications.");
 
         const permission = await Notification.requestPermission();
@@ -39,6 +40,8 @@ const disasterIcons = {
 }
 
 export const listenForNotifications = () => {
+    if (!messaging) return () => {};
+
     return onMessage(messaging, (payload) => {
         const Icon = disasterIcons[payload.data?.disasterType] || AlertTriangle;
         const title = payload.notification?.title || payload.data?.title || "Disaster Alert";
