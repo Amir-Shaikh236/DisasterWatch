@@ -67,6 +67,24 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it('Should redirect the user to the Dashboard Page', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        const dashboard = screen.getByRole('link', { name: /dashboard/i })
+        expect(dashboard).toBeInTheDocument()
+
+        await user.click(dashboard)
+
+        expect(await screen.findByRole('heading', { name: /^dashboard$/i })).toBeInTheDocument();
+        expect(dashboard).toHaveAttribute('href', '/dashboard')
+
+        expect(dashboard).toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Alerts/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /My Reports/i })).not.toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
+    });
+
     it('Should redirect the user to the Alert Page', async () => {
         const user = userEvent.setup()
         renderComponent()
