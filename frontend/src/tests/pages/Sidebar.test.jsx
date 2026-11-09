@@ -10,6 +10,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import Login from "@/pages/Login";
+import { useUser } from "@/store/useUser";
 
 const renderComponent = () => render(
     <AuthContext.Provider value={{ clearSession: vi.fn() }} >
@@ -175,4 +176,30 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(dashboard).toHaveAttribute('href', '/dashboard')
         expect(await screen.findByRole('heading', { name: /dashboard/i }))
     });
+
+    it("opens the profile menu for primary typography labels and interactive fields", async () => {
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+        });
+
+        const user = userEvent.setup();
+        renderComponent();
+
+        const profileButton = screen.getByRole("button", {
+            name: /Amir Shaikh/i,
+        });
+
+        expect(profileButton).toBeInTheDocument();
+
+        await user.click(profileButton);
+
+        expect(screen.getByRole("menuitem", { name: /Profile Setting/i })).toBeInTheDocument();
+
+        expect(screen.getByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
+
+        expect(screen.getByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
+    });
+
 });
