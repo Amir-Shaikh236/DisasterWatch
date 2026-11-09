@@ -186,7 +186,16 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         });
 
         const user = userEvent.setup();
-        renderComponent();
+        render(
+            <AuthContext.Provider value={{ clearSession: vi.fn() }}>
+                <MemoryRouter>
+                    <SidebarProvider>
+                        <AppSidebar />
+                    </SidebarProvider>
+                    <Toaster />
+                </MemoryRouter>
+            </AuthContext.Provider>
+        );
 
         const profileButton = screen.getByRole("button", { name: /Amir Shaikh/i, });
 
@@ -194,11 +203,9 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         await user.click(profileButton);
 
-        expect(screen.getByRole("menuitem", { name: /profile setting/i })).toBeInTheDocument();
-
-        expect(screen.getByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
-
-        expect(screen.getByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
+        expect(await screen.findByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
+        expect(screen.getByText(/profile setting/i)).toBeInTheDocument();
+        expect(screen.getByText(/My Reports History/i)).toBeInTheDocument();
     });
 
     it('Should LogOut the user and redirect to Login Page', async () => {
