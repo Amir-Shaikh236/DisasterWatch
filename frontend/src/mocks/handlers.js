@@ -87,7 +87,6 @@ export const handlers = [
         );
     }),
 
-
     http.post(`*/api/ai/analyze-image`, async ({ request }) => {
         const formData = await request.formData();
         const image = formData.get("image");
