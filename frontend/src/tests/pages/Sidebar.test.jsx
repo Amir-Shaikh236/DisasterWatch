@@ -9,6 +9,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import Login from "@/pages/Login";
 
 const renderComponent = () => render(
     <AuthContext.Provider value={{ clearSession: vi.fn() }} >
@@ -16,6 +17,7 @@ const renderComponent = () => render(
             <SidebarProvider>
                 <AppSidebar />
             </SidebarProvider>
+            <Login />
             <Alerts />
             <Reports />
             <Setting />
@@ -139,4 +141,38 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /My Report/i })).not.toHaveAttribute('data-active')
     });
 
+    it('Should redirect the user on the correct path always', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        const alertPage = screen.getByRole('link', { name: /Alerts/i })
+        expect(alertPage).toBeInTheDocument()
+        await user.click(alertPage)
+
+        expect(alertPage).toHaveAttribute('href', '/alerts')
+        expect(alertPage).toHaveAttribute('data-active')
+
+        expect(await screen.findByRole('heading', { name: /^alerts$/i }))
+
+        const reportPage = screen.getByRole('link', { name: /My Reports/i })
+        expect(reportPage).toBeInTheDocument()
+        await user.click(reportPage)
+
+        expect(reportPage).toHaveAttribute('href', '/reports')
+        expect(await screen.findByRole('heading', { name: /Your Reports/i }))
+
+        const settingPage = screen.getByRole('link', { name: /Setting/i })
+        expect(settingPage).toBeInTheDocument()
+        await user.click(settingPage)
+
+        expect(settingPage).toHaveAttribute('href', '/setting')
+        expect(await screen.findByRole('heading', { name: /Setting/i }))
+
+        const dashboard = screen.getByRole('link', { name: /dashboard/i })
+        expect(dashboard).toBeInTheDocument()
+        await user.click(dashboard)
+
+        expect(dashboard).toHaveAttribute('href', '/dashboard')
+        expect(await screen.findByRole('heading', { name: /dashboard/i }))
+    });
 });
