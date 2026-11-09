@@ -5,12 +5,13 @@ import Dashboard from "@/pages/Dashboard";
 import Reports from "@/pages/Reports";
 import Setting from "@/pages/Setting";
 import { AuthContext } from "@/store/AuthProvider";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import Login from "@/pages/Login";
 import { useUser } from "@/store/useUser";
+import { Toaster } from "sonner";
 
 const renderComponent = () => render(
     <AuthContext.Provider value={{ clearSession: vi.fn() }} >
@@ -200,6 +201,52 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
 
         expect(screen.getByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
+    });
+
+    it('Should LogOut the user and redirect to Login Page', async () => {
+        const clearSession = vi.fn();
+
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+        });
+
+        const user = userEvent.setup();
+        render(
+            <AuthContext.Provider value={{ clearSession }}>
+                <MemoryRouter>
+                    <SidebarProvider>
+                        <AppSidebar />
+                    </SidebarProvider>
+                    <Login />
+                    <Toaster />
+                </MemoryRouter>
+            </AuthContext.Provider>
+        );
+
+        const profileButton = screen.getByRole("button", {
+            name: /Amir Shaikh/i,
+        });
+
+        expect(profileButton).toBeInTheDocument();
+
+        await user.click(profileButton);
+
+        const logoutBtn = await screen.findByRole('menuitem', { name: /Log Out/i })
+        expect(logoutBtn).toBeInTheDocument()
+
+        await user.click(logoutBtn)
+
+        expect(await screen.findByText(/Terminating Sessions/i)).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(clearSession).toHaveBeenCalledTimes(1);
+        });
+
+        expect(await screen.findByText(/logged out successfully/i)).toBeInTheDocument();
+        expect(await screen.findByRole("heading", { name: /welcome back/i })).toBeInTheDocument();
+
     });
 
 });
