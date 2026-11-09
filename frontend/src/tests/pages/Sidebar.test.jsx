@@ -188,15 +188,13 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         const user = userEvent.setup();
         renderComponent();
 
-        const profileButton = screen.getByRole("button", {
-            name: /Amir Shaikh/i,
-        });
+        const profileButton = screen.getByRole("button", { name: /Amir Shaikh/i, });
 
         expect(profileButton).toBeInTheDocument();
 
         await user.click(profileButton);
 
-        expect(screen.getByRole("menuitem", { name: /Profile Setting/i })).toBeInTheDocument();
+        expect(screen.getByRole("menuitem", { name: /profile setting/i })).toBeInTheDocument();
 
         expect(screen.getByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
 
