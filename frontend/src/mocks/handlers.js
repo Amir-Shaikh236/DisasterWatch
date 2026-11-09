@@ -70,6 +70,15 @@ export const handlers = [
         );
     }),
 
+    http.post(`*/api/auth/logout`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return HttpResponse.json(
+            { status: "success", message: "logout successfully" },
+            { status: 200 }
+        );
+
+    }),
+
     http.post(`*/api/auth/refresh`, ({ cookies }) => {
 
         const clientRefreshToken = cookies.refreshToken;
