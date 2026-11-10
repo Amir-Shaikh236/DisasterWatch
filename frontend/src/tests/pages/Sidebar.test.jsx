@@ -203,11 +203,11 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
         await user.click(profileButton);
 
-        expect(screen.getByRole("menuitem", { name: /profile setting/i })).toBeInTheDocument();
+        expect(await screen.findByRole("menuitem", { name: /profile setting/i })).toBeInTheDocument();
 
-        expect(screen.getByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
+        expect(await screen.findByRole("menuitem", { name: /My Reports History/i })).toBeInTheDocument();
 
-        expect(screen.getByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
+        expect(await screen.findByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
     });
 
     it("should Redirect the User to the setting Page after clickin Profile setting from user profile", async () => {
@@ -220,15 +220,13 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         const user = userEvent.setup();
         renderComponent();
 
-        const profileButton = screen.getByRole("button", {
-            name: /Amir Shaikh/i,
-        });
+        const profileButton = screen.getByRole("button", { name: /Amir Shaikh/i });
 
         expect(profileButton).toBeInTheDocument();
 
         await user.click(profileButton);
 
-        const profileSetting = screen.getByRole("menuitem", { name: /Profile Setting/i })
+        const profileSetting = await screen.findByRole("menuitem", { name: /Profile Setting/i })
         expect(profileSetting).toBeInTheDocument();
 
         await user.click(profileSetting)
@@ -261,9 +259,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
             </AuthContext.Provider>
         );
 
-        const profileButton = screen.getByRole("button", {
-            name: /Amir Shaikh/i,
-        });
+        const profileButton = screen.getByRole("button", { name: /Amir Shaikh/i });
 
         expect(profileButton).toBeInTheDocument();
 
