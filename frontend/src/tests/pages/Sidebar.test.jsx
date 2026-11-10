@@ -237,6 +237,33 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
+    it("should Redirect the User to the Report Page after clickin My Report History from user profile", async () => {
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+        });
+
+        const user = userEvent.setup();
+        renderComponent();
+
+        const profileButton = screen.getByRole("button", { name: /Amir Shaikh/i });
+
+        expect(profileButton).toBeInTheDocument();
+
+        await user.click(profileButton);
+
+        const reportHistory = await screen.findByRole("menuitem", { name: /My Reports History/i })
+        expect(reportHistory).toBeInTheDocument();
+
+        await user.click(reportHistory)
+
+        expect(screen.getByRole('link', { name: /my reports/i })).toHaveAttribute('data-active')
+        expect(screen.getByRole('link', { name: /my reports/i })).toHaveAttribute('href', '/reports')
+        expect(await screen.findByRole('heading', { name: /Your Reports/i }))
+
+    });
+
     it('Should LogOut the user and redirect to Login Page', async () => {
         const clearSession = vi.fn();
 
