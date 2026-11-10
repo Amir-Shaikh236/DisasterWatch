@@ -1,5 +1,6 @@
 import Alerts from "@/pages/Alerts";
 import Reports from "@/pages/Reports";
+import { useReports } from "@/store/useReports";
 import { GPSLocation } from "@/utils/Helpers";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -223,6 +224,38 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
         await user.click(screen.getByRole('button', { name: /submit/i }))
         expect(screen.findByText(/Please Select a Location/i))
+
+    });
+
+    it('Should redirect user to the alert page after clicking on view Details', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        useReports.setState({
+            reports: [
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "verified",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+            ]
+        });
+
+        expect(await screen.findByRole('heading', { name: /Your Reports/i }));
+
+        const detailBtn = screen.getByRole('link', { name: /view Details/i })
+        expect(detailBtn).toBeInTheDocument()
+
+        await user.click(detailBtn)
+
+        expect(await screen.findByRole('heading', { name: /^Alerts$/i }))
 
     });
 
