@@ -1,6 +1,7 @@
 import Alerts from "@/pages/Alerts";
 import Reports from "@/pages/Reports";
 import { useReports } from "@/store/useReports";
+import { useUser } from "@/store/useUser";
 import { GPSLocation } from "@/utils/Helpers";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -273,6 +274,51 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
         expect(reportELement).not.toBeInTheDocument();
 
+
+    });
+
+    it('Should Open the Delete Dialog for report to delete (ADMIN Only Action) with proper warning', async () => {
+        useReports.setState({
+            reports: [
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "verified",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+            ]
+        });
+
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+            role: 'admin'
+        });
+
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /Your Reports/i }))
+
+        const deleteBtn = screen.getByRole('button', { name: /delete/i })
+        expect(deleteBtn).toBeInTheDocument();
+
+        await user.click(deleteBtn)
+
+        expect(await screen.findByRole('heading', { name: /DELETE Report/i }))
+        expect(await screen.findByLabelText('description', {
+            name: /This action cannot be undone Deleting this REPORT will permanently remove the report and all of its related assets, including uploaded images and associated alert/i
+        }));
+
+        expect(await screen.findByRole('button', { name: /delete/i }))
+        expect(await screen.findByRole('button', { name: /Cancel/i }))
 
     });
 
