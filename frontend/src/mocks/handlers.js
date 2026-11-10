@@ -170,5 +170,19 @@ export const handlers = [
         }, {
             status: 201,
         })
-    })
+    }),
+
+    http.delete(`*/api/reports/delete/:id`, ({ params }) => {
+        if (!params.id) {
+            return HttpResponse.json(
+                { status: "fail", message: "Report id is required" },
+                { status: 400 }
+            );
+        }
+
+        return HttpResponse.json(
+            { message: "Report Deleted Successfully" },
+            { status: 200 }
+        );
+    }),
 ];

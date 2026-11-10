@@ -12,9 +12,9 @@ export default function DeleteConfirmDialog({ open, onOpenChange, onConfirm, loa
                     <AlertDialogMedia>
                         <AlertTriangle className="h-7 w-7 text-red-400" />
                     </AlertDialogMedia>
-                    <AlertDialogTitle> Delete {itemName} ? </AlertDialogTitle>
+                    <AlertDialogTitle as="h2" > Delete {itemName} ? </AlertDialogTitle>
 
-                    <AlertDialogDescription>
+                    <AlertDialogDescription aria-label='description' >
                         {itemName === 'REPORT' ? (
                             <span>
                                 This action cannot be undone.
