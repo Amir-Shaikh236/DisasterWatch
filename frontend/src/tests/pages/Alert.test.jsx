@@ -1,5 +1,6 @@
 import Alerts from "@/pages/Alerts"
 import { useAlerts } from "@/store/useAlerts"
+import { useUser } from "@/store/useUser"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
@@ -72,7 +73,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
                 {
                     _id: "alert-flood-1",
                     disasterType: "flood",
-                    title: "Flood warning",
+                    title: "Flood warning-1",
                     description: "Flooding reported in the area",
                     severity: "high",
                     confidence: 0.9,
@@ -124,7 +125,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
                 {
                     _id: "alert-flood-2",
                     disasterType: "flood",
-                    title: "Flood warning",
+                    title: "Flood warning-2",
                     description: "Flooding reported in the area",
                     severity: "medium",
                     confidence: 0.9,
@@ -573,6 +574,34 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
         expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
+    });
+
+    it('Should Open the Delete Dialog for alert to delete (ADMIN Only Action) with proper warning', async () => {
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+            role: 'admin'
+        });
+
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /^Alerts$/i }))
+
+        const deleteBtn = screen.getByRole('button', { name: 'Delete Flood warning' })
+        expect(deleteBtn).toBeInTheDocument();
+
+        await user.click(deleteBtn)
+
+        expect(await screen.findByRole('heading', { name: /DELETE Alert/i }))
+        expect(await screen.findByLabelText('description', {
+            name: /This action cannot be undone Deleting this ALERT will permanently remove the report and all of its related assets, including uploaded images and associated alert/i
+        }));
+
+        expect(await screen.findByRole('button', { name: /delete/i }))
+        expect(await screen.findByRole('button', { name: /Cancel/i }))
+
     });
 
 });

@@ -87,18 +87,20 @@ export default function Alerts() {
         const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType)
         const matchesSeverity = filters.severity === 'all' || filters.severity.includes(alert.severity);
         return matchesDisasterTypes && matchesSeverity
-    })
+    });
 
     const AlertState = [
         {
             name: "Total Alerts",
             length: filteredAlerts.length,
+            severity: 'all',
             icon: AlertTriangle,
             iconClass: "text-primary"
         },
 
         {
             name: "Critical Alerts",
+            severity: 'critical',
             length: filteredAlerts.filter((alert) => alert.severity === 'critical').length,
             icon: AlertTriangle,
             iconClass: "text-destructive animate-pulse"
@@ -106,6 +108,7 @@ export default function Alerts() {
 
         {
             name: "High Priority Alerts",
+            severity: 'high',
             length: filteredAlerts.filter((alert) => alert.severity === 'high').length,
             icon: TrendingUp,
             iconClass: "text-amber-300"
@@ -137,7 +140,7 @@ export default function Alerts() {
                 </div>
             </div>
         );
-    }
+    };
 
     const handleDelete = async () => {
         try {
@@ -148,7 +151,7 @@ export default function Alerts() {
             setDeleteDialogOpen(false)
             setSelectedAlertId(null)
 
-            toast.success(`Alert Deleted`);
+            toast.success(`Alert Deleted Successfully`);
 
         } catch (error) {
             console.error('Alert Deleting Error: ', error)
@@ -156,7 +159,7 @@ export default function Alerts() {
         } finally {
             setIsDeleting(false)
         }
-    }
+    };
 
     return (
         <div className="min-h-full flex-1 bg-background p-6">
@@ -187,7 +190,7 @@ export default function Alerts() {
 
                     return (
                         <Card key={item.name} className="cursor-pointer border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
-                            <CardContent className="flex items-center justify-between px-6 py-1">
+                            <CardContent onClick={() => setFilters({ disasterType: [], severity: item.severity })} className="flex items-center justify-between px-6 py-1">
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground"> {item.name} </p>
                                     <p className="mt-1 text-2xl font-bold tracking-tight text-foreground"> {item.length} </p>
@@ -287,7 +290,7 @@ export default function Alerts() {
                                     <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Button>
                                 {admin && (
-                                    <Button variant="ghost"
+                                    <Button aria-label={`Delete ${data.title}`} variant="ghost"
                                         className="ml-auto items-center h-8 gap-1 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 hover:text-destructive cursor-pointer"
                                         onClick={() => {
                                             setSelectedAlertId(data._id)
