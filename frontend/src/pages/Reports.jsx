@@ -108,7 +108,7 @@ export default function Reports() {
 
             setDeleteDialogOpen(false)
             setSelectedReportId(null)
-            toast.success(`Report Deleted`);
+            toast.success(`Report Deleted Successfully`);
 
         } catch (error) {
             console.error('Report Deleting Error: ', error)

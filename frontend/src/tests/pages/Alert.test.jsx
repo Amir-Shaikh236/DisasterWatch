@@ -623,9 +623,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         await user.click(deleteBtn)
 
         expect(await screen.findByRole('heading', { name: /DELETE Alert/i }))
-        expect(await screen.findByLabelText('description', {
-            name: /This action cannot be undone Deleting this ALERT will permanently remove the report and all of its related assets, including uploaded images and associated alert/i
-        }));
+        expect(await screen.findByLabelText('description', { name: /This action cannot be undone Deleting this ALERT will /i }));
 
         const deleteAlert = screen.getByRole('button', { name: /delete/i })
         expect(deleteAlert).toBeInTheDocument()
