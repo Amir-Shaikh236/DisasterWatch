@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import DeleteConfirmDialog from "@/components/shared/ConfirmDialog";
 
 export default function Reports() {
+    const [filters, setFilters] = useState({ status: 'all' })
     const [isReportModalOpen, setIsReportModalOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [selectedReportId, setSelectedReportId] = useState(null)
@@ -23,11 +24,39 @@ export default function Reports() {
     const user = useUser((state) => state.user)
     const admin = user?.role === "admin" ? true : false;
 
+    const filteredReports = filters.status === 'all'
+        ? reports
+        : reports.filter((report) => report.status === filters.status);
+
     const TotalReports = [
-        { name: 'Total Reports', length: reports.length, icon: FileText, iconClass: 'text-blue-400' },
-        { name: 'Verified', length: reports.filter((report) => report.status === 'verified').length, icon: Verified, iconClass: 'text-primary' },
-        { name: 'Under Investigation', length: reports.filter((report) => report.status === 'investigating').length, icon: ScanSearch, iconClass: 'text-amber-400' },
-        { name: 'Unverified', length: reports.filter((report) => report.status === 'rejected').length, icon: ShieldQuestion, iconClass: 'text-muted-foreground' }
+        {
+            name: 'Total Reports',
+            status: 'all',
+            length: filteredReports.length,
+            icon: FileText,
+            iconClass: 'text-blue-400'
+        },
+        {
+            name: 'Verified',
+            status: 'verified',
+            length: reports.filter((report) => report.status === 'verified').length,
+            icon: Verified,
+            iconClass: 'text-primary'
+        },
+        {
+            name: 'Unverified',
+            status: 'rejected',
+            length: reports.filter((report) => report.status === 'rejected').length,
+            icon: ShieldQuestion,
+            iconClass: 'text-muted-foreground'
+        },
+        {
+            name: 'Under Investigation',
+            status: 'investigating',
+            length: reports.filter((report) => report.status === 'investigating').length,
+            icon: ScanSearch,
+            iconClass: 'text-amber-400'
+        }
     ];
 
     const STATUS_STYLE = {
@@ -118,7 +147,7 @@ export default function Reports() {
 
                     return (
                         <Card key={item.name} className="cursor-pointer border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
-                            <CardContent className="flex items-center justify-between px-6 py-1">
+                            <CardContent onClick={() => setFilters({ status: item.status })} className="flex items-center justify-between px-6 py-1">
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground"> {item.name} </p>
                                     <p className="mt-1 text-2xl font-bold tracking-tight text-foreground"> {item.length} </p>
@@ -168,7 +197,7 @@ export default function Reports() {
             )}
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {reports.map((data) => {
+                {filteredReports.map((data) => {
                     const statusStyle = STATUS_STYLE[data.status] ?? STATUS_STYLE.rejected;
 
                     const disasterType = DISASTER_ICON[data.disasterType?.toLowerCase()] ?? { icon: AlertTriangle, iconColor: 'text-muted-foreground' };

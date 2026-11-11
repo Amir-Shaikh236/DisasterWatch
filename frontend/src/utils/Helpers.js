@@ -55,11 +55,3 @@ export const shortBody = (text, maxLength = 100) => {
     return text.length > maxLength ? `${text.slice(0, maxLength).trim()}.....` : text;
 }
 
-export const filtered = (alerts, filters) => {
-    alerts.filter((alert) => {
-        const matchesDisasterTypes = filters.disasterType.length === 0 || filters.disasterType.includes(alert.disasterType)
-        const matchesSeverity = filters.severity === 'all' || filters.severity.includes(alert.severity);
-        return matchesDisasterTypes && matchesSeverity
-    })
-}
-

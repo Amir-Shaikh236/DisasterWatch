@@ -172,7 +172,7 @@ export const handlers = [
         })
     }),
 
-    http.delete(`*/api/reports/delete/:id`, ({ params }) => {
+    http.delete(`*/api/reports/delete/:id`, async ({ params }) => {
         if (!params.id) {
             return HttpResponse.json(
                 { status: "fail", message: "Report id is required" },
@@ -180,8 +180,26 @@ export const handlers = [
             );
         }
 
+        await new Promise((resolve) => setTimeout(resolve, 150))
+
         return HttpResponse.json(
             { message: "Report Deleted Successfully" },
+            { status: 200 }
+        );
+    }),
+
+    http.delete(`*/api/alerts/delete/:id`, async ({ params }) => {
+        if (!params.id) {
+            return HttpResponse.json(
+                { status: "fail", message: "alert id is required" },
+                { status: 400 }
+            );
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 150))
+
+        return HttpResponse.json(
+            { message: "Alert Deleted Successfully" },
             { status: 200 }
         );
     }),
