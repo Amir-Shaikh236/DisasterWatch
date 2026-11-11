@@ -604,4 +604,38 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
+    it('Should Delete an alert after clicking on Delete from Dialog', async () => {
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+            role: 'admin'
+        });
+
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /^Alerts$/i }))
+
+        const deleteBtn = screen.getByRole('button', { name: 'Delete Flood warning' })
+        expect(deleteBtn).toBeInTheDocument();
+
+        await user.click(deleteBtn)
+
+        expect(await screen.findByRole('heading', { name: /DELETE Alert/i }))
+        expect(await screen.findByLabelText('description', {
+            name: /This action cannot be undone Deleting this ALERT will permanently remove the report and all of its related assets, including uploaded images and associated alert/i
+        }));
+
+        const deleteAlert = screen.getByRole('button', { name: /delete/i })
+        expect(deleteAlert).toBeInTheDocument()
+
+        await user.click(deleteAlert)
+        expect(await screen.findByRole('button', { name: /deleting.../i }))
+        expect(await screen.findByText(/Alert Deleted Successfully/i))
+
+        expect(screen.queryByRole('heading', { name: /DELETE Alert/i })).not.toBeInTheDocument()
+
+    });
+
 });
