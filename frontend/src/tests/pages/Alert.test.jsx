@@ -670,4 +670,29 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
+    it('Should filter all the Alerts and display Critical Alerts when user click on Critical Alert Card', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /^Alerts$/i })).toBeInTheDocument()
+        expect(await screen.findByText(/^Total Alerts$/i)).toBeInTheDocument()
+        expect(await screen.findByText(/^Critical Alerts$/i)).toBeInTheDocument()
+        expect(await screen.findByText(/^High Priority Alerts$/i)).toBeInTheDocument()
+        expect(await screen.findByText(/^Average Confidence$/i)).toBeInTheDocument()
+
+        expect(await screen.findAllByText('High Priority')).toHaveLength(4)
+        expect(await screen.findAllByText(/Critical Priority/i)).toHaveLength(4)
+        expect(await screen.findAllByText(/Medium Priority/i)).toHaveLength(4)
+
+        const criticalAlertsCard = screen.getByText(/^Critical Alerts$/i)
+        expect(criticalAlertsCard).toBeInTheDocument()
+
+        await user.click(criticalAlertsCard)
+
+        expect(await screen.findAllByText(/Critical Priority/i)).toHaveLength(4)
+        expect(screen.queryByText(/^High Priority$/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Medium Priority/i)).not.toBeInTheDocument()
+
+    });
+
 });
