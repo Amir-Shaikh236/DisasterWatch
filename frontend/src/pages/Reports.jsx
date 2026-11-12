@@ -37,14 +37,14 @@ export default function Reports() {
             iconClass: 'text-blue-400'
         },
         {
-            name: 'Verified',
+            name: 'Verified Reports',
             status: 'verified',
             length: reports.filter((report) => report.status === 'verified').length,
             icon: Verified,
             iconClass: 'text-primary'
         },
         {
-            name: 'Unverified',
+            name: 'Unverified Reports',
             status: 'rejected',
             length: reports.filter((report) => report.status === 'rejected').length,
             icon: ShieldQuestion,
