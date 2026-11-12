@@ -522,4 +522,63 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
+    it('Should filter all the reports after clicking on Total Reports', async () => {
+        useReports.setState({
+            reports: [
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "verified",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "rejected",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+            ]
+        });
+
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /^Your Reports$/i })).toBeInTheDocument()
+        expect(await screen.findByText(/^Total Reports$/i)).toBeInTheDocument()
+        expect(await screen.findByText(/^Unverified Reports$/i)).toBeInTheDocument()
+        expect(await screen.findByText(/^Under Investigation$/i)).toBeInTheDocument()
+
+        expect(await screen.findByText('Verified')).toBeInTheDocument()
+        expect(await screen.findByText(/rejected/i)).toBeInTheDocument()
+
+        const verifiedBtn = screen.getByText(/^Unverified Reports$/i)
+        expect(verifiedBtn).toBeInTheDocument()
+
+        await user.click(verifiedBtn)
+
+        expect(await screen.findByText(/rejected/i)).toBeInTheDocument()
+        expect(screen.queryByText('Verified')).not.toBeInTheDocument()
+
+        const TotalBtn = screen.getByText(/^Total Reports$/i)
+        expect(TotalBtn).toBeInTheDocument()
+
+        await user.click(TotalBtn)
+
+        expect(await screen.findByText('Verified')).toBeInTheDocument()
+        expect(await screen.findByText(/rejected/i)).toBeInTheDocument()
+
+    });
+
 });
