@@ -371,4 +371,53 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
+    it('Should NOT Delete an alert after clicking on Cancel from Dialog and Close the dialog immediately', async () => {
+        useReports.setState({
+            reports: [
+                {
+                    _id: "alert-flood",
+                    disasterType: "flood",
+                    description: "Flooding reported in the area",
+                    severity: "critical",
+                    confidence: 0.9,
+                    status: "verified",
+                    sourceCount: 2,
+                    createdAt: "2026-01-01T00:00:00.000Z",
+                    location: { address: "Mumbai, India" },
+                    media: [],
+                },
+            ]
+        });
+
+        useUser.getState().setUser({
+            firstName: "Amir",
+            lastName: "Shaikh",
+            email: "amir@example.com",
+            role: 'admin'
+        });
+
+        const user = userEvent.setup()
+        renderComponent()
+
+        expect(await screen.findByRole('heading', { name: /^Your Reports$/i }))
+
+        const deleteBtn = screen.getByRole('button', { name: 'Delete' })
+        expect(deleteBtn).toBeInTheDocument();
+
+        await user.click(deleteBtn)
+
+        expect(await screen.findByRole('heading', { name: /DELETE Report/i }))
+        expect(await screen.findByLabelText('description', { name: /This action cannot be undone Deleting this REPORT/i }));
+
+        const deleteAlert = screen.getByRole('button', { name: /delete/i })
+        expect(deleteAlert).toBeInTheDocument()
+
+        const CancelBtn = screen.getByRole('button', { name: /cancel/i })
+        expect(CancelBtn).toBeInTheDocument()
+
+        await user.click(CancelBtn)
+        expect(screen.queryByRole('heading', { name: /DELETE Report/i })).not.toBeInTheDocument()
+
+    });
+
 });
