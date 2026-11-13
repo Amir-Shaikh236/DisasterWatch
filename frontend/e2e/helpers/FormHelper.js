@@ -4,7 +4,6 @@ export const createFormHelper = (page) => ({
         await page.getByLabel(label).fill(value)
     },
 
-
     selectOption: async (label, optionText) => {
         await page.getByLabel(label).selectOption({ label: optionText })
     },

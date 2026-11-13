@@ -116,9 +116,10 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await form.fillField(/password/i, 'InvalidPassowrd123!')
 
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
+        const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
         await submitBtn.click()
 
-        const response = await page.waitForResponse(res => res.url().includes('/api/auth/login'));
+        const response = await responsePromise;
         expect(response.status()).toBe(401)
 
         await expect(page.getByText(/Incorrect email or Password/i)).toBeVisible();
@@ -145,6 +146,14 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await form.submitButton(/login/i)
 
         await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
+    });
+
+    test('Scenario E: User will see the error for missing length of password or not providing it', async ({ form, page }) => {
+        await form.fillField(/email/i, testUser.email)
+        await form.fillField(/password/i, 'secu')
+        await form.submitButton(/login/i)
+
+        await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
 });
