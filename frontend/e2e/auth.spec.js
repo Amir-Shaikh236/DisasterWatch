@@ -1,6 +1,5 @@
+import { expect, test } from "@playwright/test";
 /* eslint-disable */
-import { expect, test } from "./Fixtures/formFixtures";
-
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
@@ -81,16 +80,16 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         });
     });
 
-    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ form, page }) => {
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
 
         // enter valid email
-        await form.fillField(/email/i, testUser.email)
+        await page.getByLabel(/email/i).fill(testUser.email)
 
         // valid password
-        await form.fillField(/password/i, testUser.password)
+        await page.getByLabel(/password/i).fill(testUser.password)
 
         // press button
-        await form.submitButton(/login/i)
+        await page.getByRole('button', { name: /login/i }).click()
 
         // Wait for the real success signal from the app before asserting the redirect.
         await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
@@ -109,11 +108,11 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
-    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ form, page }) => {
+    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
-        await form.fillField(/email/i, 'wrong.user@disasterWatch.io')
-        await form.fillField(/password/i, 'InvalidPassowrd123!')
+        await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io')
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!')
 
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
         const responsePromise = page.waitForResponse(res => res.url().includes('/api/auth/login'));
@@ -128,10 +127,10 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('Scenario C: User Submits Invalid Email Format', async ({ form, page }) => {
+    test('Scenario C: User Submits Invalid Email Format', async ({ page }) => {
 
-        await form.fillField(/email/i, 'wrong.userdisasterWatch.io')
-        await form.fillField(/password/i, 'InvalidPassowrd123!')
+        await page.getByLabel(/email/i).fill('wrong.userdisasterWatch.io')
+        await page.getByLabel(/password/i).fill('InvalidPassowrd123!')
 
         const submitBtn = page.getByRole('button', { name: 'Login', exact: true });
         await submitBtn.click()
@@ -140,18 +139,18 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('Scenario D: User Submits Empty Email Field', async ({ form, page }) => {
-        await form.fillField(/email/i, '')
-        await form.fillField(/password/i, 'SecurePassword123!')
-        await form.submitButton(/login/i)
+    test('Scenario D: User Submits Empty Email Field', async ({ page }) => {
+        await page.getByLabel(/email/i).fill('')
+        await page.getByLabel(/password/i).fill('SecurePassword123!')
+        await page.getByRole('button', { name: /login/i }).click()
 
         await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
     });
 
-    test('Scenario E: User will see the error for missing length of password or not providing it', async ({ form, page }) => {
-        await form.fillField(/email/i, testUser.email)
-        await form.fillField(/password/i, 'secu')
-        await form.submitButton(/login/i)
+    test('Scenario E: User will see the error for missing length of password or not providing it', async ({ page }) => {
+        await page.getByLabel(/email/i).fill(testUser.email)
+        await page.getByLabel(/password/i).fill('secu')
+        await page.getByRole('button', { name: /login/i }).click()
 
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
