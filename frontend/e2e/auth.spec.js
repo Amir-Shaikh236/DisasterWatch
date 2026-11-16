@@ -74,7 +74,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
         await page.context().clearCookies();
         await page.goto('/');
-        await expect(page.getByLabel(/email/i)).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
@@ -87,7 +87,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await page.getByLabel(/email/i).fill(testUser.email)
 
         // valid password
-        await page.getByLabel(/password/i).fill(testUser.password)
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
 
         // press button
         await page.getByRole('button', { name: /login/i }).click()
@@ -165,6 +165,93 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         expect(loginHeader).not.toBeVisible();
 
         await expect(page.getByRole('heading', { name: /Create Your Account/i })).toBeVisible()
+
+    });
+
+});
+
+test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register', () => {
+
+    let testUser;
+
+    const clearAll = async (request) => {
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
+            failOnStatusCode: false,
+        });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (![200, 404].includes(deleteResponse.status())) {
+            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+        }
+    };
+
+    test.beforeAll(async ({ request }) => {
+
+        testUser = {
+            email: `e2e.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            password: 'SecurePassword123!',
+            firstName: 'Admin',
+            lastName: 'User'
+        };
+
+        await clearAll(request);
+
+    });
+
+    test.afterAll(async ({ request }) => {
+        await clearAll(request)
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto('/register');
+        await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible();
+        await page.evaluate(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+        });
+    });
+
+    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(registerBtn).toBeDisabled()
+
+        // Wait for the real success signal from the app before asserting the redirect.
+        await expect(page.getByText(/Admin User account created successfully!/i)).toBeVisible({ timeout: 15000 });
+
+        // Assert the app automatically re-routes the user to the protected dashboard page
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
+
+        await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+
+        const activeCookies = await page.evaluate(() => document.cookie);
+        expect(activeCookies).not.toContain('refreshToken=');
+
+        await page.reload();
+        await expect(page).toHaveURL(/\/dashboard$/);
 
     });
 
