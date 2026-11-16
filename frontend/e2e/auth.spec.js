@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
 /* eslint-disable */
+
+import { expect, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
@@ -153,6 +154,18 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await page.getByRole('button', { name: /login/i }).click()
 
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
+    });
+
+    test('Scenario F: User will be redirected to register Page after clicking on Register', async ({ page }) => {
+        const loginHeader = page.getByRole('heading', { name: /Log in/i })
+        expect(loginHeader).toBeVisible();
+
+        const registerLing = page.getByRole('link', { name: /register/i })
+        await registerLing.click()
+        expect(loginHeader).not.toBeVisible();
+
+        await expect(page.getByRole('heading', { name: /Create Your Account/i })).toBeVisible()
+
     });
 
 });
