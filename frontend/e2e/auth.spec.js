@@ -301,7 +301,26 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario E: Password Confirmation Mismatch', async ({ page }) => {
+    test('Scenario E: Invalid Email Format', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill('amir21.com')
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(page.getByText(/Please enter a Valid Email/i)).toBeVisible();
+
+    });
+
+    test('Scenario F: Password Confirmation Mismatch', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
