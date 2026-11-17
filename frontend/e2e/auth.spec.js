@@ -268,7 +268,23 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
         // press button
         await registerBtn.click()
+        await expect(page.getByText(/First Name is Required/i)).toBeVisible();
+
+    });
+
+    test('Scenario B: First Name Below Minimum Length', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill('Ami')
+        await page.getByLabel('Last Name').fill('Amir')
         await expect(page.getByText(/First Name is Required/i)).toBeVisible({ timeout: 15000 });
+
+    });
+
+    test('Scenario B: First Name exceeding Maximum Length', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill('12345678901234587')
+        await page.getByLabel('Last Name').fill('Amir')
+        await expect(page.getByText(/First Name cannot exceed 15 characters/i)).toBeVisible();
 
     });
 
@@ -286,6 +302,22 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         // press button
         await registerBtn.click()
         await expect(page.getByText(/Last Name is Required/i)).toBeVisible({ timeout: 15000 });
+
+    });
+
+    test('Scenario C: Last Name Below Minimum Length', async ({ page }) => {
+
+        await page.getByLabel('Last Name').fill('Ami')
+        await page.getByLabel(/email/i).fill(testUser.email)
+        await expect(page.getByText(/Last Name is Required/i)).toBeVisible();
+
+    });
+
+    test('Scenario B: Last Name exceeding Maximum Length', async ({ page }) => {
+
+        await page.getByLabel('Last Name').fill('123456789012345891')
+        await page.getByLabel('First Name').fill('Amir')
+        await expect(page.getByText(/Last Name cannot exceed 15 characters/i)).toBeVisible();
 
     });
 
@@ -333,7 +365,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario G: Too Short Password Length', async ({ page }) => {
+    test('Scenario G: Too Short Password Length less than 8 characters', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
