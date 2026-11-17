@@ -301,4 +301,23 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
+    test('Scenario E: Password Confirmation Mismatch', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill('abcderfghi')
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(page.getByText(/Confirm password must match Password/i)).toBeVisible();
+
+    });
+
 });
