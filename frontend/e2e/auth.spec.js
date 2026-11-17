@@ -346,6 +346,36 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
+    test('Scenario F: Duplicate Email Registration', async ({ page, request }) => {
+
+        await request.post(`${backendBaseURL}/api/auth/register`, {
+            data: {
+                firstName: testUser.firstName,
+                lastName: testUser.lastName,
+                email: 'skamir2410@gmail.com',
+                password: testUser.password,
+            },
+
+            failOnStatusCode: false,
+        });
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill('skamir2410@gmail.com')
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(page.getByText(/User with this email already exist/i)).toBeVisible({ timeout: 15000 });
+
+    });
+
     test('Scenario F: Password Confirmation Mismatch', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
@@ -356,6 +386,24 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
         await page.getByLabel('Password', { exact: true }).fill(testUser.password)
         await page.getByLabel(/confirm password/i).fill('abcderfghi')
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(page.getByText(/Confirm password must match Password/i)).toBeVisible();
+
+    });
+
+    test('Scenario F: Leaving empty Password Confirmation Field', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
 
         const registerBtn = page.locator('form button[type="submit"]')
 
