@@ -289,4 +289,16 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
+    test('Scenario D: User must get all the required fields errors', async ({ page }) => {
+
+        const registerBtn = page.locator('form button[type="submit"]')
+        // press button
+        await registerBtn.click()
+        await expect(page.getByText(/First Name is Required/i)).toBeVisible();
+        await expect(page.getByText(/Last Name is Required/i)).toBeVisible();
+        await expect(page.getByText(/Please enter a Valid Email/i)).toBeVisible();
+        await expect(page.getByText(/Password must be atleast 8 characters long/i)).toBeVisible();
+
+    });
+
 });
