@@ -446,4 +446,35 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         await expect(page.getByText(/Admin User account created successfully!/i)).toBeVisible({ timeout: 15000 });
     });
 
+    test('Scenario F: prevent Duplicate Registration on double Click', async ({ page }) => {
+
+        let registrationRequests = 0;
+
+        page.on('request', request => {
+            if (
+                request.method() === 'POST' &&
+                request.url().includes('/api/auth/register')
+            ) {
+                registrationRequests++;
+            }
+        });
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(`testing${Date.now()}@disasterwatch.io`)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.dblclick()
+        await expect(page.getByText(/Admin User account created successfully/i)).toBeVisible({ timeout: 15000 });
+
+        expect(registrationRequests).toBe(1);
+    });
+
 });
