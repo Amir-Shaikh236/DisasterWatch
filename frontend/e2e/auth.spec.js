@@ -502,4 +502,17 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         expect(actualPayload).toEqual({ ...testUser, email: 'skamir2410@disasterwatch.io' })
         expect(actualPayload).not.toHaveProperty('confirmPassword');
     });
+
+    test('Scenario F: User will be redirected to Login Page after clicking on Login', async ({ page }) => {
+        const loginHeader = page.getByRole('heading', { name: /create your account/i })
+        expect(loginHeader).toBeVisible();
+
+        const registerLing = page.getByRole('link', { name: /Login/i })
+        await registerLing.click()
+        expect(loginHeader).not.toBeVisible();
+
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible()
+
+    });
+
 });
