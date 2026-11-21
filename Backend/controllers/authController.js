@@ -41,8 +41,7 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password)
-      return next(new AppError(400, "Please enter email and password"));
+    if (!email || !password) return next(new AppError(400, "Please enter email and password"));
 
     const user = await User.findOne({ email }).select("+password +refreshTokens");
 
