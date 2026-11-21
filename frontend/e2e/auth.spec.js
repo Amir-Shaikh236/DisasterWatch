@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { expect, test } from "@playwright/test";
+import { expect, request, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
@@ -148,7 +148,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
     });
 
-    test('Scenario E: User will see the error for missing length of password or not providing it', async ({ page }) => {
+    test('Scenario E: User will see the error for missing length of password', async ({ page }) => {
         await page.getByLabel(/email/i).fill(testUser.email)
         await page.getByLabel(/password/i).fill('secu')
         await page.getByRole('button', { name: /login/i }).click()
@@ -373,7 +373,6 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         // press button
         await registerBtn.click()
         await expect(page.getByText(/User with this email already exist/i)).toBeVisible({ timeout: 15000 });
-
     });
 
     test('Scenario F: Password Confirmation Mismatch', async ({ page }) => {
@@ -425,6 +424,26 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         await page.getByLabel(/confirm password/i).fill('123456')
         await expect(page.getByText(/Password must be atleast 8 characters long/i)).toBeVisible();
 
+    });
+
+    test('Scenario F: Submit button must be disabled while request is processing', async ({ page }) => {
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(`processing.${Date.now()}@disasterwatch.io`)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click()
+        await expect(registerBtn).toBeDisabled();
+        await expect(page.getByText(/creating your Account/i)).toBeVisible();
+        await expect(page.getByText(/Admin User account created successfully!/i)).toBeVisible({ timeout: 15000 });
     });
 
 });
