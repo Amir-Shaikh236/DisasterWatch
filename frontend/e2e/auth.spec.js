@@ -175,6 +175,20 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
+    test('Scenario G: Login button must be disabled while request is processing', async ({ page }) => {
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+
+        const loginBtn = page.locator('form button[type="submit"]')
+
+        await loginBtn.click()
+        expect(loginBtn).toHaveText(/Logging in/i)
+        await expect(loginBtn).toBeDisabled();
+        await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
+    });
+
 });
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register', () => {
