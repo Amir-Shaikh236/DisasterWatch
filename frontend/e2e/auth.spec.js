@@ -477,4 +477,29 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         expect(registrationRequests).toBe(1);
     });
 
+    test('Scenario: API request contains the expected registration payload', async ({ page }) => {
+
+        const requestPromise = page.waitForRequest(request =>
+            request.method() === 'POST' && request.url().includes('/api/auth/register')
+        );
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+
+        await page.getByLabel(/email/i).fill(`skamir2410@disasterwatch.io`)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await registerBtn.click();
+        const requestData = await requestPromise;
+        const actualPayload = requestData.postDataJSON();
+
+        expect(actualPayload).toEqual({ ...testUser, email: 'skamir2410@disasterwatch.io' })
+        expect(actualPayload).not.toHaveProperty('confirmPassword');
+    });
 });
