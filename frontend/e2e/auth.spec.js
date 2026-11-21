@@ -189,6 +189,27 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
     });
 
+    test('Scenario F: prevent Double request on double Click', async ({ page }) => {
+
+        let loginRequests = 0;
+
+        page.on('request', request => {
+            if (request.method() === 'POST' && request.url().includes('/api/auth/login')) loginRequests++;
+        });
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+
+        const loginBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await loginBtn.dblclick()
+        await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
+        expect(loginRequests).toBe(1);
+
+    });
+
 });
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register', () => {
