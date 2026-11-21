@@ -210,6 +210,26 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
+    test('Scenario: API request contains the expected Login payload', async ({ page }) => {
+
+        const requestPromise = page.waitForRequest(request =>
+            request.method() === 'POST' && request.url().includes('/api/auth/login')
+        );
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+
+        const loginBtn = page.locator('form button[type="submit"]')
+
+        // press button
+        await loginBtn.click();
+        const requestData = await requestPromise;
+        const actualPayload = requestData.postDataJSON();
+
+        expect(actualPayload).toEqual({ email: testUser.email, password: testUser.password })
+    });
+
 });
 
 test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register', () => {
