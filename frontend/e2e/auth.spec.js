@@ -156,6 +156,13 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
+    test('Scenario E: User Empty password', async ({ page }) => {
+        await page.getByLabel(/email/i).fill(testUser.email)
+        await page.getByRole('button', { name: /login/i }).click()
+
+        await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
+    });
+
     test('Scenario F: User will be redirected to register Page after clicking on Register', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /Log in/i })
         expect(loginHeader).toBeVisible();
