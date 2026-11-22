@@ -49,17 +49,12 @@ const login = async (req, res, next) => {
 
     const { accessToken, refreshToken } = SignToken(user._id, user.role);
 
-    let activeToken = user.refreshTokens;
+    const update = { $push: { refreshTokens: refreshToken } };
 
     if (req.cookies?.refreshToken)
-      activeToken = activeToken.filter(
-        (token) => token !== req.cookies.refreshToken,
-      );
+      update.$pull = { refreshTokens: req.cookies.refreshToken };
 
-    activeToken.push(refreshToken);
-
-    user.refreshTokens = activeToken;
-    await user.save({ validateBeforeSave: false });
+    await User.updateOne({ _id: user._id }, update, { runValidators: false });
 
     setRefreshCookie(res, refreshToken);
 

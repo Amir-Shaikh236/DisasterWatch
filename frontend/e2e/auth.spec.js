@@ -210,6 +210,41 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
+    test('Scenario: Login server failure shows an error and re-enables the button', async ({ page }) => {
+        await page.route('**/api/auth/login', async route => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                headers: {
+                    'Access-Control-Allow-Origin': 'http://localhost:5173',
+                    'Access-Control-Allow-Credentials': 'true',
+                },
+                body: JSON.stringify({
+                    status: 'error',
+                    message: 'Login service is temporarily unavailable',
+                }),
+            });
+        });
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+
+        const loginBtn = page.locator('form button[type="submit"]')
+        const responsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/login')
+        );
+
+        await loginBtn.click()
+        await expect(loginBtn).toBeDisabled();
+
+        const response = await responsePromise;
+        expect(response.status()).toBe(500);
+
+        await expect(page.getByText(/Login service is temporarily unavailable/i)).toBeVisible({ timeout: 5000 });
+        await expect(loginBtn).toBeEnabled();
+    });
+
     test('Scenario: API request contains the expected Login payload', async ({ page }) => {
 
         const requestPromise = page.waitForRequest(request =>
@@ -228,6 +263,29 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         const actualPayload = requestData.postDataJSON();
 
         expect(actualPayload).toEqual({ email: testUser.email, password: testUser.password })
+    });
+
+    test('Scenario: Reloading Page must not lose Valid Session', async ({ page }) => {
+
+        await page.getByLabel(/email/i).fill(testUser.email)
+
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+
+        const loginBtn = page.locator('form button[type="submit"]')
+        await loginBtn.click();
+
+        await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
+
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
+
+        await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
+
+        const activeCookies = await page.evaluate(() => document.cookie);
+        expect(activeCookies).not.toContain('refreshToken=');
+
+        await page.reload();
+        await expect(page).toHaveURL(/\/dashboard$/);
+
     });
 
 });
