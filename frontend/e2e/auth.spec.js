@@ -689,10 +689,27 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             lastName: 'User',
         };
 
-        await request.post(`${backendBaseURL}/api/auth/register`, {
+        const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
             data: testUser,
             failOnStatusCode: false,
         });
+
+        if (registerResponse.status() === 201) {
+            const { accessToken } = await registerResponse.json();
+            await request.post(`${backendBaseURL}/api/auth/user/update`, {
+                data: {
+                    notification: true,
+                    location: {
+                        type: 'Point',
+                        coordinates: [72.8777, 19.076],
+                        address: 'Mumbai, India',
+                    },
+                    token: 'e2e-fcm-token',
+                },
+                headers: { Authorization: `Bearer ${accessToken}` },
+                failOnStatusCode: false,
+            });
+        }
     });
 
     test.afterAll(async ({ request }) => {
@@ -734,6 +751,26 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
         await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
         await expect(page.getByRole('switch')).toBeVisible()
+    });
+
+    test('Disables notification sharing with the location-sharing switch', async ({ page }) => {
+        const settingLink = page.getByRole('link', { name: 'Setting' })
+        await expect(settingLink).toBeVisible();
+        await settingLink.click()
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+
+        const notificationSwitch = page.getByRole('switch')
+        await expect(notificationSwitch).toBeVisible()
+
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible()
+
+        await notificationSwitch.click()
+
+        await expect(page.getByText(/Sharing Disabled/i)).toBeVisible()
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
     });
 
 })
