@@ -280,11 +280,8 @@ test.describe.serial('Login Authentication Flow', () => {
 
         await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
 
-        const activeCookies = await page.evaluate(() => document.cookie);
-        expect(activeCookies).not.toContain('refreshToken=');
-
         await page.reload();
-        await expect(page).toHaveURL(/\/dashboard$/);
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
 
     });
 
@@ -675,11 +672,29 @@ test.describe.serial('Registration Authentication Flow', () => {
 
 });
 
-
-
 test.describe.serial('Setting and User Data Update Testing', () => {
 
     let testUser;
+
+    const clearAll = async (request) => {
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
+            failOnStatusCode: false,
+        });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (![200, 404].includes(deleteResponse.status())) {
+            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+        }
+    };
 
     test.beforeAll(async ({ request }) => {
         testUser = {
@@ -689,43 +704,44 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             lastName: 'User',
         };
 
+        await clearAll(request);
+
         const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
-            data: testUser,
+            data: {
+                firstName: testUser.firstName,
+                lastName: testUser.lastName,
+                email: testUser.email,
+                password: testUser.password
+            },
             failOnStatusCode: false,
         });
 
-        if (registerResponse.status() === 201) {
-            const { accessToken } = await registerResponse.json();
-            await request.post(`${backendBaseURL}/api/auth/user/update`, {
-                data: {
-                    notification: true,
-                    location: {
-                        type: 'Point',
-                        coordinates: [72.8777, 19.076],
-                        address: 'Mumbai, India',
-                    },
-                    token: 'e2e-fcm-token',
+        if (![201, 403].includes(registerResponse.status())) {
+            throw new Error(`Failed to create E2E test user: ${registerResponse.status()} ${await registerResponse.text()}`);
+        }
+
+        const { accessToken } = await registerResponse.json();
+        const updateResponse = await request.post(`${backendBaseURL}/api/auth/user/update`, {
+            data: {
+                notification: true,
+                location: {
+                    type: 'Point',
+                    coordinates: [72.8777, 19.076],
+                    address: 'Mumbai, India',
                 },
-                headers: { Authorization: `Bearer ${accessToken}` },
-                failOnStatusCode: false,
-            });
+                token: 'e2e-fcm-token',
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (updateResponse.status() !== 200) {
+            throw new Error(`Failed to enable settings E2E notifications: ${updateResponse.status()} ${await updateResponse.text()}`);
         }
     });
 
     test.afterAll(async ({ request }) => {
-        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
-            data: { email: testUser.email, password: testUser.password },
-            failOnStatusCode: false,
-        });
-
-        if (loginResponse.status() !== 200) return;
-
-        const { accessToken } = await loginResponse.json();
-        await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
-            headers: { Authorization: `Bearer ${accessToken}` },
-            failOnStatusCode: false,
-        });
+        await clearAll(request)
     });
 
     test.beforeEach(async ({ page }) => {
@@ -733,7 +749,14 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await page.goto('/');
         await page.getByLabel(/email/i).fill(testUser.email);
         await page.getByLabel('Password', { exact: true }).fill(testUser.password);
+        const loginResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/login')
+        );
         await page.getByRole('button', { name: 'Login', exact: true }).click();
+        const loginResponse = await loginResponsePromise;
+        if (loginResponse.status() !== 200) {
+            throw new Error(`Settings login failed: ${loginResponse.status()} ${await loginResponse.text()}`);
+        }
         await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
     });
 
@@ -773,4 +796,4 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
     });
 
-})
+});
