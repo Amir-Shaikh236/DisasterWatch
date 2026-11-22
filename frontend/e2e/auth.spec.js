@@ -623,6 +623,44 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         expect(actualPayload).not.toHaveProperty('confirmPassword');
     });
 
+    test('Scenario: Registration server failure shows an error and re-enables the button', async ({ page }) => {
+        await page.route('**/api/auth/register', async route => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                headers: {
+                    'Access-Control-Allow-Origin': 'http://localhost:5173',
+                    'Access-Control-Allow-Credentials': 'true',
+                },
+                body: JSON.stringify({
+                    status: 'error',
+                    message: 'Registration service is temporarily unavailable',
+                }),
+            });
+        });
+
+        await page.getByLabel('First Name').fill(testUser.firstName)
+        await page.getByLabel('Last Name').fill(testUser.lastName)
+        await page.getByLabel(/email/i).fill(testUser.email)
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password)
+        await page.getByLabel(/confirm password/i).fill(testUser.password)
+
+        const registerBtn = page.locator('form button[type="submit"]')
+        const responsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/register')
+        );
+
+        await registerBtn.click()
+        await expect(registerBtn).toBeDisabled();
+
+        const response = await responsePromise;
+        expect(response.status()).toBe(500);
+
+        await expect(page.getByText(/Registration service is temporarily unavailable/i)).toBeVisible({ timeout: 5000 });
+        await expect(registerBtn).toBeEnabled();
+    });
+
     test('Scenario F: User will be redirected to Login Page after clicking on Login', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /create your account/i })
         expect(loginHeader).toBeVisible();
