@@ -3,7 +3,7 @@
 import { expect, request, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
-test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', () => {
+test.describe.serial('Login Authentication Flow', () => {
 
     let testUser;
 
@@ -81,7 +81,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         });
     });
 
-    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('logs in successfully and redirects to the dashboard', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email)
@@ -109,7 +109,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
-    test('Scenario B: User Submits incorrect credentials and encounters real API rejection.', async ({ page }) => {
+    test('rejects incorrect credentials and keeps the login button enabled', async ({ page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
         await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io')
@@ -128,7 +128,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('Scenario C: User Submits Invalid Email Format', async ({ page }) => {
+    test('shows a validation error for an invalid email format', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill('wrong.userdisasterWatch.io')
         await page.getByLabel(/password/i).fill('InvalidPassowrd123!')
@@ -140,7 +140,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('Scenario D: User Submits Empty Email Field', async ({ page }) => {
+    test('shows a validation error when the email field is empty', async ({ page }) => {
         await page.getByLabel(/email/i).fill('')
         await page.getByLabel(/password/i).fill('SecurePassword123!')
         await page.getByRole('button', { name: /login/i }).click()
@@ -148,7 +148,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
     });
 
-    test('Scenario E: User will see the error for missing length of password', async ({ page }) => {
+    test('shows a validation error for a password shorter than eight (8) characters', async ({ page }) => {
         await page.getByLabel(/email/i).fill(testUser.email)
         await page.getByLabel(/password/i).fill('secu')
         await page.getByRole('button', { name: /login/i }).click()
@@ -156,14 +156,14 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
-    test('Scenario E: User Empty password', async ({ page }) => {
+    test('shows a validation error when the password is empty', async ({ page }) => {
         await page.getByLabel(/email/i).fill(testUser.email)
         await page.getByRole('button', { name: /login/i }).click()
 
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
-    test('Scenario F: User will be redirected to register Page after clicking on Register', async ({ page }) => {
+    test('navigates from the login page to the registration page', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /Log in/i })
         expect(loginHeader).toBeVisible();
 
@@ -175,7 +175,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
-    test('Scenario G: Login button must be disabled while request is processing', async ({ page }) => {
+    test('disables the login button while authentication is processing', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill(testUser.email)
 
@@ -189,7 +189,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('Scenario F: prevent Double request on double Click', async ({ page }) => {
+    test('sends only one login request after a double click', async ({ page }) => {
 
         let loginRequests = 0;
 
@@ -210,7 +210,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
     });
 
-    test('Scenario: Login server failure shows an error and re-enables the button', async ({ page }) => {
+    test('shows a server error and re-enables the login button', async ({ page }) => {
         await page.route('**/api/auth/login', async route => {
             await new Promise(resolve => setTimeout(resolve, 500));
             await route.fulfill({
@@ -245,7 +245,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         await expect(loginBtn).toBeEnabled();
     });
 
-    test('Scenario: API request contains the expected Login payload', async ({ page }) => {
+    test('sends the expected email and password in the login request', async ({ page }) => {
 
         const requestPromise = page.waitForRequest(request =>
             request.method() === 'POST' && request.url().includes('/api/auth/login')
@@ -265,7 +265,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
         expect(actualPayload).toEqual({ email: testUser.email, password: testUser.password })
     });
 
-    test('Scenario: Reloading Page must not lose Valid Session', async ({ page }) => {
+    test('preserves a valid login session after reloading the dashboard', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill(testUser.email)
 
@@ -290,7 +290,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Login', ()
 
 });
 
-test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register', () => {
+test.describe.serial('Registration Authentication Flow', () => {
 
     let testUser;
 
@@ -341,7 +341,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         });
     });
 
-    test('Scenario A: Successful Authentication, deep-link routing redirection and cookie defense verification', async ({ page }) => {
+    test('registers successfully and redirects to the dashboard', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -375,7 +375,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario B: First Name is required field so user must get an error', async ({ page }) => {
+    test('shows an error when the first name is empty', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill(testUser.lastName)
 
@@ -392,7 +392,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario B: First Name Below Minimum Length', async ({ page }) => {
+    test('shows an error when the first name is below the minimum length', async ({ page }) => {
 
         await page.getByLabel('First Name').fill('Ami')
         await page.getByLabel('Last Name').fill('Amir')
@@ -400,7 +400,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario B: First Name exceeding Maximum Length', async ({ page }) => {
+    test('shows an error when the first name exceeds the maximum length', async ({ page }) => {
 
         await page.getByLabel('First Name').fill('12345678901234587')
         await page.getByLabel('Last Name').fill('Amir')
@@ -408,7 +408,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario C: Last Name is required field so user must get an error', async ({ page }) => {
+    test('shows an error when the last name is empty', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -425,7 +425,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario C: Last Name Below Minimum Length', async ({ page }) => {
+    test('shows an error when the last name is below the minimum length', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill('Ami')
         await page.getByLabel(/email/i).fill(testUser.email)
@@ -433,7 +433,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario B: Last Name exceeding Maximum Length', async ({ page }) => {
+    test('shows an error when the last name exceeds the maximum length', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill('123456789012345891')
         await page.getByLabel('First Name').fill('Amir')
@@ -441,7 +441,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario D: User must get all the required fields errors', async ({ page }) => {
+    test('shows validation errors for all empty required fields', async ({ page }) => {
 
         const registerBtn = page.locator('form button[type="submit"]')
         // press button
@@ -453,7 +453,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario E: Invalid Email Format', async ({ page }) => {
+    test('shows a validation error for an invalid registration email', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -466,7 +466,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario F: Duplicate Email Registration', async ({ page, request }) => {
+    test('rejects registration with an existing email address', async ({ page, request }) => {
 
         await request.post(`${backendBaseURL}/api/auth/register`, {
             data: {
@@ -495,7 +495,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         await expect(page.getByText(/User with this email already exist/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('Scenario F: Password Confirmation Mismatch', async ({ page }) => {
+    test('shows an error when password confirmation does not match', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -514,7 +514,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario F: Leaving empty Password Confirmation Field', async ({ page }) => {
+    test('shows an error when password confirmation is empty', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -532,7 +532,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario G: Too Short Password Length less than 8 characters', async ({ page }) => {
+    test('shows a validation error for a password shorter than eight characters', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -546,7 +546,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
 
     });
 
-    test('Scenario F: Submit button must be disabled while request is processing', async ({ page }) => {
+    test('disables the registration button while submission is processing', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -566,7 +566,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         await expect(page.getByText(/Admin User account created successfully!/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('Scenario F: prevent Duplicate Registration on double Click', async ({ page }) => {
+    test('sends only one registration request after a double click', async ({ page }) => {
 
         let registrationRequests = 0;
 
@@ -597,7 +597,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         expect(registrationRequests).toBe(1);
     });
 
-    test('Scenario: API request contains the expected registration payload', async ({ page }) => {
+    test('sends the expected registration fields in the request payload', async ({ page }) => {
 
         const requestPromise = page.waitForRequest(request =>
             request.method() === 'POST' && request.url().includes('/api/auth/register')
@@ -623,7 +623,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         expect(actualPayload).not.toHaveProperty('confirmPassword');
     });
 
-    test('Scenario: Registration server failure shows an error and re-enables the button', async ({ page }) => {
+    test('shows a server error and re-enables the registration button', async ({ page }) => {
         await page.route('**/api/auth/register', async route => {
             await new Promise(resolve => setTimeout(resolve, 500));
             await route.fulfill({
@@ -661,7 +661,7 @@ test.describe.serial('End-To-End EnterPrise Authentication Gateway Of Register',
         await expect(registerBtn).toBeEnabled();
     });
 
-    test('Scenario F: User will be redirected to Login Page after clicking on Login', async ({ page }) => {
+    test('navigates from the registration page to the login page', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /create your account/i })
         expect(loginHeader).toBeVisible();
 
