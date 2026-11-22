@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { expect, request, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 test.describe.serial('Login Authentication Flow', () => {
@@ -674,3 +674,66 @@ test.describe.serial('Registration Authentication Flow', () => {
     });
 
 });
+
+
+
+test.describe.serial('Setting and User Data Update Testing', () => {
+
+    let testUser;
+
+    test.beforeAll(async ({ request }) => {
+        testUser = {
+            email: `e2e.settings.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            password: 'SecurePassword123!',
+            firstName: 'Admin',
+            lastName: 'User',
+        };
+
+        await request.post(`${backendBaseURL}/api/auth/register`, {
+            data: testUser,
+            failOnStatusCode: false,
+        });
+    });
+
+    test.afterAll(async ({ request }) => {
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
+            failOnStatusCode: false,
+        });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto('/');
+        await page.getByLabel(/email/i).fill(testUser.email);
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password);
+        await page.getByRole('button', { name: 'Login', exact: true }).click();
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
+    });
+
+    test('Verifying Setting Component with all interactive fields', async ({ page }) => {
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
+
+        await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+
+        const settingLink = page.getByRole('link', { name: 'Setting' })
+        await expect(settingLink).toBeVisible();
+
+        await settingLink.click()
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+        await expect(page.getByRole('switch')).toBeVisible()
+    });
+
+})
