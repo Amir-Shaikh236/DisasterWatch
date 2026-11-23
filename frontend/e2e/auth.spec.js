@@ -30,7 +30,7 @@ test.describe.serial('Login Authentication Flow', () => {
     test.beforeAll(async ({ request }) => {
 
         testUser = {
-            email: `e2e.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            email: `e2e.login.${test.info().project.name}.${test.info().workerIndex}.${Date.now()}@disasterwatch.io`,
             password: 'SecurePassword123!',
             firstName: 'Admin',
             lastName: 'User'
@@ -203,9 +203,13 @@ test.describe.serial('Login Authentication Flow', () => {
 
         const loginBtn = page.locator('form button[type="submit"]')
 
-        // press button
+        const responsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/login')
+        );
         await loginBtn.dblclick()
-        await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
+        const loginResponse = await responsePromise;
+        expect(loginResponse.status()).toBe(200);
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
         expect(loginRequests).toBe(1);
 
     });
@@ -314,7 +318,7 @@ test.describe.serial('Registration Authentication Flow', () => {
     test.beforeAll(async ({ request }) => {
 
         testUser = {
-            email: `e2e.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            email: `e2e.registration.${test.info().project.name}.${test.info().workerIndex}.${Date.now()}@disasterwatch.io`,
             password: 'SecurePassword123!',
             firstName: 'Admin',
             lastName: 'User'
@@ -674,6 +678,8 @@ test.describe.serial('Registration Authentication Flow', () => {
 
 test.describe.serial('Setting and User Data Update Testing', () => {
 
+    let settingsAccessToken;
+
     let testUser;
 
     const clearAll = async (request) => {
@@ -698,7 +704,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
 
     test.beforeAll(async ({ request }) => {
         testUser = {
-            email: `e2e.settings.${test.info().project.name}.${test.info().workerIndex}@disasterwatch.io`,
+            email: `e2e.settings.${test.info().project.name}.${test.info().workerIndex}.${Date.now()}@disasterwatch.io`,
             password: 'SecurePassword123!',
             firstName: 'Admin',
             lastName: 'User',
@@ -720,7 +726,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             throw new Error(`Failed to create E2E test user: ${registerResponse.status()} ${await registerResponse.text()}`);
         }
 
-        const { accessToken } = await registerResponse.json();
+        settingsAccessToken = (await registerResponse.json()).accessToken;
         const updateResponse = await request.post(`${backendBaseURL}/api/auth/user/update`, {
             data: {
                 notification: true,
@@ -731,7 +737,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
                 },
                 token: 'e2e-fcm-token',
             },
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: { Authorization: `Bearer ${settingsAccessToken}` },
             failOnStatusCode: false,
         });
 
@@ -744,7 +750,25 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await clearAll(request)
     });
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, request }) => {
+        const resetResponse = await request.post(`${backendBaseURL}/api/auth/user/update`, {
+            data: {
+                notification: true,
+                location: {
+                    type: 'Point',
+                    coordinates: [72.8777, 19.076],
+                    address: 'Mumbai, India',
+                },
+                token: 'e2e-fcm-token',
+            },
+            headers: { Authorization: `Bearer ${settingsAccessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (resetResponse.status() !== 200) {
+            throw new Error(`Failed to reset settings E2E notifications: ${resetResponse.status()} ${await resetResponse.text()}`);
+        }
+
         await page.context().clearCookies();
         await page.goto('/');
         await page.getByLabel(/email/i).fill(testUser.email);
@@ -794,6 +818,61 @@ test.describe.serial('Setting and User Data Update Testing', () => {
 
         await expect(page.getByText(/Sharing Disabled/i)).toBeVisible()
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+    });
+
+    test('Enables notification sharing with the location-sharing switch', async ({ page, context }) => {
+        await context.grantPermissions(['geolocation', 'notifications'], {
+            origin: 'http://localhost:5173'
+        });
+
+        await context.setGeolocation({
+            latitude: 19.076,
+            longitude: 72.8777
+        });
+
+        await page.evaluate(() => {
+            window.__DISASTERWATCH_E2E__ = {
+                notificationToken: 'e2e-fcm-token',
+                gpsLocation: {
+                    latitude: 19.076,
+                    longitude: 72.8777,
+                    address: 'Mumbai, India',
+                },
+            };
+        });
+
+        await page.route('**/api/auth/user/update', async route => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                headers: {
+                    'Access-Control-Allow-Origin': 'http://localhost:5173',
+                    'Access-Control-Allow-Credentials': 'true',
+                },
+                body: JSON.stringify({
+                    status: 'success',
+                    notification: true,
+                }),
+            });
+        });
+
+        const settingLink = page.getByRole('link', { name: 'Setting' })
+        await expect(settingLink).toBeVisible();
+        await settingLink.click()
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+
+        const notificationSwitch = page.getByRole('switch')
+        await expect(notificationSwitch).toBeVisible()
+
+        await notificationSwitch.click()
+        await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+
+        await notificationSwitch.click()
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
     });
 
 });

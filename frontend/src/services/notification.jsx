@@ -26,7 +26,9 @@ export const requestNotificationPermission = async () => {
 
         return token;
 
-    } catch {
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to enable notifications.";
+        toast.error(message);
         return null;
 
     }

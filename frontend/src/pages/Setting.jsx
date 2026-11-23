@@ -16,13 +16,15 @@ export default function Setting() {
     const sharingEnabled = Boolean(user?.notification);
 
     const enableNotification = async () => {
-        const token = await requestNotificationPermission();
+        const testOverrides = import.meta.env.DEV ? window.__DISASTERWATCH_E2E__ : null;
+
+        const token = testOverrides?.notificationToken || await requestNotificationPermission();
 
         if (!token) throw new Error("Notification permission was denied.");
 
         let location;
         try {
-            const gpsLocation = await GPSLocation();
+            const gpsLocation = testOverrides?.gpsLocation || await GPSLocation();
 
             if (!gpsLocation) throw new Error('Location access is required to enable proximity alerts.');
 
@@ -71,8 +73,8 @@ export default function Setting() {
             }
             setUser({ ...user, notification: checked });
 
-        } catch {
-            toast.message('Location Access is Required!');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Location sharing could not be enabled.');
 
         } finally {
             setLoading(false);
