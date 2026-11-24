@@ -1,6 +1,24 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging } from 'firebase/messaging'
 
+const requiredEnvironmentVariables = [
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_STORAGE_BUCKET',
+    'VITE_FIREBASE_MESSAGING_SENDER_ID',
+    'VITE_FIREBASE_APP_ID',
+    'VITE_FIREBASE_VAPID_KEY',
+];
+
+const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
+    (name) => !import.meta.env[name]
+);
+
+if (missingEnvironmentVariables.length > 0) {
+    throw new Error(`Missing Firebase environment variables: ${missingEnvironmentVariables.join(', ')}`);
+}
+
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -8,6 +26,7 @@ const firebaseConfig = {
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);

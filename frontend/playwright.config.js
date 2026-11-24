@@ -33,6 +33,10 @@ export default defineConfig({
 
     use: {
         baseURL: targetBaseUrl,
+        extraHTTPHeaders: {
+            'x-e2e-bypass-secret':
+                process.env.E2E_BYPASS_SECRET || 'e2e-test-bypass',
+        },
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
