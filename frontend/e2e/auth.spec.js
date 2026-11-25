@@ -811,8 +811,8 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         const notificationSwitch = page.getByRole('switch')
         await expect(notificationSwitch).toBeVisible()
 
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
         await expect(page.getByText(/Sharing Enabled/i)).toBeVisible()
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
 
         await notificationSwitch.click()
 
@@ -841,21 +841,6 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             };
         });
 
-        await page.route('**/api/auth/user/update', async route => {
-            await route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                headers: {
-                    'Access-Control-Allow-Origin': 'http://localhost:5173',
-                    'Access-Control-Allow-Credentials': 'true',
-                },
-                body: JSON.stringify({
-                    status: 'success',
-                    notification: true,
-                }),
-            });
-        });
-
         const settingLink = page.getByRole('link', { name: 'Setting' })
         await expect(settingLink).toBeVisible();
         await settingLink.click()
@@ -871,8 +856,8 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
 
         await notificationSwitch.click()
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
         await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
 });
