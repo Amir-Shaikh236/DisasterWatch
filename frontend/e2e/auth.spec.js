@@ -860,4 +860,48 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
+    test('Switch (Enabled/Disabled) persist across page reloads', async ({ page, context }) => {
+        await context.grantPermissions(['geolocation', 'notifications'], {
+            origin: 'http://localhost:5173'
+        });
+
+        await context.setGeolocation({
+            latitude: 19.076,
+            longitude: 72.8777
+        });
+
+        await page.evaluate(() => {
+            window.__DISASTERWATCH_E2E__ = {
+                notificationToken: 'e2e-fcm-token',
+                gpsLocation: {
+                    latitude: 19.076,
+                    longitude: 72.8777,
+                    address: 'Mumbai, India',
+                },
+            };
+        });
+
+        const settingLink = page.getByRole('link', { name: 'Setting' })
+        await expect(settingLink).toBeVisible();
+        await settingLink.click()
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+
+        const notificationSwitch = page.getByRole('switch')
+        await expect(notificationSwitch).toBeVisible()
+
+        await notificationSwitch.click()
+        await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+
+        await notificationSwitch.click()
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
+
+        await page.reload();
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
+    });
+
 });
