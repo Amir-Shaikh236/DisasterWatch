@@ -907,4 +907,78 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
+    test('sends location coordinates when enabling location sharing', async ({ page, context }) => {
+
+        const requestPromise = page.waitForRequest(request =>
+            request.method() === 'POST' &&
+            request.url().includes('/api/auth/user/update') &&
+            request.postDataJSON()?.notification === true
+        );
+
+        await context.grantPermissions(['geolocation', 'notifications'], {
+            origin: 'http://localhost:5173'
+        });
+
+        await context.setGeolocation({
+            latitude: 24.076,
+            longitude: 84.8777
+        });
+
+        await page.evaluate(() => {
+            window.__DISASTERWATCH_E2E__ = {
+                notificationToken: 'e2e-fcm-token',
+                gpsLocation: {
+                    latitude: 24.076,
+                    longitude: 84.8777,
+                    address: 'Mumbai, India',
+                },
+            };
+        });
+
+        await page.route('**/api/auth/user/update', async route => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                headers: {
+                    'Access-Control-Allow-Origin': 'http://localhost:5173',
+                    'Access-Control-Allow-Credentials': 'true',
+                },
+                body: JSON.stringify({
+                    status: 'success',
+                    notification: true,
+                }),
+            });
+        });
+
+        const settingLink = page.getByRole('link', { name: 'Setting' })
+        await expect(settingLink).toBeVisible();
+        await settingLink.click()
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+
+        const notificationSwitch = page.getByRole('switch')
+        await expect(notificationSwitch).toBeVisible()
+
+        await notificationSwitch.click()
+        await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+
+        await notificationSwitch.click()
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
+
+        const postData = await requestPromise;
+        const { token, notification, location } = postData.postDataJSON();
+
+        expect(token).toBe('e2e-fcm-token');
+        expect(notification).toBe(true);
+        expect(location).toEqual({
+            type: 'Point',
+            coordinates: [84.8777, 24.076],
+            address: 'Mumbai, India',
+        });
+
+    });
+
 });
