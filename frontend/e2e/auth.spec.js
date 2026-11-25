@@ -894,9 +894,16 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         const notificationSwitch = page.getByRole('switch')
         await expect(notificationSwitch).toBeVisible()
 
-        await notificationSwitch.click()
-        await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', /^(true|false)$/)
+        if (await notificationSwitch.getAttribute('aria-checked') === 'true') {
+            await notificationSwitch.click()
+            await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
+            await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+
+            await page.reload();
+            await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
+            await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+        }
 
         await notificationSwitch.click()
         await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
