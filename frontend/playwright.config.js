@@ -27,7 +27,7 @@ export default defineConfig({
     // Fail the build on CI if you accidentally left test.only in the source code
     forbidOnly: isCI,
 
-    workers: isCI ? 1 : undefined,
+    workers: isCI ? 3 : undefined,
     retries: 0,
     reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
 
