@@ -750,17 +750,20 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await clearAll(request)
     });
 
-    test.beforeEach(async ({ page, request }) => {
+    test.beforeEach(async ({ page, request }, testInfo) => {
+        const shouldStartEnabled = !testInfo.title.startsWith('Enables notification sharing');
         const resetResponse = await request.post(`${backendBaseURL}/api/auth/user/update`, {
-            data: {
-                notification: true,
-                location: {
-                    type: 'Point',
-                    coordinates: [72.8777, 19.076],
-                    address: 'Mumbai, India',
-                },
-                token: 'e2e-fcm-token',
-            },
+            data: shouldStartEnabled
+                ? {
+                    notification: true,
+                    location: {
+                        type: 'Point',
+                        coordinates: [72.8777, 19.076],
+                        address: 'Mumbai, India',
+                    },
+                    token: 'e2e-fcm-token',
+                }
+                : { notification: false, location: null, token: null },
             headers: { Authorization: `Bearer ${settingsAccessToken}` },
             failOnStatusCode: false,
         });
@@ -830,16 +833,17 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             longitude: 72.8777
         });
 
-        await page.evaluate(() => {
-            window.__DISASTERWATCH_E2E__ = {
-                notificationToken: 'e2e-fcm-token',
-                gpsLocation: {
-                    latitude: 19.076,
-                    longitude: 72.8777,
-                    address: 'Mumbai, India',
-                },
-            };
-        });
+        const testOverrides = {
+            notificationToken: 'e2e-fcm-token',
+            gpsLocation: {
+                latitude: 19.076,
+                longitude: 72.8777,
+                address: 'Mumbai, India',
+            },
+        };
+        await page.evaluate(overrides => {
+            window.__DISASTERWATCH_E2E__ = overrides;
+        }, testOverrides);
 
         const settingLink = page.getByRole('link', { name: 'Setting' })
         await expect(settingLink).toBeVisible();
@@ -850,15 +854,12 @@ test.describe.serial('Setting and User Data Update Testing', () => {
 
         const notificationSwitch = page.getByRole('switch')
         await expect(notificationSwitch).toBeVisible()
-
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', /^(true|false)$/)
-        if (await notificationSwitch.getAttribute('aria-checked') === 'true') {
-            await notificationSwitch.click()
-            await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
-            await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
-        }
-
+        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
+        const updateResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/user/update') && response.status() === 200
+        );
         await notificationSwitch.click()
+        await updateResponsePromise;
         await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
@@ -873,16 +874,21 @@ test.describe.serial('Setting and User Data Update Testing', () => {
             longitude: 72.8777
         });
 
-        await page.evaluate(() => {
-            window.__DISASTERWATCH_E2E__ = {
-                notificationToken: 'e2e-fcm-token',
-                gpsLocation: {
-                    latitude: 19.076,
-                    longitude: 72.8777,
-                    address: 'Mumbai, India',
-                },
-            };
-        });
+        const testOverrides = {
+            notificationToken: 'e2e-fcm-token',
+            gpsLocation: {
+                latitude: 19.076,
+                longitude: 72.8777,
+                address: 'Mumbai, India',
+            },
+        };
+        await page.evaluate(overrides => {
+            window.__DISASTERWATCH_E2E__ = overrides;
+        }, testOverrides);
+        await page.addInitScript(overrides => {
+            window.__DISASTERWATCH_E2E__ = overrides;
+        }, testOverrides);
+
 
         const settingLink = page.getByRole('link', { name: 'Setting' })
         await expect(settingLink).toBeVisible();
