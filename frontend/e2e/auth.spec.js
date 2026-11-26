@@ -1021,3 +1021,79 @@ test.describe.serial('Settings, location sharing, and access control', () => {
     });
 
 });
+
+test.describe.serial('Logout Functionality, Verification and Session Termination', () => {
+    let testUser;
+
+    const clearAll = async (request) => {
+        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+            data: { email: testUser.email, password: testUser.password },
+            failOnStatusCode: false,
+        });
+
+        if (loginResponse.status() !== 200) return;
+
+        const { accessToken } = await loginResponse.json();
+        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+            data: { email: testUser.email },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            failOnStatusCode: false,
+        });
+
+        if (![200, 404].includes(deleteResponse.status())) {
+            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+        }
+    };
+
+    test.beforeAll(async ({ request }) => {
+
+        testUser = {
+            email: `e2e.login.${test.info().project.name}.${test.info().workerIndex}.${Date.now()}@disasterwatch.io`,
+            password: 'SecurePassword123!',
+            firstName: 'Admin',
+            lastName: 'User'
+        };
+
+        await clearAll(request);
+
+        const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
+            data: {
+                firstName: testUser.firstName,
+                lastName: testUser.lastName,
+                email: testUser.email,
+                password: testUser.password,
+            },
+
+            failOnStatusCode: false,
+        });
+
+        if (![201, 403].includes(registerResponse.status())) {
+            throw new Error(`Failed to create E2E test user: ${registerResponse.status()} ${await registerResponse.text()}`);
+        }
+    });
+
+    test.afterAll(async ({ request }) => {
+        await clearAll(request)
+    });
+
+    test.beforeEach(async ({ page }) => {
+        const loginResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/login')
+        );
+
+        await page.context().clearCookies();
+        await page.goto('/');
+
+        await page.getByLabel(/email/i).fill(testUser.email);
+        await page.getByLabel('Password', { exact: true }).fill(testUser.password);
+        await page.getByRole('button', { name: 'Login', exact: true }).click();
+
+        const loginResponse = await loginResponsePromise;
+        if (loginResponse.status() !== 200) {
+            throw new Error(`Settings login failed: ${loginResponse.status()} ${await loginResponse.text()}`);
+        }
+
+        await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
+    });
+
+});
