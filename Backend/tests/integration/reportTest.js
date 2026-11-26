@@ -115,9 +115,9 @@ const adminRegister = async (payload) => {
     return res;
 }
 
-describe('GET /api/reports/get Flow Verification', () => {
+describe('GET /api/reports/get - retrieve reports', () => {
 
-    it('Should Provide report to the owner of the report and an admin of the system', async () => {
+    it('returns reports owned by the authenticated user', async () => {
         await postReport(report);
 
         const response = await getReports();
@@ -133,7 +133,7 @@ describe('GET /api/reports/get Flow Verification', () => {
 
     });
 
-    it('Should Provide each and every reports to the Admin', async () => {
+    it('returns all reports to an admin', async () => {
         const adminRes = await adminRegister({ ...testUser, email: 'admin2@gmail.com' });
         expect(adminRes.status).toBe(201);
 
@@ -146,7 +146,7 @@ describe('GET /api/reports/get Flow Verification', () => {
         expect(getAdminReports.body.length).toBe(1)
     });
 
-    it('Should Return 404 for other users if the length of user Submitted reports is 0', async () => {
+    it('returns 404 when the user has not submitted any reports', async () => {
         await postReport(report)
         const response = await fakeUser({ ...testUser, email: 'fake@gmail.com' });
         expect(response.status).toBe(201);
@@ -159,9 +159,9 @@ describe('GET /api/reports/get Flow Verification', () => {
 
 });
 
-describe('POST /api/reports/add - Validation & Flow Verification..', () => {
+describe('POST /api/reports/add - report submission and validation', () => {
 
-    it('Should Create Report and Alert in DB when Report is verified by AI.', async () => {
+    it('creates a report and alert when AI verifies the submission', async () => {
         // Sending Request
         const response = await postReport(report);
         expect(response.status).toBe(201);
@@ -190,7 +190,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         expect(alert.media).toEqual(expect.objectContaining({}))
     });
 
-    it('Should Reject Report when user is not Authenticated', async () => {
+    it('rejects report submissions from unauthenticated users', async () => {
         const response = await request(app).post('/api/reports/add')
             .send(report).expect(401);
 
@@ -200,14 +200,14 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     });
 
-    it('Should Reject Report on Invalid DisasterType', async () => {
+    it('rejects a report with an unsupported disaster type', async () => {
         const response = await postReport({ ...report, disasterType: 'INVALID_DISASTER' });
 
         expect(response.status).toBe(400)
         expect(response.body.message).toMatch(/Invalid Disaster Type/i)
     });
 
-    it('Should Reject a Report For Not Providing Required Fields', async () => {
+    it('rejects a report when required fields are missing', async () => {
 
         const response = await postReport({
             disasterType: report.disasterType,
@@ -219,7 +219,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         expect(response.body.message).toMatch(/Please proivde: description/i);
     });
 
-    it('Should Reject a Report For Providing location longitude and latitude without array', async () => {
+    it('rejects coordinates that are not provided as an array', async () => {
 
         const response = await postReport({
             disasterType: report.disasterType,
@@ -236,7 +236,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     });
 
-    it('Should Reject a Report For Providing location, longitude and latitude within array but in string', async () => {
+    it('rejects string values in the location coordinate array', async () => {
 
         const response = await postReport({
             disasterType: report.disasterType,
@@ -253,7 +253,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
     });
 
-    it('Should Reject a Report For Providing location with out of range Coordinates', async () => {
+    it('rejects coordinates outside the valid geographic range', async () => {
 
         const response = await postReport({
             disasterType: report.disasterType,
@@ -269,7 +269,7 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
         expect(response.body.message).toMatch(/Coordinates out of valid range/i);
     });
 
-    it('Should Reject a Report for Providing Coordinates in Reverse Order', async () => {
+    it('rejects coordinates provided in latitude-longitude order', async () => {
         const response = await postReport({
             ...report, location: {
                 coordinates: [72.8311, 120],
@@ -282,9 +282,9 @@ describe('POST /api/reports/add - Validation & Flow Verification..', () => {
 
 });
 
-describe('POST /api/reports/delete/Id Flow Verification', () => {
+describe('POST /api/reports/delete/:id - delete reports', () => {
 
-    it('Should Delete Report along with assets and alerts generated By the Report', async () => {
+    it('deletes a report and its related assets and generated alerts', async () => {
         const reportRes = await postReport(report);
         expect(reportRes.status).toBe(201)
 
@@ -299,13 +299,13 @@ describe('POST /api/reports/delete/Id Flow Verification', () => {
 
     });
 
-    it('Should return 404 error for Providing Non-existed reportId', async () => {
+    it('returns 404 when the report does not exist', async () => {
         const deleteRes = await deleteReport('6ac26f166eddaf49c2de046d');
         expect(deleteRes.status).toBe(404);
         expect(deleteRes.body.message).toMatch(/Report Not Found/i);
     });
 
-    it('Should return 401 error for Because current user if Neither an admin or an owner of the report', async () => {
+    it('prevents a non-owner from deleting a report without admin privileges', async () => {
         const reportRes = await postReport(report)
         expect(reportRes.status).toBe(201);
 
@@ -318,7 +318,7 @@ describe('POST /api/reports/delete/Id Flow Verification', () => {
         expect(deleteRes.body.message).toMatch(/Access Denied, You must be owner of the report or admin to perform this action/i)
     });
 
-    it('Should Delete report with Admin Credentails ', async () => {
+    it('allows an admin to delete a report', async () => {
         const reportRes = await postReport(report)
         expect(reportRes.status).toBe(201);
 

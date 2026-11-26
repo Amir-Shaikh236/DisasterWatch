@@ -27,9 +27,9 @@ const renderComponent = () => render(
     </MemoryRouter>
 )
 
-describe("Register Presentation Layout of SignUp Page and Action verification Suite", () => {
+describe("Report submission, validation, and history", () => {
 
-    it("Should Process an User Submitted Report and create alert", async () => {
+    it("submits a valid disaster report", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -82,7 +82,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Reset Everything After hitting Reset Button", async () => {
+    it("clears the report form when reset is selected", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -139,7 +139,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Display an error while Leaving Everything empty and hit the submit button", async () => {
+    it("requires all mandatory report fields before submission", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -151,7 +151,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Display an error for not selecting Disaster Type and hit the submit button", async () => {
+    it("requires a disaster type before submission", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -178,7 +178,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Display an error for providing too short (less than 24 characters) or empty description and hit the submit button", async () => {
+    it("requires a description of at least 24 characters", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -208,7 +208,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should display an error for NOT selecting or providing location", async () => {
+    it("requires a location before submitting a report", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -228,7 +228,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should redirect user to the alert page after clicking on view Details', async () => {
+    it("navigates to alerts when a report's details are opened", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -260,7 +260,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Close the form on clicking on Cancel", async () => {
+    it("closes the report form when cancelled", async () => {
         const user = userEvent.setup();
         renderComponent()
 
@@ -277,7 +277,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should Open the Delete Dialog for report to delete (ADMIN Only Action) with proper warning', async () => {
+    it("allows an admin to review the warning before deleting a report", async () => {
         useReports.setState({
             reports: [
                 {
@@ -322,7 +322,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should Delete Report after clicking on Delete from Dialog', async () => {
+    it("deletes a report after confirmation in the dialog", async () => {
         useReports.setState({
             reports: [
                 {
@@ -371,7 +371,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should NOT Delete an alert after clicking on Cancel from Dialog and Close the dialog immediately', async () => {
+    it("closes the delete dialog without deleting the report when cancelled", async () => {
         useReports.setState({
             reports: [
                 {
@@ -420,7 +420,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should filter all the reports and display Rejected reports', async () => {
+    it("shows only rejected reports when the rejected status filter is selected", async () => {
         useReports.setState({
             reports: [
                 {
@@ -471,7 +471,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should filter all the reports and display verified reports', async () => {
+    it("shows only verified reports when the verified status filter is selected", async () => {
         useReports.setState({
             reports: [
                 {
@@ -522,7 +522,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it('Should filter all the reports after clicking on Total Reports', async () => {
+    it("shows all reports when the total reports filter is selected", async () => {
         useReports.setState({
             reports: [
                 {

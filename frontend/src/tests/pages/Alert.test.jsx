@@ -14,7 +14,7 @@ const renderComponent = () => render(
     </MemoryRouter>
 );
 
-describe("Setting Presentation Layout of Alert and Actions verification Suite", () => {
+describe("Alerts page filtering and management", () => {
     beforeEach(() => {
         useAlerts.setState({
             alerts: [
@@ -178,7 +178,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         });
     });
 
-    it("Should Display an Alert Page and perform filter actions on alerts", async () => {
+    it("renders the alerts page and applies or resets disaster and severity filters", async () => {
         const user = userEvent.setup()
         renderComponent();
 
@@ -256,7 +256,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should display Flood alerts only, after applied filter', async () => {
+    it("shows only flood alerts after applying the flood filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -284,7 +284,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should display wildFire alerts only, after applied filter', async () => {
+    it("shows only wildfire alerts after applying the wildfire filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -312,7 +312,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should display landslide alerts only, after applied filter', async () => {
+    it("shows only landslide alerts after applying the landslide filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -340,7 +340,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should display Earthquake alerts only, after applied filter', async () => {
+    it("shows only earthquake alerts after applying the earthquake filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -368,7 +368,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it("Should display all the critical alerts after selecting critical severity from filter", async () => {
+    it("shows only critical alerts after applying the critical severity filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -404,7 +404,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
     });
 
-    it("Should display all the high alerts after selecting high severity from filter", async () => {
+    it("shows only high-severity alerts after applying the high severity filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -440,7 +440,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
     });
 
-    it("Should display all the Medium alerts after selecting Medium severity from filter", async () => {
+    it("shows only medium-severity alerts after applying the medium severity filter", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -476,7 +476,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
     });
 
-    it("Should display all the Flood alerts with severity critical after applying filter", async () => {
+    it("shows only critical flood alerts when both filters are applied", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -529,7 +529,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/medium Priority/i)).not.toBeInTheDocument()
     });
 
-    it("Should display all the Wildfire alerts with severity High after applying filter", async () => {
+    it("shows only high-severity wildfire alerts when both filters are applied", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -576,7 +576,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
         expect(screen.queryByText(/critical Priority/i)).not.toBeInTheDocument()
     });
 
-    it('Should Open the Delete Dialog for alert to delete (ADMIN Only Action) with proper warning', async () => {
+    it("allows an admin to review the warning before deleting an alert", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -604,7 +604,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should Delete an alert after clicking on Delete from Dialog', async () => {
+    it("deletes an alert after confirmation in the dialog", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -636,7 +636,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should NOT Delete an alert after clicking on Cancel from Dialog and Close the dialog immediately', async () => {
+    it("closes the delete dialog without deleting the alert when cancelled", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -670,7 +670,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should filter all the Alerts and display Critical Alerts when user click on Critical Alert Card', async () => {
+    it("filters the alert list to critical alerts when the critical summary card is selected", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -695,7 +695,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should filter all the Alerts and display High Alerts when user click on High Priority Alert Card', async () => {
+    it("filters the alert list to high-severity alerts when the high-priority summary card is selected", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -720,7 +720,7 @@ describe("Setting Presentation Layout of Alert and Actions verification Suite", 
 
     });
 
-    it('Should filter all the Alerts and display All Alerts when user click on Total Alert Card', async () => {
+    it("filters the alert list to high-severity alerts when the high-priority summary card is selected again", async () => {
         const user = userEvent.setup()
         renderComponent()
 
