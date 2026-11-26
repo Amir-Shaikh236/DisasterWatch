@@ -997,4 +997,26 @@ test.describe.serial('Setting and User Data Update Testing', () => {
 
     });
 
+    test('Authorized User can Access BUT Unauthorized User Cannot Accesss Setting Page', async ({ page }) => {
+        page.goto('/setting')
+
+        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
+        await expect(page.getByRole('switch')).toBeVisible()
+
+        const MenuBtn = page.getByText(/Admin User/i)
+        await MenuBtn.click();
+
+        await expect(page.getByText(/Log Out/i)).toBeVisible();
+
+        await page.getByText(/Log Out/i).click();
+
+        // User have to Login Again to get access of the Page
+
+        page.goto('/setting')
+
+        await expect(page).not.toHaveURL(/\/setting$/)
+        await expect(page.getByRole('heading', { name: /Settings/i })).not.toBeVisible()
+    });
+
 });
