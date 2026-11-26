@@ -33,7 +33,7 @@ const testUser = {
     password: '123456789',
 }
 
-describe("POST /api/auth/register Security & Flow Verification....", () => {
+describe("POST /api/auth/register - account creation and validation", () => {
 
     beforeEach(() => clearTestDB());
 
@@ -44,7 +44,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     }
 
     // Verify with Valid Credentials
-    it("Should Register User Successfully with accessToken and refreshToken ...", async () => {
+    it("creates an account and returns access and refresh tokens", async () => {
         const response = await RegisterUser(testUser)
             .expect(201)
 
@@ -72,7 +72,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify admin role
-    it("Should ignore security sensitive fields like role during registration", async () => {
+    it("ignores a client-supplied role during registration", async () => {
         await RegisterUser({ ...testUser, role: "admin" }).expect(201)
 
         const user = await User.findOne({ email: testUser.email })
@@ -80,7 +80,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify with Duplicate Email
-    it("Should Reject and Show User already Exists....", async () => {
+    it("rejects an email address that is already registered", async () => {
         await RegisterUser(testUser)
         const response = await RegisterUser(testUser)
             .expect(403)
@@ -91,7 +91,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify with Invalid Email Format
-    it("Should Reject and Show Invalid Email Format....", async () => {
+    it("rejects an invalid email address", async () => {
         const response = await RegisterUser({
             ...testUser,
             email: 'skgmail.com',
@@ -104,7 +104,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify Email Storing Process
-    it("Should Normalize email by trimming spaces and covering to lowercase", async () => {
+    it("trims and lowercases email addresses before creating an account", async () => {
         await RegisterUser({ ...testUser, email: " Amir@gmail.com " }).expect(201)
 
         const user = await User.findOne({ email: 'amir@gmail.com' })
@@ -112,12 +112,12 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify Email Sending with NoSQL Injection
-    it("Should reject non-string query object passed as email (NoSQL Injection)", async () => {
+    it("rejects an object supplied as the email address", async () => {
         await RegisterUser({ ...testUser, email: { "$ne": "" } }).expect(400)
     });
 
     // Verify First Name as a number instead of String
-    it("Should Reject and Show FirstName must be String Error....", async () => {
+    it("rejects a first name that is not a string", async () => {
         const response = await RegisterUser({
             ...testUser,
             firstName: 123456789,
@@ -130,7 +130,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify too Long characters in FirstName
-    it("Should Reject and Show FirstName exceeds characters....", async () => {
+    it("rejects a first name that exceeds the maximum length", async () => {
         const response = await RegisterUser({
             ...testUser,
             firstName: 'AmirShaikh-MohammedAmer',
@@ -143,7 +143,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // verify leaving Password field empty
-    it("Should Reject and throw an error for Password Required....", async () => {
+    it("requires a password during registration", async () => {
         const response = await RegisterUser({
             ...testUser,
             password: " "
@@ -156,13 +156,13 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
     });
 
     // Verify Password Length
-    it("Should Reject Password shorter than minimum length Requirement", async () => {
+    it("rejects a password shorter than the minimum length", async () => {
         const response = await RegisterUser({ ...testUser, password: '1234' }).expect(400)
         expect(response.body.message).toMatch(/Password must be atleast 8 characters/i)
     });
 
     // Verify Password hashing
-    it("Should Verify is Password Properly Hashed or Not....", async () => {
+    it("stores the password as a hash rather than plain text", async () => {
         const response = await RegisterUser(testUser)
             .expect(201)
 
@@ -176,7 +176,7 @@ describe("POST /api/auth/register Security & Flow Verification....", () => {
 
 });
 
-describe("POST /api/auth/login Security & Flow Verification..", () => {
+describe("POST /api/auth/login - authentication", () => {
 
     beforeEach(async () => {
         await clearTestDB();
@@ -191,7 +191,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         return request(app).post('/api/auth/login').send(payload)
     }
 
-    it("Should issue an accessToken and a secure HttpOnly refreshToken cookie upon valid credentials", async () => {
+    it("returns an access token and sets a secure HttpOnly refresh-token cookie", async () => {
         const response = await LoginUser({ email: testUser.email, password: testUser.password })
             .expect(200)
 
@@ -215,12 +215,12 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(setCookieHeader[0]).toMatch(/SameSite=Strict/i);
     });
 
-    it("Should Reject login Because of Empty Fields (Email AND Password)", async () => {
+    it("rejects login when the email and password are missing", async () => {
         const response = await LoginUser({}).expect(400)
         expect(response.body.message).toMatch(/please enter email and password/i)
     });
 
-    it("should reject login attempts with invalid password and return 401 without leaking user existence", async () => {
+    it("returns the same unauthorized response for an incorrect password", async () => {
         const response = await LoginUser({ email: testUser.email, password: "@Wrongpassword" })
             .expect(401);
 
@@ -229,7 +229,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
         expect(response.headers["set-cookie"]).toBeUndefined();
     });
 
-    it("should reject login attempts with invalid email and return 401 without leaking user existence", async () => {
+    it("returns the same unauthorized response for an unknown email address", async () => {
         const response = await LoginUser({ email: 'wrong@email.com', password: testUser.password })
             .expect(401);
 
@@ -240,7 +240,7 @@ describe("POST /api/auth/login Security & Flow Verification..", () => {
 
 });
 
-describe("POST /api/auth/user/update Data Consistency and Availability Check", () => {
+describe("POST /api/auth/user/update - profile updates", () => {
 
     let accessToken;
     beforeEach(async () => {
@@ -267,7 +267,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         },
     }
 
-    it("Should Update User Data Successfully with a valid token ", async () => {
+    it("updates profile data for an authenticated user", async () => {
         const response = await UpdateUser({ ...userData, token: accessToken })
             .expect(200);
 
@@ -280,7 +280,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
 
     });
 
-    it('Should Update the User with empty Data when Notification is set to false', async () => {
+    it('clears notification data when notifications are disabled', async () => {
         const response = await UpdateUser({ ...userData, notification: false })
             .expect(200)
 
@@ -293,13 +293,13 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         expect(user.fcmTokens).toStrictEqual([])
     });
 
-    it('Should not Update User Data for not providing token (fcmToken)', async () => {
+    it('does not save a notification token when none is provided', async () => {
         const response = await UpdateUser({ ...userData, token: '' }).expect(400);
 
         expect(response.body.message).toMatch(/FCM token is required for notification to be enabled/i);
     });
 
-    it('Should not Update User Data for providing an  unformatted or invalid location', async () => {
+    it('rejects an invalid or incorrectly formatted location', async () => {
         const response = await UpdateUser({
             ...userData, token: accessToken, location: {
                 type: 'Point',
@@ -311,7 +311,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
         expect(response.body.message).toMatch(/Coordinates must contain valid numbers/i)
     });
 
-    it('Should not Update User Data While Passing Invalid Data', async () => {
+    it('rejects invalid profile data', async () => {
         const response = await UpdateUser({ ...userData, token: accessToken, location: '' })
             .expect(400);
 
@@ -321,7 +321,7 @@ describe("POST /api/auth/user/update Data Consistency and Availability Check", (
 
 });
 
-describe('POST /api/auth/logout Security and Workflow', () => {
+describe('POST /api/auth/logout - session termination', () => {
     beforeEach(async () => {
         await clearTestDB();
 
@@ -331,7 +331,7 @@ describe('POST /api/auth/logout Security and Workflow', () => {
 
     });
 
-    it('Should Logout properly By clearing refreshToken from Cookies', async () => {
+    it('logs out and clears the refresh-token cookie', async () => {
         const response = await request(app).post('/api/auth/login').send({ email: testUser.email, password: testUser.password });
         expect(response.status).toBe(200);
         expect(response.body.status).toMatch(/success/i)
@@ -361,7 +361,7 @@ describe('POST /api/auth/logout Security and Workflow', () => {
         expect(updatedUser.refreshTokens.length).toBe(0)
     });
 
-    it('Should Show 401 Error because the user is unauthorized or have an expired token', async () => {
+    it('rejects logout requests with a missing or expired access token', async () => {
         const response = await request(app)
             .post('/api/auth/login')
             .send({ email: testUser.email, password: testUser.password });
@@ -374,7 +374,7 @@ describe('POST /api/auth/logout Security and Workflow', () => {
         expect(res.body.message).toMatch(/Access Denied, Authorization token missing or invalid format/i);
     });
 
-    it('Should show 401 Error for not providing refreshToken of user causing unauthorized', async () => {
+    it('returns an unauthorized response when no refresh token is provided', async () => {
         const response = await request(app)
             .post('/api/auth/login')
             .send({ email: testUser.email, password: testUser.password });
@@ -389,7 +389,7 @@ describe('POST /api/auth/logout Security and Workflow', () => {
 
 });
 
-describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', () => {
+describe('POST /api/auth/refreshToken - token renewal and reuse detection', () => {
     beforeEach(async () => {
         await clearTestDB();
 
@@ -403,7 +403,7 @@ describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', (
         return request(app).post('/api/auth/login').send(payload)
     }
 
-    it("should detect Compromised token reuse and wipe all user refresh sessions", async () => {
+    it("detects refresh-token reuse and revokes the user's refresh sessions", async () => {
 
         // Step 1: Login to generate a valid refresh token
         const loginRes = await LoginUser({ email: testUser.email, password: testUser.password })
@@ -427,14 +427,14 @@ describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', (
         expect(compromisedUser.refreshTokens.length).toBe(0);
     });
 
-    it('Should return 401 error for not providing token', async () => {
+    it('rejects a refresh request when no token is provided', async () => {
         await LoginUser({ email: testUser.email, password: testUser.password }).expect(200);
 
         const response = await request(app).post('/api/auth/refresh').expect(401);
         expect(response.body.message).toMatch(/Authentication token missing/i);
     });
 
-    it('Shoud return 403 error for providing expired token which user already used and logged Out', async () => {
+    it('rejects a refresh token that has already been revoked', async () => {
         const loginRes = await LoginUser({ email: testUser.email, password: testUser.password });
 
         const token = loginRes.headers['set-cookie'][0];
@@ -453,7 +453,7 @@ describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', (
         expect(expiredRes.body.message).toMatch(/Compromised token usage detected.*/i)
     });
 
-    it('Should return 403 error for providing wrong refresh Token', async () => {
+    it('rejects an invalid refresh token', async () => {
         const wrongRefreshToken = 'refreshToken=not-a-valid-refresh-token';
         const expiredRes = await request(app)
             .post('/api/auth/refresh')
@@ -466,7 +466,7 @@ describe('POST /api/auth/refreshToken Flow and Comprised token reuse Testing', (
 });
 
 // Keep this test always at the END **** otherwise it may break all your cases
-describe('POST /api/auth/login Block Login attempts after exceeding', () => {
+describe('POST /api/auth/login - rate limiting', () => {
 
     beforeEach(async () => {
         await clearTestDB();
@@ -481,7 +481,7 @@ describe('POST /api/auth/login Block Login attempts after exceeding', () => {
         return request(app).post('/api/auth/login').send(payload)
     }
 
-    it("Should block login attempts after exceeding rate limit (Brute-Force Defence) ", async () => {
+    it("blocks further login attempts after the rate limit is reached", async () => {
 
         for (let i = 0; i <= 10; i++) {
             await LoginUser({ email: testUser.email, password: "WrongPassword" });

@@ -26,7 +26,7 @@ const renderComponent = () => render(
     </MemoryRouter>
 )
 
-describe("Setting Presentation Layout of Dashboard and Actions verification Suite", () => {
+describe("Dashboard content and report workflows", () => {
     beforeEach(() => {
         vi.clearAllMocks()
         useUser.setState({
@@ -39,7 +39,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         });
     });
 
-    it("Should display the primary typography labels and interactive fields clearly on Dashboard", () => {
+    it("renders the dashboard heading and primary actions", () => {
         renderComponent();
 
         expect(screen.getByRole('heading', { name: /^dashboard$/i })).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it("Should Process the user submitted image for analysis smoothly", async () => {
+    it("analyzes an image selected for a disaster report", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -87,7 +87,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it("Should Process an User Submitted Report and create alert", async () => {
+    it("submits a disaster report and displays the resulting alert", async () => {
         const user = userEvent.setup();
         renderComponent();
 
@@ -141,7 +141,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it("Should Process the Filter Functionality as expected Smoothly", async () => {
+    it("filters dashboard alerts by the selected disaster criteria", async () => {
         const user = userEvent.setup();
         renderComponent();
 

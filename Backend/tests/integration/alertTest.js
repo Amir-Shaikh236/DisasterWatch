@@ -114,14 +114,14 @@ const adminRegister = async (payload) => {
     return res;
 }
 
-describe('GET /api/alerts/get Flow and Verification of Data', () => {
+describe('GET /api/alerts/get - retrieve alerts', () => {
 
-    it('Should return 404 if Alerts length is 0', async () => {
+    it('returns 404 when no alerts are available', async () => {
         const alertRes = await getAlerts().expect(404)
         expect(alertRes.body.message).toMatch(/No Alerts Yet!/i)
     });
 
-    it('Should Returns all the alerts for all the users', async () => {
+    it('returns alerts to an authenticated user', async () => {
         const reportRes = await postReport(report).expect(201);
 
         const alertRes = await getAlerts().expect(200);
@@ -154,7 +154,7 @@ describe('GET /api/alerts/get Flow and Verification of Data', () => {
 
     });
 
-    it("Should return 401 if user don't have valid credentials", async () => {
+    it('rejects requests without valid authentication', async () => {
         const invalidUser = request(app).get('/api/alerts/getAlerts').expect(401);
         expect((await invalidUser).body.message).toMatch(/Access Denied, Authorization token missing or invalid format/i);
 
@@ -162,9 +162,9 @@ describe('GET /api/alerts/get Flow and Verification of Data', () => {
 
 });
 
-describe('POST /api/alerts/delete/:id flow and verification for security', () => {
+describe('POST /api/alerts/delete/:id - delete alerts', () => {
 
-    it('Should Delete Alert along with assets and reports', async () => {
+    it('deletes an alert and its related assets and reports', async () => {
         const reportRes = await postReport(report).expect(201);
         const alertId = reportRes.body?.alert._id;
         const reportId = reportRes.body.report._id;
@@ -180,7 +180,7 @@ describe('POST /api/alerts/delete/:id flow and verification for security', () =>
 
     });
 
-    it("Shouldn't Delete Alert Because of unAuthorized User", async () => {
+    it('prevents an unauthorized user from deleting an alert', async () => {
         const reportRes = await postReport(report).expect(201);
         const alertId = reportRes.body.alert._id;
         const newUser = await fakeUser({ ...testUser, email: 'fake@gmail.com' }).expect(201);
@@ -190,13 +190,13 @@ describe('POST /api/alerts/delete/:id flow and verification for security', () =>
         expect(deleteRes.body.message).toMatch(/Access Denied, You must be owner of the report or admin to perform this action/i)
     });
 
-    it('Should return 404 error for Providing Non-existed alertId', async () => {
+    it('returns 404 when the alert does not exist', async () => {
         const deleteRes = await deleteAlert('6ac26f166eddaf49c2de046d', accessToken);
         expect(deleteRes.status).toBe(404);
         expect(deleteRes.body.message).toMatch(/Alert Not Found/i);
     });
 
-    it('Should Delete Alert with Admin Credentials', async () => {
+    it('allows an admin to delete an alert', async () => {
         const reportRes = await postReport(report).expect(201);
         const alertId = reportRes.body.alert._id;
 

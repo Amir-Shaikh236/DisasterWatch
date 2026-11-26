@@ -3,7 +3,7 @@
 import { expect, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
-test.describe.serial('Login Authentication Flow', () => {
+test.describe.serial('Login form and authentication', () => {
 
     let testUser;
 
@@ -81,7 +81,7 @@ test.describe.serial('Login Authentication Flow', () => {
         });
     });
 
-    test('logs in successfully and redirects to the dashboard', async ({ page }) => {
+    test('authenticates valid credentials and opens the dashboard', async ({ page }) => {
 
         // enter valid email
         await page.getByLabel(/email/i).fill(testUser.email)
@@ -109,7 +109,7 @@ test.describe.serial('Login Authentication Flow', () => {
 
     });
 
-    test('rejects incorrect credentials and keeps the login button enabled', async ({ page }) => {
+    test('shows an error for incorrect credentials and allows another attempt', async ({ page }) => {
 
         // Locate elements purely via user-facing accessible labels, never fragile CSS selectors
         await page.getByLabel(/email/i).fill('wrong.user@disasterWatch.io')
@@ -128,7 +128,7 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('shows a validation error for an invalid email format', async ({ page }) => {
+    test('rejects an email address with an invalid format', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill('wrong.userdisasterWatch.io')
         await page.getByLabel(/password/i).fill('InvalidPassowrd123!')
@@ -140,7 +140,7 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(submitBtn).toBeEnabled();
     });
 
-    test('shows a validation error when the email field is empty', async ({ page }) => {
+    test('requires an email address before login', async ({ page }) => {
         await page.getByLabel(/email/i).fill('')
         await page.getByLabel(/password/i).fill('SecurePassword123!')
         await page.getByRole('button', { name: /login/i }).click()
@@ -148,7 +148,7 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(page.getByText(/Invalid Email Address/i)).toBeVisible();
     });
 
-    test('shows a validation error for a password shorter than eight (8) characters', async ({ page }) => {
+    test('requires a password with at least eight characters', async ({ page }) => {
         await page.getByLabel(/email/i).fill(testUser.email)
         await page.getByLabel(/password/i).fill('secu')
         await page.getByRole('button', { name: /login/i }).click()
@@ -156,14 +156,14 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
-    test('shows a validation error when the password is empty', async ({ page }) => {
+    test('requires a password before login', async ({ page }) => {
         await page.getByLabel(/email/i).fill(testUser.email)
         await page.getByRole('button', { name: /login/i }).click()
 
         await expect(page.getByText(/Password must be at least 8 characters/i)).toBeVisible();
     });
 
-    test('navigates from the login page to the registration page', async ({ page }) => {
+    test('opens the registration page from the login form', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /Log in/i })
         expect(loginHeader).toBeVisible();
 
@@ -175,7 +175,7 @@ test.describe.serial('Login Authentication Flow', () => {
 
     });
 
-    test('disables the login button while authentication is processing', async ({ page }) => {
+    test('disables the login button while the request is pending', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill(testUser.email)
 
@@ -189,7 +189,7 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(page.getByText(/Logged in successfully/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('sends only one login request after a double click', async ({ page }) => {
+    test('submits only one login request when the button is double-clicked', async ({ page }) => {
 
         let loginRequests = 0;
 
@@ -214,7 +214,7 @@ test.describe.serial('Login Authentication Flow', () => {
 
     });
 
-    test('shows a server error and re-enables the login button', async ({ page }) => {
+    test('displays a server error and re-enables the login button', async ({ page }) => {
         await page.route('**/api/auth/login', async route => {
             await new Promise(resolve => setTimeout(resolve, 500));
             await route.fulfill({
@@ -249,7 +249,7 @@ test.describe.serial('Login Authentication Flow', () => {
         await expect(loginBtn).toBeEnabled();
     });
 
-    test('sends the expected email and password in the login request', async ({ page }) => {
+    test('sends the entered email and password to the login endpoint', async ({ page }) => {
 
         const requestPromise = page.waitForRequest(request =>
             request.method() === 'POST' && request.url().includes('/api/auth/login')
@@ -269,7 +269,7 @@ test.describe.serial('Login Authentication Flow', () => {
         expect(actualPayload).toEqual({ email: testUser.email, password: testUser.password })
     });
 
-    test('preserves a valid login session after reloading the dashboard', async ({ page }) => {
+    test('keeps the user authenticated after reloading the dashboard', async ({ page }) => {
 
         await page.getByLabel(/email/i).fill(testUser.email)
 
@@ -291,7 +291,7 @@ test.describe.serial('Login Authentication Flow', () => {
 
 });
 
-test.describe.serial('Registration Authentication Flow', () => {
+test.describe.serial('Registration form and account creation', () => {
 
     let testUser;
 
@@ -342,7 +342,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         });
     });
 
-    test('registers successfully and redirects to the dashboard', async ({ page }) => {
+    test('creates an account and opens the dashboard', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -376,7 +376,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the first name is empty', async ({ page }) => {
+    test('requires a first name', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill(testUser.lastName)
 
@@ -393,7 +393,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the first name is below the minimum length', async ({ page }) => {
+    test('rejects a first name shorter than the minimum length', async ({ page }) => {
 
         await page.getByLabel('First Name').fill('Ami')
         await page.getByLabel('Last Name').fill('Amir')
@@ -401,7 +401,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the first name exceeds the maximum length', async ({ page }) => {
+    test('rejects a first name longer than the maximum length', async ({ page }) => {
 
         await page.getByLabel('First Name').fill('12345678901234587')
         await page.getByLabel('Last Name').fill('Amir')
@@ -409,7 +409,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the last name is empty', async ({ page }) => {
+    test('requires a last name', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -426,7 +426,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the last name is below the minimum length', async ({ page }) => {
+    test('rejects a last name shorter than the minimum length', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill('Ami')
         await page.getByLabel(/email/i).fill(testUser.email)
@@ -434,7 +434,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when the last name exceeds the maximum length', async ({ page }) => {
+    test('rejects a last name longer than the maximum length', async ({ page }) => {
 
         await page.getByLabel('Last Name').fill('123456789012345891')
         await page.getByLabel('First Name').fill('Amir')
@@ -442,7 +442,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows validation errors for all empty required fields', async ({ page }) => {
+    test('reports missing values for all required registration fields', async ({ page }) => {
 
         const registerBtn = page.locator('form button[type="submit"]')
         // press button
@@ -454,7 +454,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows a validation error for an invalid registration email', async ({ page }) => {
+    test('rejects an email address with an invalid format', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -467,7 +467,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('rejects registration with an existing email address', async ({ page, request }) => {
+    test('prevents account creation with an already registered email', async ({ page, request }) => {
 
         await request.post(`${backendBaseURL}/api/auth/register`, {
             data: {
@@ -496,7 +496,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         await expect(page.getByText(/User with this email already exist/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('shows an error when password confirmation does not match', async ({ page }) => {
+    test('requires the password confirmation to match the password', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -515,7 +515,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows an error when password confirmation is empty', async ({ page }) => {
+    test('requires a password confirmation', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -533,7 +533,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('shows a validation error for a password shorter than eight characters', async ({ page }) => {
+    test('rejects a password shorter than eight characters', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -547,7 +547,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
     });
 
-    test('disables the registration button while submission is processing', async ({ page }) => {
+    test('disables the registration button while the request is pending', async ({ page }) => {
 
         await page.getByLabel('First Name').fill(testUser.firstName)
 
@@ -567,7 +567,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         await expect(page.getByText(/Admin User account created successfully!/i)).toBeVisible({ timeout: 15000 });
     });
 
-    test('sends only one registration request after a double click', async ({ page }) => {
+    test('submits only one registration request when the button is double-clicked', async ({ page }) => {
 
         let registrationRequests = 0;
 
@@ -598,7 +598,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         expect(registrationRequests).toBe(1);
     });
 
-    test('sends the expected registration fields in the request payload', async ({ page }) => {
+    test('sends the entered registration fields to the registration endpoint', async ({ page }) => {
 
         const requestPromise = page.waitForRequest(request =>
             request.method() === 'POST' && request.url().includes('/api/auth/register')
@@ -624,7 +624,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         expect(actualPayload).not.toHaveProperty('confirmPassword');
     });
 
-    test('shows a server error and re-enables the registration button', async ({ page }) => {
+    test('displays a server error and re-enables the registration button', async ({ page }) => {
         await page.route('**/api/auth/register', async route => {
             await new Promise(resolve => setTimeout(resolve, 500));
             await route.fulfill({
@@ -662,7 +662,7 @@ test.describe.serial('Registration Authentication Flow', () => {
         await expect(registerBtn).toBeEnabled();
     });
 
-    test('navigates from the registration page to the login page', async ({ page }) => {
+    test('opens the login page from the registration form', async ({ page }) => {
         const loginHeader = page.getByRole('heading', { name: /create your account/i })
         expect(loginHeader).toBeVisible();
 
@@ -676,7 +676,7 @@ test.describe.serial('Registration Authentication Flow', () => {
 
 });
 
-test.describe.serial('Setting and User Data Update Testing', () => {
+test.describe.serial('Settings, location sharing, and access control', () => {
 
     let settingsAccessToken;
 
@@ -787,7 +787,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
     });
 
-    test('Verifying Setting Component with all interactive fields', async ({ page }) => {
+    test('renders the settings page and its interactive controls', async ({ page }) => {
         await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
 
         await expect(page.getByRole('link', { name: /DisasterWatch/i })).toBeVisible();
@@ -803,7 +803,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(page.getByRole('switch')).toBeVisible()
     });
 
-    test('Disables notification sharing with the location-sharing switch', async ({ page }) => {
+    test('disables notification sharing when location sharing is turned off', async ({ page }) => {
         const settingLink = page.getByRole('link', { name: 'Setting' })
         await expect(settingLink).toBeVisible();
         await settingLink.click()
@@ -823,7 +823,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
     });
 
-    test('Enables notification sharing with the location-sharing switch', async ({ page, context }) => {
+    test('enables notification sharing when location sharing is turned on', async ({ page, context }) => {
         await context.grantPermissions(['geolocation', 'notifications'], {
             origin: 'http://localhost:5173'
         });
@@ -864,7 +864,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
-    test('Switch (Enabled/Disabled) persist across page reloads', async ({ page, context }) => {
+    test('persists the location-sharing preference after a page reload', async ({ page, context }) => {
         await context.grantPermissions(['geolocation', 'notifications'], {
             origin: 'http://localhost:5173'
         });
@@ -885,6 +885,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await page.evaluate(overrides => {
             window.__DISASTERWATCH_E2E__ = overrides;
         }, testOverrides);
+
         await page.addInitScript(overrides => {
             window.__DISASTERWATCH_E2E__ = overrides;
         }, testOverrides);
@@ -920,7 +921,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
-    test('sends location coordinates when enabling location sharing', async ({ page, context }) => {
+    test('sends the current coordinates when location sharing is enabled', async ({ page, context }) => {
 
         const requestPromise = page.waitForRequest(request =>
             request.method() === 'POST' &&
@@ -997,7 +998,7 @@ test.describe.serial('Setting and User Data Update Testing', () => {
 
     });
 
-    test('Authorized User can Access BUT Unauthorized User Cannot Accesss Setting Page', async ({ page }) => {
+    test('allows an authenticated user to access settings and redirects unauthenticated users', async ({ page }) => {
         page.goto('/setting')
 
         await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });

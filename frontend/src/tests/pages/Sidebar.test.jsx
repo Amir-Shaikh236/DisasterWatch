@@ -28,9 +28,9 @@ const renderComponent = () => render(
     </AuthContext.Provider>
 )
 
-describe("Setting Presentation Layout of Dashboard and Actions verification Suite", () => {
+describe("Sidebar navigation and account actions", () => {
 
-    it("Should display the primary typography labels and interactive fields clearly on Dashboard", () => {
+    it("renders the dashboard and primary navigation links", () => {
         renderComponent();
 
         expect(screen.getByRole('link', { name: /disasterWatch/i })).toBeInTheDocument()
@@ -41,7 +41,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it('Should bring user to the Dashbaord (Defauld route) after clicking on logo', async () => {
+    it("navigates to the dashboard when the application logo is selected", async () => {
         const user = userEvent.setup()
         renderComponent();
 
@@ -71,7 +71,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it('Should redirect the user to the Dashboard Page', async () => {
+    it("navigates to the dashboard from the sidebar", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -89,7 +89,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
     });
 
-    it('Should redirect the user to the Alert Page', async () => {
+    it("navigates to the alerts page from the sidebar", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -107,7 +107,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
     });
 
-    it('Should redirect the user to the Report Page', async () => {
+    it("navigates to the reports page from the sidebar", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -125,7 +125,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /Setting/i })).not.toHaveAttribute('data-active')
     });
 
-    it('Should redirect the user to the Setting Page', async () => {
+    it("navigates to the settings page from the sidebar", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -143,7 +143,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(screen.getByRole('link', { name: /My Report/i })).not.toHaveAttribute('data-active')
     });
 
-    it('Should redirect the user on the correct path always', async () => {
+    it("marks the current route as active in the sidebar", async () => {
         const user = userEvent.setup()
         renderComponent()
 
@@ -178,7 +178,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(await screen.findByRole('heading', { name: /dashboard/i }))
     });
 
-    it("opens the profile menu for primary typography labels and interactive fields", async () => {
+    it("opens the profile menu and displays account actions", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -210,7 +210,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
         expect(await screen.findByRole("menuitem", { name: /Log Out/i })).toBeInTheDocument();
     });
 
-    it("should Redirect the User to the setting Page after clickin Profile setting from user profile", async () => {
+    it("navigates to settings from the profile menu", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -237,7 +237,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it("should Redirect the User to the Report Page after clickin My Report History from user profile", async () => {
+    it("navigates to report history from the profile menu", async () => {
         useUser.getState().setUser({
             firstName: "Amir",
             lastName: "Shaikh",
@@ -264,7 +264,7 @@ describe("Setting Presentation Layout of Dashboard and Actions verification Suit
 
     });
 
-    it('Should LogOut the user and redirect to Login Page', async () => {
+    it("logs out the user and navigates to the login page", async () => {
         const clearSession = vi.fn();
 
         useUser.getState().setUser({

@@ -25,7 +25,7 @@ const renderComponent = () => render(
     </MemoryRouter>
 );
 
-describe("Setting Presentation Layout of Setting and Actions verification Suite", () => {
+describe("Settings and location sharing", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         useUser.setState({
@@ -38,7 +38,7 @@ describe("Setting Presentation Layout of Setting and Actions verification Suite"
         });
     });
 
-    it("should update user location in the database when location sharing is enabled", async () => {
+    it("saves the user's location when location sharing is enabled", async () => {
         const user = userEvent.setup();
         const updateUser = vi.spyOn(privateClient, "post").mockResolvedValue({
             data: { status: "success" },
@@ -79,4 +79,5 @@ describe("Setting Presentation Layout of Setting and Actions verification Suite"
         expect(screen.getByText(/Sharing Disabled/i)).toBeInTheDocument();
 
     });
+
 });

@@ -23,14 +23,14 @@ const renderLoginComponent = (mockUpdateToken = vi.fn()) => {
     );
 };
 
-describe("Login Presentation Layout of Login Page & Action Verification Suite", () => {
+describe("Login page validation and authentication", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
         vi.restoreAllMocks();
     });
 
-    it("Should display the primary typography labels and interactive fields clearly on mount", () => {
+    it("renders the login form and its primary fields", () => {
         renderLoginComponent();
 
         // 1. Assert semantic heading text exists in the document flow
@@ -42,7 +42,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
         expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     });
 
-    it("Should process valid user credentials smoothly and trigger the state context method and re-direct to Dashboard", async () => {
+    it("authenticates valid credentials and navigates to the dashboard", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
         const fakeJwt = "mock.access.token.jwt"
@@ -77,7 +77,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
         expect(await screen.findByRole('heading', { name: /Dashboard/i })).toBeInTheDocument()
     });
 
-    it("Should show the 401 error for incorrect email or password", async () => {
+    it("shows an authentication error when the credentials are incorrect", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 
@@ -92,7 +92,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
 
     });
 
-    it("Should show the 400 error for Not Providing and using invalid format of email", async () => {
+    it("rejects an empty or malformed email address", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 
@@ -103,7 +103,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
         expect(mockUpdateToken).not.toHaveBeenCalled();
     });
 
-    it("Should show the 400 error for Not Providing or missing length of Password", async () => {
+    it("rejects an empty or too-short password", async () => {
         const mockUpdateToken = vi.fn();
         const user = userEvent.setup();
 
@@ -116,7 +116,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
         expect(mockUpdateToken).not.toHaveBeenCalled();
     });
 
-    it('Should block login attempts after exceeding rate limit (Brute-Force Defence)', async () => {
+    it("blocks further login attempts after the rate limit is reached", async () => {
         const user = userEvent.setup();
         renderLoginComponent();
 
@@ -140,7 +140,7 @@ describe("Login Presentation Layout of Login Page & Action Verification Suite", 
         expect(await screen.findByText(/Too many login attempts, Please try again after 15mins/i)).toBeInTheDocument();
     }, 30000);
 
-    it("Should Move to Registration Page After Clicking on Register", async () => {
+    it("navigates to registration when the register link is selected", async () => {
         const user = userEvent.setup();
         renderLoginComponent();
 

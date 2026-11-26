@@ -33,12 +33,12 @@ const renderComponent = (mockUpdateToken = vi.fn()) => {
     }
 };
 
-describe("Register Presentation Layout of SignUp Page and Action verification Suite", () => {
+describe("Registration form validation and account creation", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
     });
 
-    it("Should display the primary typography labels and interactive fields clearly on mount", () => {
+    it("renders the registration form and its primary fields", () => {
         const elements = renderComponent();
 
         expect(screen.getByRole('heading', { name: /Create Your Account/i })).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(elements.submitButton).toBeInTheDocument();
     });
 
-    it("Should Register User Successfully with accessToken", async () => {
+    it("creates an account and stores the returned access token", async () => {
         const mockUpdateToken = vi.fn();
         const fakeJwt = "mock.access.token.jwt"
         const user = userEvent.setup();
@@ -75,7 +75,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Reject and Show First Name is Required for leaving empty or just 1 character", async () => {
+    it("requires a first name that meets the minimum length", async () => {
         const user = userEvent.setup();
 
         const elements = renderComponent();
@@ -91,7 +91,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(elements.submitButton).toBeEnabled();
     });
 
-    it("Should Reject and Show Name cannot exceed 15 characters", async () => {
+    it("rejects a name longer than 15 characters", async () => {
         const user = userEvent.setup();
 
         const elements = renderComponent();
@@ -107,7 +107,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(elements.submitButton).toBeEnabled();
     });
 
-    it("Should Reject and Show atleast 8 characters for password", async () => {
+    it("requires a password of at least eight characters", async () => {
         const user = userEvent.setup();
 
         const elements = renderComponent();
@@ -122,7 +122,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(await screen.findByText(/Password must be atleast 8 characters long/i)).toBeInTheDocument();
     });
 
-    it("Should Reject and Show Confirm password must match Password", async () => {
+    it("requires the password confirmation to match the password", async () => {
         const user = userEvent.setup();
 
         const elements = renderComponent();
@@ -138,7 +138,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(elements.submitButton).toBeEnabled();
     });
 
-    it("Should Reject and Show Invalid Email Format....", async () => {
+    it("rejects an invalid email address", async () => {
         const user = userEvent.setup();
 
         const elements = renderComponent();
@@ -154,7 +154,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
         expect(elements.submitButton).toBeEnabled();
     });
 
-    it("Should Return User with this email already exists", async () => {
+    it("shows an error when the email address is already registered", async () => {
         const mockUpdateToken = vi.fn();
         const fakeJwt = "mock.access.token.jwt"
         const user = userEvent.setup();
@@ -189,7 +189,7 @@ describe("Register Presentation Layout of SignUp Page and Action verification Su
 
     });
 
-    it("Should Move to Login Page After Clicking on Register", async () => {
+    it("navigates to login when the login link is selected", async () => {
         const user = userEvent.setup();
         renderComponent();
 
