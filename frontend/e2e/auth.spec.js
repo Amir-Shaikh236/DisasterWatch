@@ -1111,4 +1111,42 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
 
     });
 
+    test('Logout invalidates the token (refresh token cannot be re-used)', async ({ page, request }) => {
+
+        const cookie = (await page.context().cookies(
+            `${backendBaseURL}/api/auth/refresh`
+        )).find(({ name }) => name === 'refreshToken');
+
+        expect(cookie, 'login should set a refresh-token cookie').toBeDefined()
+        if (!cookie) throw new Error('Refresh-token cookie was not set');
+
+        const oldRefreshToken = cookie.value;
+
+
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await expect(page).toHaveURL(/\/dashboard$/)
+
+        await LogOutBtn.click()
+
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+        const refreshResponse = await request.post(`${backendBaseURL}/api/auth/refresh`, {
+            headers: { cookie: `refreshToken=${oldRefreshToken}` },
+            failOnStatusCode: false
+        });
+
+        await expect(page).not.toHaveURL(/\/dashboard$/)
+        await expect(page).toHaveURL('/');
+        expect(refreshResponse.status()).toBe(403)
+    });
+
 });
