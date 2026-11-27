@@ -949,24 +949,32 @@ test.describe.serial('Settings, location sharing, and access control', () => {
     });
 
     test('allows an authenticated user to access settings and redirects unauthenticated users', async ({ page }) => {
-        page.goto('/setting')
+        await page.goto('/setting')
 
         await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
         await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
         await expect(page.getByRole('switch')).toBeVisible()
 
-        const MenuBtn = page.getByText(/Admin User/i)
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
         await MenuBtn.click();
 
-        await expect(page.getByText(/Log Out/i)).toBeVisible();
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
 
-        await page.getByText(/Log Out/i).click();
+        const logoutResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/logout')
+        );
 
-        // User have to Login Again to get access of the Page
+        await LogOutBtn.click()
+        const logoutResponse = await logoutResponsePromise;
+        expect(logoutResponse.status()).toBe(200);
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
 
-        page.goto('/setting')
+        await page.goto('/setting')
 
-        await expect(page).not.toHaveURL(/\/setting$/)
+        await expect(page).toHaveURL('/');
         await expect(page.getByRole('heading', { name: /Settings/i })).not.toBeVisible()
     });
 
@@ -1053,6 +1061,28 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
 
         const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
         await expect(LogOutBtn).toBeVisible();
+    });
+
+    test('User will be logged Out when Click on Button', async ({ page }) => {
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await expect(page).toHaveURL(/\/dashboard$/)
+        const logoutResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/logout')
+        );
+        await LogOutBtn.click()
+
+        const logoutResponse = await logoutResponsePromise;
+        expect(logoutResponse.status()).toBe(200);
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
     });
 
 });

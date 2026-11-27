@@ -91,8 +91,9 @@ const refreshToken = async (req, res, next) => {
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: "strict",
-      path: "/api/auth/refresh",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      path: "/api/auth",
     });
 
     let decoded;
@@ -155,8 +156,9 @@ const logout = async (req, res, next) => {
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: true,
-      path: "/api/auth/refresh",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      path: "/api/auth",
     });
 
     res.status(200).json({ status: "success", message: "logout successfully" });

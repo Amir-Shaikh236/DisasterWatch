@@ -4,7 +4,7 @@ import { LayoutDashboard, TriangleAlert, FileText, Settings, LogOut, User2, Chev
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthContext } from "@/store/AuthProvider";
-import { publicClient } from "@/api/api";
+import { privateClient } from "@/api/api";
 import { useContext, useState } from "react";
 import { useUser } from "@/store/useUser";
 import Logo from "@/assets/logo2.png"
@@ -29,7 +29,7 @@ export default function AppSidebar() {
 
         setIsLoggingOut(true);
 
-        const logoutPromise = publicClient.post('/api/auth/logout');
+        const logoutPromise = privateClient.post('/api/auth/logout');
 
         toast.promise(logoutPromise, {
             loading: 'Terminating Sessions...',
