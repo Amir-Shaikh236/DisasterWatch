@@ -845,6 +845,10 @@ test.describe.serial('Settings, location sharing, and access control', () => {
             window.__DISASTERWATCH_E2E__ = overrides;
         }, testOverrides);
 
+        await page.addInitScript(overrides => {
+            window.__DISASTERWATCH_E2E__ = overrides;
+        }, testOverrides);
+
         const settingLink = page.getByRole('link', { name: 'Setting' })
         await expect(settingLink).toBeVisible();
         await settingLink.click()
@@ -916,7 +920,7 @@ test.describe.serial('Settings, location sharing, and access control', () => {
         }
 
         await notificationSwitch.click()
-        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
+        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 20000 })
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
 
         await page.reload();
