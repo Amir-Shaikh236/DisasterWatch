@@ -1072,14 +1072,40 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         await expect(LogOutBtn).toBeVisible();
 
         await expect(page).toHaveURL(/\/dashboard$/)
+        await LogOutBtn.click()
+
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+    });
+
+    test('Loading State and Response Status on Click logout', async ({ page }) => {
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await expect(page).toHaveURL(/\/dashboard$/)
         const logoutResponsePromise = page.waitForResponse(response =>
             response.url().includes('/api/auth/logout')
         );
+
+        await page.route('**/api/auth/logout', async route => {
+            await new Promise(resolve => setTimeout(resolve, 250));
+            await route.continue();
+        });
+
         await LogOutBtn.click()
 
+        await expect(page.getByText(/Terminating Sessions/i)).toBeVisible();
         const logoutResponse = await logoutResponsePromise;
         expect(logoutResponse.status()).toBe(200);
+
         await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+
         await expect(page).toHaveURL('/');
         await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
 
