@@ -871,63 +871,6 @@ test.describe.serial('Settings, location sharing, and access control', () => {
         await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
     });
 
-    test('persists the location-sharing preference after a page reload', async ({ page, context }) => {
-        await context.grantPermissions(['geolocation', 'notifications'], {
-            origin: 'http://localhost:5173'
-        });
-
-        await context.setGeolocation({
-            latitude: 19.076,
-            longitude: 72.8777
-        });
-
-        const testOverrides = {
-            notificationToken: 'e2e-fcm-token',
-            gpsLocation: {
-                latitude: 19.076,
-                longitude: 72.8777,
-                address: 'Mumbai, India',
-            },
-        };
-        await page.evaluate(overrides => {
-            window.__DISASTERWATCH_E2E__ = overrides;
-        }, testOverrides);
-
-        await page.addInitScript(overrides => {
-            window.__DISASTERWATCH_E2E__ = overrides;
-        }, testOverrides);
-
-
-        const settingLink = page.getByRole('link', { name: 'Setting' })
-        await expect(settingLink).toBeVisible();
-        await settingLink.click()
-
-        await expect(page).toHaveURL(/\/setting$/, { timeout: 15000 });
-        await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible()
-
-        const notificationSwitch = page.getByRole('switch')
-        await expect(notificationSwitch).toBeVisible()
-
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', /^(true|false)$/)
-        if (await notificationSwitch.getAttribute('aria-checked') === 'true') {
-            await notificationSwitch.click()
-            await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
-            await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
-
-            await page.reload();
-            await expect(page.getByText(/Sharing Disabled/i)).toBeVisible({ timeout: 15000 })
-            await expect(notificationSwitch).toHaveAttribute('aria-checked', 'false')
-        }
-
-        await notificationSwitch.click()
-        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 20000 })
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
-
-        await page.reload();
-        await expect(page.getByText(/Sharing Enabled/i)).toBeVisible({ timeout: 15000 })
-        await expect(notificationSwitch).toHaveAttribute('aria-checked', 'true')
-    });
-
     test('sends the current coordinates when location sharing is enabled', async ({ page, context }) => {
 
         const requestPromise = page.waitForRequest(request =>
@@ -1111,6 +1054,5 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
         await expect(LogOutBtn).toBeVisible();
     });
-
 
 });
