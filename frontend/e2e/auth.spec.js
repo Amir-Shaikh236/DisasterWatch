@@ -1103,4 +1103,14 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15000 });
     });
 
+    test('Identifying the required interactive fields are accessible', async ({ page }) => {
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+    });
+
+
 });
