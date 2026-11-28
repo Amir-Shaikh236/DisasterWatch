@@ -1097,4 +1097,36 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
 
     });
 
+    test("Repeated Click don't send duplicate requests", async ({ page }) => {
+
+        let logoutRequest = 0
+
+        page.on('request', request => {
+            if (request.method() === 'POST' && request.url().includes('/api/auth/logout')) logoutRequest++;
+        });
+
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await expect(page).toHaveURL(/\/dashboard$/)
+        const logoutResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/api/auth/logout')
+        );
+        await LogOutBtn.dblclick()
+
+        const logoutResponse = await logoutResponsePromise;
+        expect(logoutResponse.status()).toBe(200);
+        expect(logoutRequest).toBe(1)
+
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+    });
+
 });
