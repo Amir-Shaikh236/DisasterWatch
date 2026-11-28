@@ -1129,4 +1129,24 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
 
     });
 
+    test('Logout works from another signed-in route', async ({ page }) => {
+        await expect(page).toHaveURL(/\/dashboard$/)
+        await page.goto('/reports')
+        await expect(page).toHaveURL(/\/reports$/)
+
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await LogOutBtn.click()
+
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+    });
+
 });
