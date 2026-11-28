@@ -1066,4 +1066,35 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         expect(refreshResponse.status()).toBe(403)
     });
 
+    test('Protected Pages stay Protected', async ({ page }) => {
+        const MenuBtn = page.getByRole('button', { name: /Admin User/i })
+        await expect(MenuBtn).toBeVisible();
+        await MenuBtn.click();
+
+        const LogOutBtn = page.getByRole('menuitem', { name: /Log Out/i })
+        await expect(LogOutBtn).toBeVisible();
+
+        await expect(page).toHaveURL(/\/dashboard$/)
+
+        await LogOutBtn.click()
+
+        await expect(page.getByText(/Logged Out Successfully/i)).toBeVisible();
+
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+        await page.goto('/setting')
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+        await page.goto('/dashboard')
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+        await page.goto('/alerts')
+        await expect(page).toHaveURL('/');
+        await expect(page.getByRole('heading', { name: /Log in/i })).toBeVisible();
+
+    });
+
 });
