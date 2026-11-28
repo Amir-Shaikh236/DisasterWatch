@@ -3,29 +3,29 @@
 import { expect, test } from "@playwright/test";
 const backendBaseURL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
+let testUser;
+
+const clearAll = async (request) => {
+    const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
+        data: { email: testUser.email, password: testUser.password },
+        failOnStatusCode: false,
+    });
+
+    if (loginResponse.status() !== 200) return;
+
+    const { accessToken } = await loginResponse.json();
+    const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
+        data: { email: testUser.email },
+        headers: { Authorization: `Bearer ${accessToken}` },
+        failOnStatusCode: false,
+    });
+
+    if (![200, 404].includes(deleteResponse.status())) {
+        throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
+    }
+};
+
 test.describe.serial('Login form and authentication', () => {
-
-    let testUser;
-
-    const clearAll = async (request) => {
-        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
-            data: { email: testUser.email, password: testUser.password },
-            failOnStatusCode: false,
-        });
-
-        if (loginResponse.status() !== 200) return;
-
-        const { accessToken } = await loginResponse.json();
-        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
-            headers: { Authorization: `Bearer ${accessToken}` },
-            failOnStatusCode: false,
-        });
-
-        if (![200, 404].includes(deleteResponse.status())) {
-            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
-        }
-    };
 
     test.beforeAll(async ({ request }) => {
 
@@ -39,13 +39,7 @@ test.describe.serial('Login form and authentication', () => {
         await clearAll(request);
 
         const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
-            data: {
-                firstName: testUser.firstName,
-                lastName: testUser.lastName,
-                email: testUser.email,
-                password: testUser.password,
-            },
-
+            data: testUser,
             failOnStatusCode: false,
         });
 
@@ -292,28 +286,6 @@ test.describe.serial('Login form and authentication', () => {
 });
 
 test.describe.serial('Registration form and account creation', () => {
-
-    let testUser;
-
-    const clearAll = async (request) => {
-        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
-            data: { email: testUser.email, password: testUser.password },
-            failOnStatusCode: false,
-        });
-
-        if (loginResponse.status() !== 200) return;
-
-        const { accessToken } = await loginResponse.json();
-        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
-            headers: { Authorization: `Bearer ${accessToken}` },
-            failOnStatusCode: false,
-        });
-
-        if (![200, 404].includes(deleteResponse.status())) {
-            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
-        }
-    };
 
     test.beforeAll(async ({ request }) => {
 
@@ -676,31 +648,9 @@ test.describe.serial('Registration form and account creation', () => {
 
 });
 
-test.describe.serial('Settings, location sharing, and access control', () => {
+test.describe.serial('Settings, location sharing, and access control (User-Data Update)', () => {
 
     let settingsAccessToken;
-
-    let testUser;
-
-    const clearAll = async (request) => {
-        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
-            data: { email: testUser.email, password: testUser.password },
-            failOnStatusCode: false,
-        });
-
-        if (loginResponse.status() !== 200) return;
-
-        const { accessToken } = await loginResponse.json();
-        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
-            headers: { Authorization: `Bearer ${accessToken}` },
-            failOnStatusCode: false,
-        });
-
-        if (![200, 404].includes(deleteResponse.status())) {
-            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
-        }
-    };
 
     test.beforeAll(async ({ request }) => {
         testUser = {
@@ -713,12 +663,7 @@ test.describe.serial('Settings, location sharing, and access control', () => {
         await clearAll(request);
 
         const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
-            data: {
-                firstName: testUser.firstName,
-                lastName: testUser.lastName,
-                email: testUser.email,
-                password: testUser.password
-            },
+            data: testUser,
             failOnStatusCode: false,
         });
 
@@ -981,27 +926,6 @@ test.describe.serial('Settings, location sharing, and access control', () => {
 });
 
 test.describe.serial('Logout Functionality, Verification and Session Termination', () => {
-    let testUser;
-
-    const clearAll = async (request) => {
-        const loginResponse = await request.post(`${backendBaseURL}/api/auth/login`, {
-            data: { email: testUser.email, password: testUser.password },
-            failOnStatusCode: false,
-        });
-
-        if (loginResponse.status() !== 200) return;
-
-        const { accessToken } = await loginResponse.json();
-        const deleteResponse = await request.post(`${backendBaseURL}/api/auth/user/delete`, {
-            data: { email: testUser.email },
-            headers: { Authorization: `Bearer ${accessToken}` },
-            failOnStatusCode: false,
-        });
-
-        if (![200, 404].includes(deleteResponse.status())) {
-            throw new Error(`Failed to delete E2E test user: ${deleteResponse.status()} ${await deleteResponse.text()}`);
-        }
-    };
 
     test.beforeAll(async ({ request }) => {
 
@@ -1015,13 +939,7 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         await clearAll(request);
 
         const registerResponse = await request.post(`${backendBaseURL}/api/auth/register`, {
-            data: {
-                firstName: testUser.firstName,
-                lastName: testUser.lastName,
-                email: testUser.email,
-                password: testUser.password,
-            },
-
+            data: testUser,
             failOnStatusCode: false,
         });
 
@@ -1121,7 +1039,6 @@ test.describe.serial('Logout Functionality, Verification and Session Termination
         if (!cookie) throw new Error('Refresh-token cookie was not set');
 
         const oldRefreshToken = cookie.value;
-
 
         const MenuBtn = page.getByRole('button', { name: /Admin User/i })
         await expect(MenuBtn).toBeVisible();
